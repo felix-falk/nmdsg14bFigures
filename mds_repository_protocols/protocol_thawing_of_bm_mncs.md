@@ -38,3 +38,4 @@ Version: February 20th 2026
 1. “[Cell Thawing Protocols for Single Cell Assays, CG000447, Rev B](https://www.10xgenomics.com/support/universal-three-prime-gene-expression/documentation/steps/sample-prep/cell-thawing-protocols-for-single-cell-assays)” by 10x Genomics
 2. “KI_SOP_Freezing and thawing human and mouse cells” by Kari Högstrand and Ellen Markljung
 3. “[CHIP_034_HSPC_mature_CHIP_ddPCR_210325_PSW](https://www.nature.com/articles/s41588-025-02405-w)” by Tetsuichi Yoshizato and Petter Woll
+4. "[Coordinated immune networks in leukemia bone marrow microenvironments distinguish response to cellular therapy](https://www.science.org/doi/10.1126/sciimmunol.adr0782?url_ver=Z39.88-2003&rfr_id=ori:rid:crossref.org&rfr_dat=cr_pub%20%200pubmed)" by Katie Maurer et al.
