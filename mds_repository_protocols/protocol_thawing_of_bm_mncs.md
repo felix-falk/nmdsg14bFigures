@@ -1,10 +1,11 @@
+# Protocol: BM MNC Thawing
+
 Author: Felix Falk
 
 Version: February 20th 2026
 
 # Precautions
-- Never vortex thawed cells
-- Perform all cell washes at room temperature
+- Never vortex cells
 - Never use vacuum pump
 - Keep cells on ice and try to reduce time that cells are at a high concentration
 
@@ -12,15 +13,15 @@ Version: February 20th 2026
 - DNAse I ([STEMCELL Technologies, 15171507](https://www.fishersci.se/shop/products/dnase-i-solution-1-mg-ml/15171507#?keyword=DNase%20I%20stemcell))
 - dPBS [+]Ca2+, [+]Mg2+ ([Gibco, 14040133](https://www.thermofisher.com/order/catalog/product/14040133?SID=srch-srp-14040133))
 - dPBS [-]Mg2+ [-]Ca2+ ([Gibco, 14190-094](https://www.thermofisher.com/order/catalog/product/14190094))
-- FBS (Gibco, 1000500-064)
-- Trypan Blue, 0.4% (Sigma Aldrich, T8154-20mL)
+- FBS ([Gibco, 1000500-064](https://www.thermofisher.com/order/catalog/product/10500064))
+- Trypan Blue, 0.4% ([Sigma Aldrich, T8154-20mL](https://www.sigmaaldrich.com/SE/en/product/sigma/t8154))
 
 # Protocol
-1. Turn on the 37°C water bath and fume hood, and prepare thawing media and FACS buffer
-	- 50 ml thawing media
-		- 40 ml PBS [+]Ca2+, [+]Mg2+
-		- 10 ml FBS
-		- 5 mg DNase I
+1. Turn on the 37°C water bath and fume hood, and prepare thawing media and FACS buffer 
+	- 5 ml thawing media
+		- 4 ml PBS [+]Ca2+, [+]Mg2+
+		- 1 ml FBS
+		- 500 μg DNase I (100 μg/ml)
 	- 50 ml FACS buffer (Prepare on wet ice, store in 4°C)
 		- 49 ml PBS [-]Mg2+ [-]Ca2+
 		- 1 ml FBS
@@ -34,6 +35,7 @@ Version: February 20th 2026
 9. Dissolve 10 ul cells in 90 ul Trypan blue, and assess cell number and % viability with a hemocytometer. Cells/ml = Cells per large square * 10 (dilution factor) * 10 000 
 10. In biobank database, note which samples have been removed from the biobank, the cell number and % viability
 11. Proceed immediately to FACS and CITE-seq staining protocol
+
 # References
 1. “[Cell Thawing Protocols for Single Cell Assays, CG000447, Rev B](https://www.10xgenomics.com/support/universal-three-prime-gene-expression/documentation/steps/sample-prep/cell-thawing-protocols-for-single-cell-assays)” by 10x Genomics
 2. “KI_SOP_Freezing and thawing human and mouse cells” by Kari Högstrand and Ellen Markljung
