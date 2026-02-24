@@ -11,7 +11,7 @@ Latest revision: February 24th 2026
 - PBS [-]Mg2+ [-]Ca2+ (Gibco, 14190-094)
 - CS&T Beads ([BD Biosciences, 656504](https://www.bdbiosciences.com/en-se/products/reagents/flow-cytometry-reagents/clinical-diagnostics/process-and-quality-controls/cs-t-beads.656504?tab=product_details))
 - FACS Cleaning Solution ([BD Biosciences, 340345](https://www.bdbiosciences.com/en-se/products/instruments/flow-cytometers/research-cell-analyzers/accuri-c6-plus/bd-facs-cleaning-solution.340345?tab=product_details))
-- FACSRinse Solution (???)
+- FACS Detergent Solution (Replaces FACS Rinsing Solution) ([BD Biosciences, 660585](https://www.bdbiosciences.com/en-se/products/instruments/flow-cytometers/research-cell-sorters/accuri-c6-plus/bd-detergent-solution-concentrate.660585?tab=product_details))
 - FACSFlow Sheath Fluid ([BD Biosciences, 342003](https://www.bdbiosciences.com/en-se/products/instruments/flow-cytometers/research-cell-analyzers/facscanto-ii/sheath-fluid.342003?tab=product_details))
 # Protocol
 ## 1: Startup (Skip if the instrument is on standby)
@@ -24,7 +24,7 @@ Latest revision: February 24th 2026
 7. Start Diva and log in (BDAdmin or group account). Check that the connection to the instrument is established (this takes some time). If not, restart the computer, instrument and FACSFlow system. 
 8. Place the instrument on high flow rate and prime the instrument 3x with the sample injection port (SIP) arm open and no tube. Use a FACS tube with water to test if air is pushed out of the machine (bubbles should appear). 
 ## 2: Cleaning, Before Analysis
-1. Run water at high flow rate for 1 minute with the SIP arm open and 2 minutes with the SIP arm closed. Repeat the same with Clean, Rinse and water again. Acquire data during the clean to check that there is minimal debris. 
+1. Run 3 ml water at high flow rate for 1 minute with the SIP arm open and 2 minutes with the SIP arm closed. Repeat the same with 3ml cleaning solution, rinsing solution and water again. Acquire data during the clean to check that there is minimal debris. 
 ## 3: CST Beads (Skip if not first user of the day)
 1. Log in to Diva using the admin account, and navigate to the CST interface. 
 2. Note the CST lot number in the Diva software. 
