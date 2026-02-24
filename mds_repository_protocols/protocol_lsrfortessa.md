@@ -13,6 +13,7 @@ Latest revision: February 24th 2026
 - FACS Cleaning Solution ([BD Biosciences, 340345](https://www.bdbiosciences.com/en-se/products/instruments/flow-cytometers/research-cell-analyzers/accuri-c6-plus/bd-facs-cleaning-solution.340345?tab=product_details))
 - FACSRinse Solution (???)
 - FACSFlow Sheath Fluid ([BD Biosciences, 342003](https://www.bdbiosciences.com/en-se/products/instruments/flow-cytometers/research-cell-analyzers/facscanto-ii/sheath-fluid.342003?tab=product_details))
+# Protocol
 ## 1: Startup (Skip if the instrument is on standby)
 1. Check fluidics (FACSFlow and waste).
 2. Refill water (yellow lid flask) if necessary. 
@@ -59,7 +60,6 @@ Latest revision: February 24th 2026
 6. Write in the logbook under notes if you have changed flow and waste. 
 
 Table 1. Lasers and detectors of the LSRFortessa instrument. 
-
 | **Laser** | **Detector** | **Fluorochrome** |
 | --------- | ------------ | ---------------- |
 | 355       | NA           | NA               |
