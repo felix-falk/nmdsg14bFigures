@@ -1,6 +1,7 @@
 # Protocol: LSRFortessa Operation
 Author: Felix Falk
-Latest revision: February 24th 2026
+
+Latest revision: February 26th 2026
 ## Precautions
 - Check if the LSRFortessa SOP has been updated (last revision: 2023-05-25)
 - Never vortex cells or antibody conjugates
@@ -36,9 +37,11 @@ Latest revision: February 24th 2026
 2. Log in to Diva using your group account. 
 3. Set up your experiment and samples in Diva, using the latest CST settings. Do not use the default experiment filename. 
 4. On the left hand screen, use the global worksheet interface to put up histograms and graphs of your markers and gating strategy. 
-5. Run your single stain (aka compensation) samples. Manually adjust PMT voltages if necessary. 
-6. Run your samples. Set the instrument to "Pause" while exchanging samples. Ensure that samples are well mixed, so that cells pass through the instrument at an even rate, this ensures that the data is as good as possible. 
-7. Export your data to a USB Drive immediately and delete the experiment from the Diva software. Any remaining files will be deleted. 
+5. Run your single stain (aka compensation) and FMO control samples to calculate the compensation and manually adjust PMT voltages if necessary. 
+6. Run a small portion of the co-stained cells to visualize the fluorescent panel and ensure proper staining.
+7. Proceed to analyzing the co-stained sample.
+8. Run your samples. Set the instrument to "Pause" while exchanging samples. Ensure that samples are well mixed, so that cells pass through the instrument at an even rate, this ensures that the data is as good as possible. 
+9. Export your data to a USB Drive immediately and delete the experiment from the Diva software. Any remaining files will be deleted. 
 ## 5: Cleaning, After Analysis
 1. Immediately after completing the sample run, remove the tube and prime 2x on high flow rate (without tube). Run water at high flow rate for 1 minute with the SIP arm open and 4 minutes with the SIP arm closed. Repeat the same with Clean, Rinse and water again. 
 2. In a new experiment / cleaning experiment, make an SSC-A vs FSC-A dot plot with a very broad P1 gate to cover almost the whole plot space, leaving out the bottom left corner. Run a tube of water for 1 minute on high flow rate and record, using the same FSC and SSC voltages that you used for your cells. It should be less than 10 events in the P1 gate. Then save the file as a pdf in the "Cleaning report" folder on the desktop and name it with your date, full name and group. 
@@ -51,6 +54,11 @@ Latest revision: February 24th 2026
 ## 6: Shut Down
 1. Quit the Coherent connection software, Diva and turn off the PC. 
 2. Turn off the instrument and FACSFlow supply system (located under the instrument).
+## 7: Data Analysis in FlowJo11
+1. Analyze FACS data using FlowJo. Draw wider gates on SSC and FSC on order to include all the viable cells. For all the other gates try to keep as much as possible the same gates used for sorting.
+2. Analyze your results and once a dilution has been decided, compile the results in single file (together with the staining protocol you used), naming it with the following file format: TITRN_Ab_Fluorochrome_Lot No_date_Initials E.g. TITRN_B220_PE-Cy5_ E035038_160817_SC (add the recommended concentration clearly within the document.
+3. Calculate the frequency of the analyzed population (Use the alive cells as reference)
+4. Calculate the Yield
 ## Changing FACSFlow / Waste
 1. Please note that FACSFlow and waste should be changed at the same time, no matter which alarm is sounding. 
 2. Turn off the FACSFlow supply system. Follow SOP for waste handling. Use PPE (safety goggles and mask), considering that the waste contains live human cells and Virkon. 
@@ -59,7 +67,8 @@ Latest revision: February 24th 2026
 5. Place a new FACSFlow tank in the proper location. Make sure to turn ON the FACSFlow supply system and press Restart. 
 6. Write in the logbook under notes if you have changed flow and waste. 
 
-Table 1. Lasers and detectors of the LSRFortessa instrument. 
+Table 1. Lasers and detectors of the LSRFortessa instrument.
+
 | **Laser** | **Detector** | **Fluorochrome** |
 | --------- | ------------ | ---------------- |
 | 355       | NA           | NA               |
