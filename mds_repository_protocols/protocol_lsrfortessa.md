@@ -32,6 +32,7 @@ Latest revision: February 26th 2026
 3. Run CST beads (1 drop of vortexed beads + 350 ul PBS) at medium flow rate. Ensure that the CST dilution is well vortexed beforehand. See separate SOP for details. Label CST tube "yyyy-mm-dd-initials" and put immediately the left over CST dilution in the 4C fridge. You can reuse the same CST dilution the day after. 
 4. After CST, run water for 2 minutes on high flow rate. 
 5. Report CST performance in the log book and add any relevant comments. 
+6. Based on the CST settings, note the PMT voltages used. 
 ## 4: Sample Run
 1. Write the date, time, your name and group in the log book. 
 2. Log in to Diva using your group account. 

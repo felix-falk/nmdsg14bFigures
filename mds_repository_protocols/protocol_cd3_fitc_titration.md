@@ -44,7 +44,7 @@ Table 2. FACS buffer to be added to each microcentrifuge tube.
 | 7AAD FMO (x1)               | 10                            |
 | Single stain (x2)           | 22.5                          |
 | 7AAD master mix (1x)        | 499                           |
-| Unstained sample (1x)       | 24                            |
+| Unstained sample (1x)       | 12.5                          |
 ## 3: Antibody Stock Solution Pipetting
 1. Performed in BSL2, in hood with light switched off. Keep samples cool throughout.
 	1. Note AB lot number.
@@ -58,7 +58,7 @@ Table 2. FACS buffer to be added to each microcentrifuge tube.
 	9. Gently pipette mix and maintain at 4°C. Avoid light exposure.
 2. Move to BSL1, keep samples cool and shielded from light throughout.
 	1. Pipet serial dilution tubes for the CD3-FITC antibody, reusing the pipet tip between samples with the same antibody.
-	2. Add co-stain mix (12.5 µl) to each CD3-FITC serial dilution and FMO control, for a total of 25 µl in each serial dilution and FMO control sample. Here you should use a new pipet tip in between each dilution.
+	2. Add co-stain mix (12.5 µl) to each CD3-FITC serial dilution, FMO control and the unstained sample, for a total of 25 µl in each serial dilution and FMO control sample. Here you should use a new pipet tip in between each dilution.
 3. Put serial dilutions and ABs in fridge.
 
 Table 3. Serial dilution of each new lot to be titrated. (12.5 µl for each tube in 50 µl final volume, therefore 4x dilution.) The recommended dilution for both BD and BioLegend antibodies is 1:20. The sixth sample is the FMO sample for the CD3 antibody, containing 0 µl CD3 antibody.
@@ -71,7 +71,7 @@ Table 3. Serial dilution of each new lot to be titrated. (12.5 µl for each tube
 | 4                | 1:160              | 1:40            | 12.5 (from previous dil.) | 12.5                      |
 | 5                | 1:320              | 1:80            | 12.5 (from previous dil.) | 12.5                      |
 
-Table 4. Co-stain mix #1 for samples with CD19-BV510 co-stain. (12.5 µl per sample, 7 samples) Add 12.5 µl of co-stain mix to prepared serial dilution tubes. In this protocol, 7 samples need co-stain mix (5 serial dilutions + 2 FMO controls).
+Table 4. Co-stain mix #1 for samples with CD19-BV510 co-stain. (12.5 µl per sample, 8 samples) Add 12.5 µl of co-stain mix to prepared serial dilution tubes. In this protocol, 8 samples need co-stain mix (5 serial dilutions + 2 FMO controls + 1 unstained sample).
 
 | **Antibody** | **Final dilution** | **4x pre-dilution** | **Volume per sample (µl)** | **x10** | **Final volume (µl)** |
 | ------------ | ------------------ | ------------------- | -------------------------- | ------- | --------------------- |
@@ -113,3 +113,5 @@ Table 6. Single stain samples.
 3. “KI_SOP_Antibody_protocol” by Ellen Markljung and Kari Högstrand
 4. “CHIP_034_HSPC_mature_CHIP_ddPCR_210325_PSW” by Tetsuichi Yoshizato and Petter Woll
 5. “[Molecular and cellular dynamics of measurable residual disease progression in myelodysplastic syndromes](https://www.biorxiv.org/content/10.1101/2025.10.17.682671v1)” by Yu-Hsiang Chen et al.
+
+![[Skärmavbild 2026-02-12 kl. 10.35.50.png]]

@@ -24,6 +24,7 @@ mrd_results <- read_excel("mrd_results_2026.xlsx", na = "NA")
 mrd_background <- read_excel("Assay list for supplement table.xlsx")
 ngs_p1 <- read_excel("NGS_Uppsala_2024-01-17.xlsx")
 sct_parameters_p1 <- read_excel("SCT_parameters_2026_02_20.xlsx")
+general_info_p1_joel <- read_excel("mds_data_20240930.xlsx") # General info document from Joel
 
 # Add mutation_suffix column to mrd_results
 mrd_results <- mrd_results %>%
@@ -312,3 +313,8 @@ tp53_pat_tab <- mrd_results |>
 
 gtsave(tp53_pat_tab, filename = "tp53_pat_tab.html", inline_css = TRUE)
 
+## Kaplan Meier curve ####
+fit <- survfit(Surv(dur_tx_relapsedeath_years, cens_RFS) ~ 1, data=mds.data)
+ggsurvplot(fit, data=mds_14B_treated) +
+  xlab("Time since transplantation (years)") +
+  ylab("Relapse-free survival")

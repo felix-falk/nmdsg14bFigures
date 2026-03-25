@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "EMBL scRNA-seq Course Notes.md",
+                "file": "protocol_cd3_fitc_titration.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "EMBL scRNA-seq Course Notes"
+              "title": "protocol_cd3_fitc_titration"
             }
           },
           {
@@ -213,6 +213,10 @@
   },
   "active": "5e70a98b14ddaa48",
   "lastOpenFiles": [
+    "Skärmavbild 2026-02-12 kl. 10.35.50.png",
+    "protocol_experiment_documentation.md",
+    "protocol_lsrfortessa.md",
+    "protocol_cd3_fitc_titration.md",
     "Single-Cell RNA Sequencing.md",
     "Single cell RNA sequencing data analysis.md",
     "EMBL scRNA-seq Course Notes.md",
@@ -220,10 +224,7 @@
     "protocol_thawing_of_bm_mncs.md",
     "protocol_sample_transport_solna_to_flemingsberg.md",
     "protocol_lsrfortessa.pdf",
-    "protocol_lsrfortessa.md",
-    "protocol_experiment_documentation.md",
     "protocol_cd3_fitc_titration.pdf",
-    "protocol_cd3_fitc_titration.md",
     "protocol_bm_mnc_biobanking.pdf",
     "protocol_bm_mnc_biobanking.md",
     "falk_protocols/protocol_cd3_fitc_titration.md",
