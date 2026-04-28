@@ -1,21 +1,17 @@
 # Protocol: BM MNC Thawing
 
 Author: Felix Falk
-
 Version: February 20th 2026
-
 # Precautions
 - Never vortex cells
 - Never use vacuum pump
 - Keep cells on ice and try to reduce time that cells are at a high concentration
-
 # Reagents
 - DNAse I ([STEMCELL Technologies, 15171507](https://www.fishersci.se/shop/products/dnase-i-solution-1-mg-ml/15171507#?keyword=DNase%20I%20stemcell))
 - dPBS [+]Ca2+, [+]Mg2+ ([Gibco, 14040133](https://www.thermofisher.com/order/catalog/product/14040133?SID=srch-srp-14040133))
 - dPBS [-]Mg2+ [-]Ca2+ ([Gibco, 14190-094](https://www.thermofisher.com/order/catalog/product/14190094))
 - FBS ([Gibco, 1000500-064](https://www.thermofisher.com/order/catalog/product/10500064))
 - Trypan Blue, 0.4% ([Sigma Aldrich, T8154-20mL](https://www.sigmaaldrich.com/SE/en/product/sigma/t8154))
-
 # Protocol
 1. Turn on the 37°C water bath and fume hood, and prepare thawing media and FACS buffer 
 	- 5 ml thawing media

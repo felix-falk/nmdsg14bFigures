@@ -15,7 +15,7 @@ library(cowplot)
 library(stringr)
 
 # Set working directory
-setwd("/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data")
+setwd("~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data")
 
 # Import datasets
 p2_clinical <- read_excel("NMDS14B-Inkl-screen-EoS.xlsx")
@@ -213,11 +213,11 @@ p2_merged <- bind_rows(
 ) %>%
   arrange(patno, relative_date)
 
-# Add column to p2_merged with mdsdiagnosis, ipssm and karyotyp, from p2_clinical, according to patno
+# Add column to p2_merged with mdsdiagnosis, ipssm, deathcause and karyotyp, from p2_clinical, according to patno
 p2_merged <- p2_merged %>%
   left_join(
     p2_clinical %>%
-      select(patno, mdsdiagnosis, ipssm_title, karyotyp),
+      select(patno, mdsdiagnosis, ipssm_title, karyotyp, deathcause),
     by = "patno"
   )
 
@@ -248,6 +248,8 @@ p2_merged <- p2_merged %>%
     )
   )
 
+# To achieve a log10 y axis scale, convert the 0 values in level to 0.01
+p2_merged <- p2_merged %>% mutate(level_no0s = ifelse(level == 0, 0.01, level))
 
 # Create dummy GVHD legends
 
@@ -301,18 +303,23 @@ plot_patient_timeline <- function(data, pat_id) {
   # MRD plot (top)
   # ----------------------------
   mrd_plot <- ggplot() +
-    geom_line(data = df %>% filter(source_dataframe == "MRD", !is.na(Mutation), Mutation != "(Only one mutation)", Mutation != "(only one mutation)") %>% droplevels(), aes(x=relative_date, y=level, colour=Mutation)) +
-    geom_point(data = df %>% filter(source_dataframe == "MRD", !is.na(Mutation), Mutation != "(Only one mutation)", Mutation != "(only one mutation)") %>% droplevels(), aes(x=relative_date, y=level, colour=Mutation)) +
+    geom_line(data = df %>% filter(source_dataframe == "MRD", !is.na(Mutation), Mutation != "(Only one mutation)", Mutation != "(only one mutation)") %>% droplevels(), aes(x=relative_date, y=level_no0s, colour=Mutation)) +
+    geom_point(data = df %>% filter(source_dataframe == "MRD", !is.na(Mutation), Mutation != "(Only one mutation)", Mutation != "(only one mutation)") %>% droplevels(), aes(x=relative_date, y=level_no0s, colour=Mutation)) +
     theme_minimal() +
     xlab(NULL) + 
     ylab(NULL) +
     scale_colour_brewer(palette="Set2", na.translate = FALSE) +
     scale_x_continuous(limits = x_range) +
+    scale_y_log10(labels = label_number()) +
     labs(title = paste0("Patient: ", pat_id),
          subtitle = paste0("Diagnosis: ", df$mdsdiagnosis, "\nIPSS-M: ", df$ipssm_title, "\nKaryotype: ", df$karyotyp, "\nNGS: ", df$mutlist)) +
     geom_textvline(
-      data = df %>% filter(source_dataframe=="Outcome"),
+      data = df%>% filter(source_dataframe == "Outcome" & Event == "Relapse"),
       aes(xintercept = relative_date, label = Event)
+    ) +
+    geom_textvline(
+      data = df%>% filter(source_dataframe == "Outcome" & Event == "Death"),
+      aes(xintercept = relative_date, label = paste0(Event, ", ", deathcause))
     ) +
     theme(legend.position="right",
           plot.title = element_text(size = 12),

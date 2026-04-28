@@ -1,12 +1,11 @@
 # Protocol: LSRFortessa Operation
 Author: Felix Falk
-
 Latest revision: February 26th 2026
 ## Precautions
-- Check if the LSRFortessa SOP has been updated (last revision: 2023-05-25)
+- Review the KLARA Risk Assessment
+- Check if the LSRFortessa SOP has been updated (last revision: May 25th 2023)
 - Never vortex cells or antibody conjugates
 - Work in accordance to BLS2
-- Please note that some chemicals like FACS clean is corrosive and refer to KLARA to know more about ingredients of all FACS reagents, necessary precautions and procedures in case of an accident. 
 ## Reagents
 - MilliQ Water
 - PBS [-]Mg2+ [-]Ca2+ (Gibco, 14190-094)
@@ -24,12 +23,12 @@ Latest revision: February 26th 2026
 6. Launch the Coherent Laser software and manually turn on the UV laser by pressing START and setting the power to 20 mW. 
 7. Start Diva and log in (BDAdmin or group account). Check that the connection to the instrument is established (this takes some time). If not, restart the computer, instrument and FACSFlow system. 
 8. Place the instrument on high flow rate and prime the instrument 3x with the sample injection port (SIP) arm open and no tube. Use a FACS tube with water to test if air is pushed out of the machine (bubbles should appear). 
-## 2: Cleaning, Before Analysis
+## 2: Cleaning Before Analysis
 1. Run 3 ml water at high flow rate for 1 minute with the SIP arm open and 2 minutes with the SIP arm closed. Repeat the same with 3ml cleaning solution, rinsing solution and water again. Acquire data during the clean to check that there is minimal debris. 
 ## 3: CST Beads (Skip if not first user of the day)
 1. Log in to Diva using the admin account, and navigate to the CST interface. 
 2. Note the CST lot number in the Diva software. 
-3. Run CST beads (1 drop of vortexed beads + 350 ul PBS) at medium flow rate. Ensure that the CST dilution is well vortexed beforehand. See separate SOP for details. Label CST tube "yyyy-mm-dd-initials" and put immediately the left over CST dilution in the 4C fridge. You can reuse the same CST dilution the day after. 
+3. Run CST beads (1 drop of vortexed beads + 350 µl PBS) at medium flow rate. Ensure that the CST dilution is well vortexed beforehand. See separate SOP for details. Label CST tube "yyyy-mm-dd-initials" and put immediately the left over CST dilution in the 4C fridge. You can reuse the same CST dilution the day after. 
 4. After CST, run water for 2 minutes on high flow rate. 
 5. Report CST performance in the log book and add any relevant comments. 
 6. Based on the CST settings, note the PMT voltages used. 
@@ -43,7 +42,7 @@ Latest revision: February 26th 2026
 7. Proceed to analyzing the co-stained sample.
 8. Run your samples. Set the instrument to "Pause" while exchanging samples. Ensure that samples are well mixed, so that cells pass through the instrument at an even rate, this ensures that the data is as good as possible. 
 9. Export your data to a USB Drive immediately and delete the experiment from the Diva software. Any remaining files will be deleted. 
-## 5: Cleaning, After Analysis
+## 5: Cleaning After Analysis
 1. Immediately after completing the sample run, remove the tube and prime 2x on high flow rate (without tube). Run water at high flow rate for 1 minute with the SIP arm open and 4 minutes with the SIP arm closed. Repeat the same with Clean, Rinse and water again. 
 2. In a new experiment / cleaning experiment, make an SSC-A vs FSC-A dot plot with a very broad P1 gate to cover almost the whole plot space, leaving out the bottom left corner. Run a tube of water for 1 minute on high flow rate and record, using the same FSC and SSC voltages that you used for your cells. It should be less than 10 events in the P1 gate. Then save the file as a pdf in the "Cleaning report" folder on the desktop and name it with your date, full name and group. 
 3. If there are more than 10 events in the P1 gate, repeat the cleaning steps and create a new cleaning report. 

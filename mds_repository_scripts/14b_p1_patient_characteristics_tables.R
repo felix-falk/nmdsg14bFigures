@@ -14,6 +14,8 @@ library(gtsummary)
 library(fuzzyjoin)
 library(lubridate)
 library(gt)
+library(survminer)
+library(ggpubr)
 
 # Set working directory
 setwd("/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p1_data")
@@ -46,10 +48,6 @@ mrd_results <- mrd_results %>%
 # Merge general_info_p1 and mrd_results by `Study number`
 mrd_results <- mrd_results %>% left_join(general_info_p1, by = "Study number")
 
-# Add age at transplantation column to mrd_results
-mrd_results <- mrd_results %>%
-  mutate(age_at_transp = year(`Date of transplantation`) - `Year of birth`)
-
 # Rename study_number column in sct_parameters_p1 to `Study number`
 sct_parameters_p1$`Study number` <- sct_parameters_p1$study_number
 
@@ -65,8 +63,15 @@ mrd_results$`Reason for termination` <- ifelse(is.na(mrd_results$`Reason for ter
 # Replace "Two years passed" in `Reason for termination` column with "Remission"
 mrd_results$`Reason for termination` <- ifelse(mrd_results$`Reason for termination` == "Two years passed", "Remission", mrd_results$`Reason for termination`)
 
+# Focus ONLY on patients "Included_in_MRD_analysis"
+mrd_results <- mrd_results %>% filter(`Included in MRD analysis` == TRUE)
+
 # Create lists of TP53, KDM6A, NRAS, KRAS, RUNX1 and DNMT3A positive patients respectively, based on NGS >3% VAF
-tp53_cases <- unique(ngs_p1$study_number[ngs_p1$gene_symbol == "TP53" & ngs_p1$allele_fraction_percent > 3])
+tp53_cases <- unique(ngs_p1$study_number[ngs_p1$gene_symbol == "TP53" & ngs_p1$allele_fraction_percent > 3 & !(ngs_p1$sample_type %in% c("post SCT", 
+                                                                                                                                         "Post SCT", 
+                                                                                                                                         "Post-SCT",
+                                                                                                                                         "Relapse"))])
+
 tp53_cases <- tp53_cases[!is.na(tp53_cases)]
 KDM6A_cases <- unique(ngs_p1$study_number[ngs_p1$gene_symbol == "KDM6A" & ngs_p1$allele_fraction_percent > 3])
 KDM6A_cases <- KDM6A_cases[!is.na(KDM6A_cases)]
@@ -129,6 +134,51 @@ mrd_results <- mrd_results %>%
   ) %>%
   ungroup()
 
+# Calculate background_no_0s that won't become Infinite when used as a divisor
+mrd_results <- mrd_results %>%
+  mutate(background_no_0s = ifelse(as.numeric(`background noise`) == 0, 0.001, as.numeric(`background noise`)))
+
+# Calculate mrd_ratio for each recorded level
+mrd_results <- mrd_results %>%
+  mutate(mrd_ratio = as.numeric(Level) / as.numeric(background_no_0s))
+
+# Group data by mutation and patno, and calculate mean MRD level 100+ days after transplantation
+mrd_results <- mrd_results %>%
+  group_by(`Study number`, Mutation) %>%
+  mutate(
+    mean_level_after_100_days = mean(
+      Level[relative_mrd_date > 100],
+      na.rm = TRUE
+    )
+  ) %>%
+  ungroup()
+
+# Keep only any_mrd_above_background_0_40 TRUE row in cases with both TRUE and FALSE
+mrd_results <- mrd_results %>%
+  group_by(`Study number`) %>%
+  filter(
+    any(any_mrd_above_background_0_40 == TRUE) &
+      any_mrd_above_background_0_40 == TRUE |
+      !any(any_mrd_above_background_0_40 == TRUE)
+  ) %>%
+  ungroup()
+
+# Keep only any_mrd_above_background_100 TRUE row in cases with both TRUE and FALSE
+mrd_results <- mrd_results %>%
+  group_by(`Study number`) %>%
+  filter(
+    any(any_mrd_above_background_100 == TRUE) &
+      any_mrd_above_background_100 == TRUE |
+      !any(any_mrd_above_background_100 == TRUE)
+  ) %>%
+  ungroup()
+
+# Replace TRUE or FALSE with NA in any_mrd_above_background_0_40, if the corresponding row in mean_level_first_40 days is Nan
+mrd_results$any_mrd_above_background_0_40 <- ifelse(mrd_results$mean_level_first_40_days == "NaN", NA, mrd_results$any_mrd_above_background_0_40)
+
+# Replace TRUE or FALSE with NA in any_mrd_above_background_100, if the corresponding row in mean_level_after_100_days is Nan
+mrd_results$any_mrd_above_background_100 <- ifelse(mrd_results$mean_level_after_100_days == "NaN", NA, mrd_results$any_mrd_above_background_100)
+
 # Replace Yes with TRUE and NA with FALSE in the ICT, HMA and No treatment columns
 mrd_results$ICT <- ifelse(is.na(mrd_results$ICT), FALSE, TRUE)
 mrd_results$HMA <- ifelse(is.na(mrd_results$HMA), FALSE, TRUE)
@@ -149,6 +199,12 @@ mrd_results$`Marrow blasts` <- as.numeric(mrd_results$`Marrow blasts`)
 # Make age_donor numeric
 mrd_results$age_donor <- as.numeric(mrd_results$age_donor)
 
+# Rename study_nr to `Study number` in general_info_p1_joel
+colnames(general_info_p1_joel)[1] <- "Study number"
+
+# Add dur_tx_relapsedeath_years, cens_RFS, Age columns from general_info_p1_joel to general_info_p1, by `Study number`
+mrd_results <- mrd_results %>% left_join(general_info_p1_joel %>% select(`Study number`, cens_RFS, dur_tx_relapsedeath_years, Age), by = "Study number")
+
 # Table 1 ####
 
 # verluis JCO 2024 
@@ -162,7 +218,7 @@ all_tab_outcome <- mrd_results |>
   filter(!is.na(`Reason for termination`)) |>
   tbl_summary(
     by = `Reason for termination`,
-    include = c(age_at_transp,
+    include = c(Age,
                 Gender,
                 `IPSS-R diagnosis`,
                 `IPSS-R cytogenetic risk group`,
@@ -182,14 +238,14 @@ all_tab_outcome <- mrd_results |>
                 age_donor ~ "continuous",
                 mean_level_first_40_days ~ "continuous",
                 mean_level_after_100_days ~ "continuous",
-                age_at_transp ~ "continuous"),
+                Age ~ "continuous"),
     label = list(mean_level_first_40_days ~ "Mean MRD first 40 days",
                  any_mrd_above_background_0_40 ~ "Any MRD above background first 40 days after dx",
                  mean_level_after_100_days ~ "Mean MRD after 100 days",
                  any_mrd_above_background_100 ~ "Any MRD above background more than 100 days after dx",
                  c_gvhd ~ "Chronic GVHD",
                  age_donor ~ "Donor age",
-                 age_at_transp ~ "Patient age at transplantation")
+                 Age ~ "Age")
   ) |>
   modify_spanning_header(c("stat_1", "stat_2", "stat_3") ~ "**Outcome**") |>
   add_p()
@@ -206,7 +262,7 @@ all_tab_tp53 <- mrd_results |>
   tbl_summary(
     by = TP53,
     include = c(`Reason for termination`,
-                age_at_transp,
+                Age,
                 Gender,
                 `IPSS-R diagnosis`,
                 `IPSS-R cytogenetic risk group`,
@@ -228,14 +284,13 @@ all_tab_tp53 <- mrd_results |>
                 age_donor ~ "continuous",
                 mean_level_first_40_days ~ "continuous",
                 mean_level_after_100_days ~ "continuous",
-                age_at_transp ~ "continuous"),
+                Age ~ "continuous"),
     label = list(mean_level_first_40_days ~ "Mean MRD first 40 days",
                  any_mrd_above_background_0_40 ~ "Any MRD above background first 40 days",
                  mean_level_after_100_days ~ "Mean MRD after 100 days",
                  any_mrd_above_background_100 ~ "Any MRD above background after 100 days",
                  c_gvhd ~ "Chronic GVHD",
                  age_donor ~ "Donor age",
-                 age_at_transp ~ "Patient age at transplantation",
                  `Reason for termination` ~ "Outcome")
   ) |>
   modify_spanning_header(c("stat_1", "stat_2") ~ "**TP53 Mutation**") |>
@@ -253,7 +308,7 @@ tp53_tab_outcome <- mrd_results |>
   filter(!is.na(`Reason for termination`)) |>
   tbl_summary(
     by = `Reason for termination`,
-    include = c(age_at_transp,
+    include = c(Age,
                 Gender,
                 `IPSS-R diagnosis`,
                 `IPSS-R cytogenetic risk group`,
@@ -262,6 +317,7 @@ tp53_tab_outcome <- mrd_results |>
                 ICT, 
                 HMA,
                 `No treatment`,
+                a_gvhd,
                 c_gvhd,
                 age_donor,
                 mean_level_first_40_days,
@@ -273,14 +329,13 @@ tp53_tab_outcome <- mrd_results |>
                 age_donor ~ "continuous",
                 mean_level_first_40_days ~ "continuous",
                 mean_level_after_100_days ~ "continuous",
-                age_at_transp ~ "continuous"),
+                Age ~ "continuous"),
     label = list(mean_level_first_40_days ~ "Mean MRD first 40 days",
                  any_mrd_above_background_0_40 ~ "Any MRD above background first 40 days",
                  mean_level_after_100_days ~ "Mean MRD after 100 days",
                  any_mrd_above_background_100 ~ "Any MRD above background after 100 days",
                  c_gvhd ~ "Chronic GVHD",
-                 age_donor ~ "Donor age",
-                 age_at_transp ~ "Patient age at transplantation")
+                 age_donor ~ "Donor age")
   ) |>
   modify_spanning_header(c("stat_1", "stat_2", "stat_3") ~ "**Outcome**") |>
   add_p()
@@ -294,7 +349,7 @@ tp53_pat_tab <- mrd_results |>
   filter(TP53 == TRUE) |>
   subset(select = c(`Study number`,
                     `Reason for termination`,
-                    age_at_transp,
+                    Age,
                     Gender,
                     `IPSS-R diagnosis`,
                     `IPSS-R cytogenetic risk group`,
@@ -304,6 +359,7 @@ tp53_pat_tab <- mrd_results |>
                     ICT, 
                     HMA,
                     `No treatment`,
+                    a_gvhd,
                     c_gvhd,
                     mean_level_first_40_days,
                     any_mrd_above_background_0_40,
@@ -313,8 +369,130 @@ tp53_pat_tab <- mrd_results |>
 
 gtsave(tp53_pat_tab, filename = "tp53_pat_tab.html", inline_css = TRUE)
 
-## Kaplan Meier curve ####
-fit <- survfit(Surv(dur_tx_relapsedeath_years, cens_RFS) ~ 1, data=mds.data)
-ggsurvplot(fit, data=mds_14B_treated) +
-  xlab("Time since transplantation (years)") +
-  ylab("Relapse-free survival")
+### Kaplan Meier curves ####
+
+xvars <- c("c_gvhd", 
+           "a_gvhd", 
+           "complex_karyotype",
+           "any_mrd_above_background_0_40", 
+           "any_mrd_above_background_100",
+           "TP53",
+           "NRAS", 
+           "KRAS", 
+           "DNMT3A", 
+           "RUNX1", 
+           "KDM6A")
+
+pdf("14b_p1_survival_all.pdf")
+
+for (varname in xvars) {
+  
+  formula <- as.formula(
+    paste("Surv(dur_tx_relapsedeath_years, cens_RFS) ~", varname)
+  )
+  
+  fit <- survfit(formula, data = mrd_results)
+  
+  fit$call$formula <- formula
+  
+  print(
+    ggsurvplot(
+      fit,
+      data = mrd_results,
+      legend = "right",
+      pval = TRUE
+    )
+  )
+}
+
+dev.off()
+
+# Create PDF of Kaplan-Meier curves for TP53 only cases
+
+vars <- c("c_gvhd", 
+          "a_gvhd", 
+          "any_mrd_above_background_0_40", 
+          "any_mrd_above_background_100",
+          "NRAS", 
+          "KRAS", 
+          "DNMT3A", 
+          "KDM6A", 
+          "complex_karyotype")
+
+pdf("14b_p1_survival_tp53_joel.pdf")
+
+data_sub <- mrd_results |> 
+  filter(TP53 == TRUE)
+
+for (varname in vars) {
+  
+  formula <- as.formula(
+    paste("Surv(dur_tx_relapsedeath_years, cens_RFS) ~", varname)
+  )
+  
+  fit <- survfit(formula, data = data_sub)
+  
+  fit$call$formula <- formula
+  
+  print(
+    ggsurvplot(
+      fit,
+      data = data_sub,
+      legend = "right",
+      pval = TRUE
+    )
+  )
+}
+
+dev.off()
+
+# Create graph to visualize the % of MRD above background in the first 40 days, per TP53 or non-TP53
+ggplot(data = mrd_results %>% select(`Study number`, TP53, any_mrd_above_background_0_40) %>% distinct(), aes(x = TP53, fill = any_mrd_above_background_0_40)) +
+  geom_bar(position = "fill") +
+  xlab("TP53") +
+  ylab("Proportion") +
+  theme_minimal()
+
+ggplot(data = mrd_results %>% select(`Study number`, TP53, any_mrd_above_background_100) %>% distinct(), aes(x = TP53, fill = any_mrd_above_background_100)) +
+  geom_bar(position = "fill") +
+  xlab("TP53") +
+  ylab("Count") +
+  theme_minimal()
+
+# Chi-square test, comparing the categories TP53 and any_mrd_above_background_0_40
+test <- chisq.test(table(mrd_results$TP53, mrd_results$any_mrd_above_background_100))
+test
+test$p.value
+
+# Create mrd_ratio against TP53 plot
+ggplot(data = mrd_results %>% filter(relative_mrd_date > 0 & relative_mrd_date < 40) %>% select(`Study number`, TP53, mrd_ratio) %>% distinct(), aes(x = TP53, y = mrd_ratio)) +
+  geom_violin() +
+  geom_boxplot() +
+  xlab("TP53") +
+  theme_minimal() +
+  scale_y_log10()
+
+summary(aov(mrd_ratio ~ TP53, data = mrd_results %>% filter(relative_mrd_date > 0 & relative_mrd_date < 40)))
+summary(aov(Level ~ TP53, data = mrd_results %>% filter(relative_mrd_date > 0 & relative_mrd_date < 40)))
+
+
+# install.packages("ggalluvial")
+library(ggalluvial)
+
+ggplot(data = mrd_results %>% filter(TP53 == TRUE) %>% distinct(`Study number`, any_mrd_above_background_0_40, any_mrd_above_background_100, TP53),
+       aes(axis1 = any_mrd_above_background_0_40, axis2 = any_mrd_above_background_100)) +
+  geom_alluvium(aes(fill = any_mrd_above_background_0_40)) +
+  geom_stratum() +
+  geom_text(stat = "stratum",
+            aes(label = after_stat(stratum))) +
+  theme_void() +
+  labs(title = "MRD above background, change between days 0-40 and 100+, TP53 only")
+
+ggplot(data = mrd_results %>% distinct(`Study number`, any_mrd_above_background_0_40, any_mrd_above_background_100),
+       aes(axis1 = any_mrd_above_background_0_40, axis2 = any_mrd_above_background_100)) +
+  geom_alluvium(aes(fill = any_mrd_above_background_0_40)) +
+  geom_stratum() +
+  geom_text(stat = "stratum",
+            aes(label = after_stat(stratum))) +
+  theme_void() +
+  labs(title = "MRD above background, change between days 0-40 and 100+")
