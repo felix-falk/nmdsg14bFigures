@@ -21,10 +21,13 @@ setwd("~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project
 p2_clinical <- read_excel("NMDS14B-Inkl-screen-EoS.xlsx")
 p2_mrd <- read_excel("NMDS14B_MRD.XLSX")
 p2_gvhd <- read_excel("NMDS14B_gvhd.xlsx")
-p2_aza <- read_excel("NMDS14B_azacittrt_lang.xlsx")
+p2_aza <- read_excel("NMDS14B_azacitkurer.xlsx")
 p2_is <- read_excel("NMDS14B_immunsupptrtm.xlsx")
 p2_dli <- read_excel("NMDS14B_dlitrt.xlsx")
 p2_ngs <- read_excel("NGS lista NMDSG14B2.xlsx")
+
+# Transpose and filter the p2_aza file
+p2_aza <- p2_aza %>% pivot_longer(cols = starts_with("azacitstdat"), names_to = "timepoint", values_to = "azacitstartdat") %>% select(patno, azacitstartdat) %>% filter(!is.na(azacitstartdat)) %>% unique()
 
 # Add transpldt to each data frame, by patno
 p2_mrd <- p2_mrd %>% left_join(p2_clinical[,c("patno", "transpldt")], by = "patno", keep = FALSE)
@@ -37,7 +40,6 @@ p2_dli <- p2_dli %>% left_join(p2_clinical[,c("patno", "transpldt")], by = "patn
 p2_clinical$Death <- as.Date(p2_clinical$deathdat) - as.Date(p2_clinical$transpldt)
 p2_clinical$Relapse <- as.Date(p2_clinical$relapsedat) - as.Date(p2_clinical$transpldt)
 p2_mrd$rel_mrd_dat <- as.Date(p2_mrd$MRDdat) - as.Date(p2_mrd$transpldt)
-p2_gvhd$rel_gvhd_dat <- as.Date(p2_gvhd$gvhddate) - as.Date(p2_gvhd$transpldt)
 p2_gvhd$rel_max_c_gvhd_dat <- as.Date(p2_gvhd$cgvhdmaxdt) - as.Date(p2_gvhd$transpldt)
 p2_gvhd$rel_max_a_gvhd_dat <- as.Date(p2_gvhd$agvhdmaxdt) - as.Date(p2_gvhd$transpldt)
 p2_is$is_stop_dat <- as.Date(p2_is$drugdt) - as.Date(p2_is$transpldt)
@@ -78,7 +80,7 @@ p2_clinical <- p2_clinical %>% mutate(ipssm_title = case_when(ipssm < -1.5 ~ "Ve
 # Helper function to clean GVHD data
 clean_gvhd <- function(df, rel_max_col, stage_col, max_stage_col, type) {
   df %>%
-    select(patno, rel_gvhd_dat, !!sym(rel_max_col), !!sym(stage_col), !!sym(max_stage_col)) %>%
+    select(patno, !!sym(rel_max_col), !!sym(stage_col), !!sym(max_stage_col)) %>%
     mutate(
       merged_stage = if_else(
         !is.na(!!sym(max_stage_col)) & !!sym(max_stage_col) >= !!sym(stage_col),
@@ -87,7 +89,7 @@ clean_gvhd <- function(df, rel_max_col, stage_col, max_stage_col, type) {
       )
     ) %>%
     pivot_longer(
-      cols = c(rel_gvhd_dat, !!sym(rel_max_col)),
+      cols = c(!!sym(rel_max_col)),
       names_to = "date_type",
       values_to = "relative_date"
     ) %>%
@@ -248,8 +250,8 @@ p2_merged <- p2_merged %>%
     )
   )
 
-# To achieve a log10 y axis scale, convert the 0 values in level to 0.01
-p2_merged <- p2_merged %>% mutate(level_no0s = ifelse(level == 0, 0.01, level))
+# To achieve a log10 y axis scale, convert the 0 values in level to 0.08
+p2_merged <- p2_merged %>% mutate(level_no0s = ifelse(level == 0, 0.08, level))
 
 # Create dummy GVHD legends
 
@@ -298,6 +300,26 @@ plot_patient_timeline <- function(data, pat_id) {
   
   # Determine x-axis range
   x_range <- range(as.numeric(df$relative_date), na.rm = TRUE)
+  
+  # ----------------------------
+  
+  # CLEAN MRD DATA (fix core issue)
+  
+  # ----------------------------
+  
+  mrd_df <- df %>%
+    filter(
+      source_dataframe == "MRD",
+      !is.na(Mutation),
+      Mutation != "(Only one mutation)",
+      Mutation != "(only one mutation)",
+      !is.na(relative_date),
+      !is.na(level_no0s),
+      level_no0s > 0   # required for log scale
+    ) %>%
+    group_by(Mutation) %>%
+    filter(n() > 1) %>%
+    ungroup()
 
   # ----------------------------
   # MRD plot (top)
@@ -310,7 +332,7 @@ plot_patient_timeline <- function(data, pat_id) {
     ylab(NULL) +
     scale_colour_brewer(palette="Set2", na.translate = FALSE) +
     scale_x_continuous(limits = x_range) +
-    scale_y_log10(labels = label_number()) +
+    scale_y_log10(limits = c(NA, 10), labels = label_number()) +
     labs(title = paste0("Patient: ", pat_id),
          subtitle = paste0("Diagnosis: ", df$mdsdiagnosis, "\nIPSS-M: ", df$ipssm_title, "\nKaryotype: ", df$karyotyp, "\nNGS: ", df$mutlist)) +
     geom_textvline(
@@ -323,9 +345,30 @@ plot_patient_timeline <- function(data, pat_id) {
     ) +
     theme(legend.position="right",
           plot.title = element_text(size = 12),
-          plot.subtitle = element_text(size = 9))
+          plot.subtitle = element_text(size = 9)) +
+    annotate(
+      "rect",
+      xmin = -Inf,
+      xmax = Inf,
+      ymin = 0.08,  # lower visible bound
+      ymax = 0.1,
+      alpha = 0.25,
+      fill = "grey50"
+    )
   
-
+  # safer horizontal line
+  if (nrow(mrd_df) > 0) {
+    mrd_plot <- mrd_plot +
+      geom_texthline(
+        yintercept = 0.1,
+        label = "MRD Threshold",
+        vjust = -0.2, 
+        hjust = 1,
+        colour = "darkgrey",
+        linetype = "dashed"
+      )
+  }
+  
   
   # Extract mrd legend
   mrd_legend <- get_legend(mrd_plot) 
@@ -408,8 +451,7 @@ plot_patient_timeline <- function(data, pat_id) {
 }
 
 # Plot one example patient
-# plotA <- plot_patient_timeline(p2_merged, "1001")
-# plotA
+# plot_patient_timeline(p2_merged, "1002")
 
 # Export patients to pdf
 pdf("NMDS14B_p2_Patient_Timelines.pdf", width = 10, height = 6)
