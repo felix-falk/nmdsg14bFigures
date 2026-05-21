@@ -320,6 +320,16 @@ plot_patient_timeline <- function(data, pat_id) {
     group_by(Mutation) %>%
     filter(n() > 1) %>%
     ungroup()
+  
+  # Dynamically determine upper limit of y axis
+  mrd_values <- df$level_no0s[df$source_dataframe == "MRD"]
+  upper_limit <- 10  # default
+  if (length(mrd_values) > 0 && any(!is.na(mrd_values))) {
+    max_mrd <- max(mrd_values, na.rm = TRUE)
+    if (is.finite(max_mrd) && max_mrd > 10) {
+      upper_limit <- NA  # allow full expansion
+    }
+  }
 
   # ----------------------------
   # MRD plot (top)
@@ -332,7 +342,7 @@ plot_patient_timeline <- function(data, pat_id) {
     ylab(NULL) +
     scale_colour_brewer(palette="Set2", na.translate = FALSE) +
     scale_x_continuous(limits = x_range) +
-    scale_y_log10(limits = c(NA, 10), labels = label_number()) +
+    scale_y_log10(limits = c(NA, upper_limit), labels = label_number()) +
     labs(title = paste0("Patient: ", pat_id),
          subtitle = paste0("Diagnosis: ", df$mdsdiagnosis, "\nIPSS-M: ", df$ipssm_title, "\nKaryotype: ", df$karyotyp, "\nNGS: ", df$mutlist)) +
     geom_textvline(
