@@ -58,13 +58,7 @@ option_list <- list(
     type = "character",
     help = "CSV file with immune suppression filter"
   ),
-  
-  make_option(
-    "--processed_folder",
-    type = "character",
-    help = "Folder for processed CSV outputs"
-  ),
-  
+    
   make_option(
     "--output_folder",
     type = "character",
@@ -125,10 +119,6 @@ if (is.null(args$immune_filter_file)) {
   stop("--immune_filter_file is required")
 }
 
-if (is.null(args$processed_folder)) {
-  stop("--processed_folder is required")
-}
-
 if (is.null(args$output_folder)) {
   stop("--output_folder is required")
 }
@@ -169,8 +159,7 @@ processed <- preprocess_data(
   immune_file = args$immune_file,
   gvhd_file = args$gvhd_file,
   ngs_file = args$ngs_file,
-  immune_filter_file = args$immune_filter_file,
-  processed_folder = args$processed_folder
+  immune_filter_file = args$immune_filter_file
 )
 
 # ==========================================================
@@ -207,7 +196,7 @@ switch(
   args$plot_type,
   
   swimmerplot = {
-    
+    message("Drawing swimmer plot...")
     draw_swimmerplot(
       processed = processed,
       patient_subset = selected_patients,
@@ -217,7 +206,7 @@ switch(
   },
   
   clinical_course = {
-    
+    message("Drawing clinical course plots...")
     draw_clinical_course(
       processed = processed,
       patient_subset = selected_patients,

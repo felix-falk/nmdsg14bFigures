@@ -25,7 +25,8 @@ Imports:
     patchwork,
     geomtextpath,
     scales,
-    cowplot
+    cowplot,
+    roxygen2
     
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

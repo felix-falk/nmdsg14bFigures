@@ -1,24 +1,12 @@
-# NMDS14B Part 2 Swimmer plot
-
-
-
-#data_directory   <- "~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data"
-#output_directory <- "~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_output"
-#output_filename <- "NMDS14B_p2_Swimmerplot.png"
-
-# --- IMPORT ---
-
-#general_info_raw <- read_excel(file.path(data_directory, "NMDS14B-Inkl-screen-EoS.xlsx"))
-#mrd_raw <- read_excel(file.path(data_directory, "NMDS14B_MRD.XLSX"))
-#dli_raw <- read_excel(file.path(data_directory, "NMDS14B_dlitrt.xlsx"))
-#aza_raw <- read_excel(file.path(data_directory, "NMDS14B_azacitkurer.xlsx"))
-#immune_raw <- read_excel(file.path(data_directory, "NMDS14B_immunsupptrtm.xlsx"))
-#gvhd_raw <- read_excel(file.path(data_directory, "NMDS14B_gvhddat.xlsx"))
-#ngs_raw <- read_excel(file.path(data_directory, "NGS_lista_NMDSG14B2.xlsx"))
-#immune_suppression_filter <- read.csv(file.path(data_directory, "immune_suppression_filter.csv"), header = TRUE, sep = ";")
-
-
-
+#' Draw swimmer plot and export to PNG.
+#' 
+#' @param processed A list of data frames containing the processed data for general_info, treatment, mrd, gvhd, immune_intervals, and ngs.
+#' @param patient_subset A vector of patient IDs.
+#' @param output_folder The folder where the output PNG will be saved.
+#' @param output_filename The name of the output PNG file.
+#' @returns A numeric vector.
+#' @examples
+#' draw_swimmerplot(processed, patient_subset, "~/output", "swimmerplot.png")
 draw_swimmerplot <- function(
     processed,
     patient_subset = NULL,

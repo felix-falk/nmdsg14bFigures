@@ -1,12 +1,6 @@
-
-
-#data_directory   <- "~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data"
-#output_directory <- "~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_processed_data"
-
 # Import
 
-preprocess_data <- function(
-  processed_folder,
+preprocess_data <- function(,
   general_info_file,
   mrd_file,
   dli_file,
@@ -44,15 +38,7 @@ preprocess_data <- function(
       )
     )
   }
-  
-  # Create processed_folder if it does not exist
-  if (!dir.exists(processed_folder)) {
-    dir.create(
-      processed_folder,
-      recursive = TRUE
-    )
-  }
-  
+    
   ### Read files
   
   general_info_raw <- read_excel(general_info_file) # NMDS14B-Inkl-screen-EoS.xlsx
@@ -290,63 +276,7 @@ preprocess_data <- function(
       interval_end = max(interval_end),
       .groups = "drop"
     )
-  
-  ### EXPORT FINAL CSV FILES
-  
-  # Export treatment_processed.csv file
-  write.table(
-    treatment,
-    file.path(processed_folder, "treatment_processed.csv"),
-    row.names = FALSE,
-    col.names = TRUE,
-    sep = ";"
-  )
-  
-  # Export gvhd_processed.csv file
-  write.table(
-    gvhd_processed,
-    file.path(processed_folder, "gvhd_processed.csv"),
-    row.names = FALSE,
-    col.names = TRUE,
-    sep = ";"
-  )
-  
-  # Export immune_supp_intervals.csv file
-  write.table(
-    overlapping_interval_df,
-    file.path(processed_folder, "immune_supp_intervals.csv"),
-    row.names = FALSE,
-    col.names = TRUE,
-    sep = ";"
-  )
-  
-  # Export ngs_processed.csv file
-  write.table(
-    ngs_processed,
-    file.path(processed_folder, "ngs_processed.csv"),
-    row.names = FALSE,
-    col.names = TRUE,
-    sep = ";"
-  )
-  
-  # Export mrd_processed.csv file
-  write.table(
-    mrd_all,
-    file.path(processed_folder, "mrd_processed.csv"),
-    row.names = FALSE,
-    col.names = TRUE,
-    sep = ";"
-  )
-  
-  # Export general_info_processed.csv file
-  write.table(
-    general_info,
-    file.path(processed_folder, "general_info_processed.csv"),
-    row.names = FALSE,
-    col.names = TRUE,
-    sep = ";"
-  )
-  
+   
   return(
     list(
       general_info = general_info,

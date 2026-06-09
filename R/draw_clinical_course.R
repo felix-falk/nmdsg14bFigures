@@ -1,28 +1,12 @@
-# The script creates a figure explaining the clinical course after transplantation,
-# based on patient data from the NMDS14B Part 2 study.
-
-# Load required packages
-
-
-# Set working directory
-#input_directory <- "~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_processed_data"
-#output_directory <- "~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_output"
-#output_filename <- "NMDS14B_p2_Clinical_course_figure.pdf"
-
-# Import datasets
-#read_csv2_safe <- function(f) read.csv(file.path(input_directory, f), header=TRUE, sep=";")
-
-#datasets <- list(
-#  general_info = "general_info_processed.csv",
-#  mrd          = "mrd_processed.csv",
-#  gvhd         = "gvhd_processed.csv",
-#  treatment    = "treatment_processed.csv",
-#  ngs          = "ngs_processed.csv",
-#  immune       = "immune_supp_intervals.csv"
-#) |> lapply(read_csv2_safe)
-
-################################# NEW CODE #################
-
+#' Draw clinical course figures and export to PDF.
+#' 
+#' @param processed A list of data frames containing the processed data for general_info, treatment, mrd, gvhd, immune_intervals, and ngs.
+#' @param patient_subset A vector of patient IDs.
+#' @param output_folder The folder where the output PDF will be saved.
+#' @param output_filename The name of the output PDF file.
+#' @returns A numeric vector.
+#' @examples
+#' draw_clinical_course(processed, patient_subset, "~/output", "clinical_course.pdf")
 draw_clinical_course <- function(
     processed,
     patient_subset = NULL,
