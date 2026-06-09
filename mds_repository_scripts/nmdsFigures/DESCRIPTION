@@ -1,0 +1,32 @@
+Package: nmdsFigures
+Type: Package
+Title: Clinical Timeline Visualization Tools
+Version: 0.1.0
+Authors@R:
+    person("Felix", "Falk",
+           email = "felixemilfalk@gmail.com",
+           role = c("aut", "cre"))
+
+Description: Tools for preprocessing clinical datasets from the NMDSG14B studies and
+    generating swimmer plots and clinical course visualizations.
+
+License: MIT + file LICENSE
+
+Imports:
+    optparse,
+    jsonlite,
+    readxl,
+    dplyr,
+    ggplot2,
+    tidyr,
+    stringr,
+    ggnewscale,
+    purrr,
+    patchwork,
+    geomtextpath,
+    scales,
+    cowplot
+    
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2

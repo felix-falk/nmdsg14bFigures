@@ -1,5 +1,5 @@
-# The script creates a figure explaining the clinical course after transplantation, 
-# based on patient data from the NMDS14B Part 2 study. 
+# The script creates a figure explaining the clinical course after transplantation,
+# based on patient data from the NMDS14B Part 2 study.
 
 # Load required packages
 
@@ -15,19 +15,23 @@ library(cowplot)
 library(stringr)
 
 # Set working directory
-setwd("~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data")
+setwd("~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project")
 
 # Import datasets
-p2_clinical <- read_excel("NMDS14B-Inkl-screen-EoS.xlsx")
-p2_mrd <- read_excel("NMDS14B_MRD.XLSX")
-p2_gvhd <- read_excel("NMDS14B_gvhddat.xlsx")
-p2_aza <- read_excel("NMDS14B_azacitkurer.xlsx")
-p2_is <- read_excel("NMDS14B_immunsupptrtm.xlsx")
-p2_dli <- read_excel("NMDS14B_dlitrt.xlsx")
-p2_ngs <- read_excel("NGS_lista_NMDSG14B2.xlsx")
+p2_clinical <- read_excel("NMDS14B_p2_data/NMDS14B-Inkl-screen-EoS.xlsx")
+p2_mrd <- read_excel("NMDS14B_p2_data/NMDS14B_MRD.XLSX")
+p2_gvhd <- read_excel("NMDS14B_p2_data/NMDS14B_gvhddat.xlsx")
+p2_aza <- read_excel("NMDS14B_p2_data/NMDS14B_azacitkurer.xlsx")
+p2_is <- read_excel("NMDS14B_p2_data/NMDS14B_immunsupptrtm.xlsx")
+p2_dli <- read_excel("NMDS14B_p2_data/NMDS14B_dlitrt.xlsx")
+p2_ngs <- read_excel("NMDS14B_p2_data/NGS_lista_NMDSG14B2.xlsx")
 
-# Transpose and filter the p2_aza file
-p2_aza <- p2_aza %>% pivot_longer(cols = starts_with("azacitstdat"), names_to = "timepoint", values_to = "azacitstartdat") %>% select(patno, azacitstartdat) %>% filter(!is.na(azacitstartdat)) %>% unique()
+# Transpose p2_aza
+p2_aza <- p2_aza %>%
+  pivot_longer(starts_with("azacitstdat"), names_to = "timepoint", values_to = "azacitstartdat") %>%
+  select(patno, azacitstartdat) %>%
+  filter(!is.na(azacitstartdat)) %>%
+  distinct()
 
 # Add transpldt to each data frame, by patno
 p2_mrd <- p2_mrd %>% left_join(p2_clinical[,c("patno", "transpldt")], by = "patno", keep = FALSE)
@@ -40,6 +44,7 @@ p2_dli <- p2_dli %>% left_join(p2_clinical[,c("patno", "transpldt")], by = "patn
 p2_clinical$Death <- as.Date(p2_clinical$deathdat) - as.Date(p2_clinical$transpldt)
 p2_clinical$Relapse <- as.Date(p2_clinical$relapsedat) - as.Date(p2_clinical$transpldt)
 p2_mrd$rel_mrd_dat <- as.Date(p2_mrd$MRDdat) - as.Date(p2_mrd$transpldt)
+p2_gvhd$rel_gvhd_dat <- as.Date(p2_gvhd$gvhddate) - as.Date(p2_gvhd$transpldt)
 p2_gvhd$rel_max_c_gvhd_dat <- as.Date(p2_gvhd$cgvhdmaxdt) - as.Date(p2_gvhd$transpldt)
 p2_gvhd$rel_max_a_gvhd_dat <- as.Date(p2_gvhd$agvhdmaxdt) - as.Date(p2_gvhd$transpldt)
 p2_is$is_stop_dat <- as.Date(p2_is$drugdt) - as.Date(p2_is$transpldt)
@@ -80,7 +85,7 @@ p2_clinical <- p2_clinical %>% mutate(ipssm_title = case_when(ipssm < -1.5 ~ "Ve
 # Helper function to clean GVHD data
 clean_gvhd <- function(df, rel_max_col, stage_col, max_stage_col, type) {
   df %>%
-    select(patno, !!sym(rel_max_col), !!sym(stage_col), !!sym(max_stage_col)) %>%
+    select(patno, rel_gvhd_dat, !!sym(rel_max_col), !!sym(stage_col), !!sym(max_stage_col)) %>%
     mutate(
       merged_stage = if_else(
         !is.na(!!sym(max_stage_col)) & !!sym(max_stage_col) >= !!sym(stage_col),
@@ -89,7 +94,7 @@ clean_gvhd <- function(df, rel_max_col, stage_col, max_stage_col, type) {
       )
     ) %>%
     pivot_longer(
-      cols = c(!!sym(rel_max_col)),
+      cols = c(rel_gvhd_dat, !!sym(rel_max_col)),
       names_to = "date_type",
       values_to = "relative_date"
     ) %>%
@@ -115,30 +120,42 @@ p2_c_gvhd <- clean_gvhd(p2_gvhd, "rel_max_c_gvhd_dat", "cgvhdstage", "cgvhdmaxst
 p2_is <- p2_is %>%
   filter(str_detect(drugname, regex("Ci|Cy|Sa|Ta|Si", ignore_case = TRUE)))
 p2_is <- p2_is %>%
-  filter(!drugname %in% c("Azitromycin", 
-                          "Dexametasone", 
-                          "hydrocortisonbutyrat (cutaneous)", 
+  filter(!drugname %in% c("Azitromycin",
+                          "Dexametasone",
+                          "hydrocortisonbutyrat (cutaneous)",
                           "jorvesza (orodispersible)",
                           "jorveza (orodispersible)",
                           "Photopheresis"))
 
-# Clean IS
-p2_is_events <- p2_is %>%
-  filter(drugstopped == "Yes") %>%
+
+# Create immune suppression intervals
+p2_is_intervals <- p2_is %>%
+  arrange(patno, drugname, drugdt) %>%
   group_by(patno, drugname) %>%
-  slice_max(order_by = is_stop_dat, n = 1, with_ties = FALSE) %>%
-  ungroup() %>%
-  transmute(
-    patno,
-    relative_date = is_stop_dat,
-    source_dataframe = "IS Stop",
-    agvhd_stage = NA_character_,
-    cgvhd_stage = NA_character_,
-    Mutation = NA_character_,
-    level = NA_real_,
-    Event = NA_character_,
-    drugname = drugname
-  )
+  group_modify(~{
+
+    stop_idx <- which(.x$drugstopped == "Yes")
+
+    if(length(stop_idx) == 0) {
+
+      tibble(
+        interval_start = min(.x$is_stop_dat, na.rm = TRUE),
+        interval_end   = max(.x$is_stop_dat, na.rm = TRUE)
+      )
+
+    } else {
+
+      starts <- c(1, stop_idx[-length(stop_idx)] + 1)
+      ends   <- stop_idx
+
+      tibble(
+        interval_start = .x$is_stop_dat[starts],
+        interval_end   = .x$is_stop_dat[ends]
+      )
+
+    }
+  }) %>%
+  ungroup()
 
 # Clean MRD
 p2_mrd_events <- p2_mrd %>%
@@ -186,7 +203,7 @@ p2_aza_events <- p2_aza %>%
     level = NA_real_,
     Event = NA_character_,
     drugname = NA_character_
-  ) %>% 
+  ) %>%
   filter(!is.na(relative_date))
 
 # Clean p2_dli data frame
@@ -207,9 +224,8 @@ p2_dli_events <- p2_dli %>%
 p2_merged <- bind_rows(
   p2_a_gvhd,
   p2_c_gvhd,
-  p2_is_events,
   p2_mrd_events,
-  p2_clinical_events, 
+  p2_clinical_events,
   p2_aza_events,
   p2_dli_events
 ) %>%
@@ -250,7 +266,7 @@ p2_merged <- p2_merged %>%
     )
   )
 
-# To achieve a log10 y axis scale, convert the 0 values in level to 0.08
+# To achieve a log10 y axis scale, convert the 0 values in level to 0.09
 p2_merged <- p2_merged %>% mutate(level_no0s = ifelse(level == 0, 0.08, level))
 
 # Create dummy GVHD legends
@@ -278,10 +294,10 @@ cgvhd_legend_grob <- get_legend(
 
 plot_patient_timeline <- function(data, pat_id) {
 
-  df <- p2_merged %>% 
+  df <- p2_merged %>%
     filter(patno == pat_id)
-  
-  df2 <- p2_merged %>% 
+
+  df2 <- p2_merged %>%
     filter(patno == pat_id) %>%
     filter(!source_dataframe %in% c("MRD", "Outcome")) %>%
     distinct(source_dataframe, relative_date, agvhd_stage, cgvhd_stage, drugname, .keep_all = TRUE) %>%
@@ -297,102 +313,95 @@ plot_patient_timeline <- function(data, pat_id) {
         )
       )
     )
-  
+
   # Determine x-axis range
   x_range <- range(as.numeric(df$relative_date), na.rm = TRUE)
-  
-  # ----------------------------
-  
-  # CLEAN MRD DATA (fix core issue)
-  
-  # ----------------------------
-  
-  mrd_df <- df %>%
-    filter(
-      source_dataframe == "MRD",
-      !is.na(Mutation),
-      Mutation != "(Only one mutation)",
-      Mutation != "(only one mutation)",
-      !is.na(relative_date),
-      !is.na(level_no0s),
-      level_no0s > 0   # required for log scale
-    ) %>%
-    group_by(Mutation) %>%
-    filter(n() > 1) %>%
-    ungroup()
-  
-  # Dynamically determine upper limit of y axis
-  mrd_values <- df$level_no0s[df$source_dataframe == "MRD"]
-  upper_limit <- 10  # default
-  if (length(mrd_values) > 0 && any(!is.na(mrd_values))) {
-    max_mrd <- max(mrd_values, na.rm = TRUE)
-    if (is.finite(max_mrd) && max_mrd > 10) {
-      upper_limit <- NA  # allow full expansion
-    }
+
+  # Fallback if patient has no dates
+  if (any(!is.finite(x_range))) {
+    x_range <- c(0, 365)
   }
+
+  # Determine MRD y-axis range
+  max_mrd <- max(df$level_no0s[df$source_dataframe == "MRD"], na.rm = TRUE)
+
+  y_upper <- ifelse(
+    is.finite(max_mrd) && max_mrd > 10,
+    ceiling(max_mrd),
+    10
+  )
+
+  is_intervals_patient <- p2_is_intervals %>%
+    filter(patno == pat_id) %>%
+    mutate(source_dataframe = "IS Stop")
+
+  #source_dataframe = factor(
+  #  source_dataframe,
+  #  levels = c(
+  #    "aGVHD",
+  #    "cGVHD",
+  #    "IS Stop",
+  #    "Azacitidine",
+  #    "DLI"
+  #  )
+  #)
 
   # ----------------------------
   # MRD plot (top)
   # ----------------------------
   mrd_plot <- ggplot() +
+    annotate("rect",
+             xmin = -Inf, xmax = Inf,
+             ymin = 0.08, ymax = 0.1,
+             fill = "lightgrey", alpha = 0.4) +
     geom_line(data = df %>% filter(source_dataframe == "MRD", !is.na(Mutation), Mutation != "(Only one mutation)", Mutation != "(only one mutation)") %>% droplevels(), aes(x=relative_date, y=level_no0s, colour=Mutation)) +
     geom_point(data = df %>% filter(source_dataframe == "MRD", !is.na(Mutation), Mutation != "(Only one mutation)", Mutation != "(only one mutation)") %>% droplevels(), aes(x=relative_date, y=level_no0s, colour=Mutation)) +
     theme_minimal() +
-    xlab(NULL) + 
+    xlab(NULL) +
     ylab(NULL) +
     scale_colour_brewer(palette="Set2", na.translate = FALSE) +
     scale_x_continuous(limits = x_range) +
-    scale_y_log10(limits = c(NA, upper_limit), labels = label_number()) +
+    scale_y_log10(
+      limits = c(0.08, y_upper),
+      labels = label_number()
+    ) +
     labs(title = paste0("Patient: ", pat_id),
          subtitle = paste0("Diagnosis: ", df$mdsdiagnosis, "\nIPSS-M: ", df$ipssm_title, "\nKaryotype: ", df$karyotyp, "\nNGS: ", df$mutlist)) +
     geom_textvline(
-      data = df%>% filter(source_dataframe == "Outcome" & Event == "Relapse"),
+      data = df %>% filter(source_dataframe == "Outcome" & Event == "Relapse"),
       aes(xintercept = relative_date, label = Event)
     ) +
     geom_textvline(
-      data = df%>% filter(source_dataframe == "Outcome" & Event == "Death"),
+      data = df %>% filter(source_dataframe == "Outcome" & Event == "Death"),
       aes(xintercept = relative_date, label = paste0(Event, ", ", deathcause))
     ) +
-    theme(legend.position="right",
-          plot.title = element_text(size = 12),
-          plot.subtitle = element_text(size = 9)) +
-    annotate(
-      "rect",
-      xmin = -Inf,
-      xmax = Inf,
-      ymin = 0.08,  # lower visible bound
-      ymax = 0.1,
-      alpha = 0.25,
-      fill = "grey50"
-    )
-  
-  # safer horizontal line
-  if (nrow(mrd_df) > 0) {
-    mrd_plot <- mrd_plot +
-      geom_texthline(
-        yintercept = 0.1,
-        label = "MRD Threshold",
-        vjust = -0.2, 
-        hjust = 1,
-        colour = "darkgrey",
-        linetype = "dashed"
-      )
-  }
-  
-  
+    geom_texthline(
+      yintercept = 0.1,
+      label = "MRD Threshold",
+      linetype="dashed",
+      color="darkgrey",
+      size = 3,
+      vjust = -0.2,
+      hjust = 1
+      ) +
+    theme(legend.position="right", plot.title = element_text(size = 12), plot.subtitle = element_text(size = 9))
+
+
+
+
   # Extract mrd legend
-  mrd_legend <- get_legend(mrd_plot) 
-  
+  mrd_legend <- get_legend(mrd_plot)
+
   # Remove mrd legend from mrd_plot
   mrd_plot_clean <- mrd_plot + theme(legend.position="none")
-  
+
   # ----------------------------
   # GVHD / IS events plot (bottom)
   # ----------------------------
-  
+
   events_plot <- ggplot(df2 %>% filter(!source_dataframe %in% c("MRD","Outcome")),
                         aes(x = relative_date, y = source_dataframe)) +
-    
+
     # aGVHD
     geom_point(
       data = df2 %>% filter(source_dataframe == "aGVHD" & !is.na(agvhd_stage)),
@@ -403,9 +412,9 @@ plot_patient_timeline <- function(data, pat_id) {
       values = c("0"="#EBEBEB","1"="#EDC0C0","2"="#FF7878","3"="#D42626","4"="#800000"),
       guide = "none"
     ) +
-    
+
     ggnewscale::new_scale_colour() +
-    
+
     # cGVHD
     geom_point(
       data = df2 %>% filter(source_dataframe == "cGVHD" & !is.na(cgvhd_stage)),
@@ -416,26 +425,33 @@ plot_patient_timeline <- function(data, pat_id) {
       values = c("None"="#EBEBEB","Mild"="#AA88BB","Moderate"="#622BD6","Severe"="#290088"),
       guide = "none"
     ) +
-    
-    # other events first (IS stop, Azacitidine, DLI)
+
+    # Immune suppression duration
+    geom_segment(
+      data = is_intervals_patient,
+      aes(
+        x = interval_start,
+        xend = interval_end,
+        y = "IS Stop",
+        yend = "IS Stop"
+      ),
+      linewidth = 2,
+      colour = "black"
+    ) +
+
+    # Azacitidine + DLI events
     geom_point(
-      data = df2 %>% filter(source_dataframe %in% c("IS Stop","Azacitidine","DLI")),
+      data = df2 %>% filter(source_dataframe %in% c("Azacitidine","DLI")),
       colour = "black",
       size = 3
     ) +
-    
-    # Add text for IS drug name
-    geom_text(data = df2 %>% filter(source_dataframe == "IS Stop"), 
-              aes(label = drugname),
-              hjust = -0.1, 
-              vjust = 0.5,
-              size = 3) +
-    
+
     labs(x = "Days after transplantation", y = NULL) +
     theme_minimal() +
     theme(legend.position = "none") +
-    scale_x_continuous(limits = x_range)
-  
+    scale_x_continuous(limits = x_range) +
+    scale_y_discrete(drop = FALSE)
+
   # ----------------------------
   # Combine MRD + events vertically
   # ----------------------------
@@ -447,12 +463,12 @@ plot_patient_timeline <- function(data, pat_id) {
     align="v",
     axis="tblr"
   )
-  
+
   # ----------------------------
   # Combine all legends vertically
   # ----------------------------
   combined_legends <- plot_grid(mrd_legend, agvhd_legend_grob, cgvhd_legend_grob, ncol=1, align="v")
-  
+
   # ----------------------------
   # Final combined plot
   # ----------------------------
@@ -461,17 +477,18 @@ plot_patient_timeline <- function(data, pat_id) {
 }
 
 # Plot one example patient
-# plot_patient_timeline(p2_merged, "1002")
+plotA <- plot_patient_timeline(p2_merged, "1001")
+plotA
 
-# Export patients to pdf
-pdf("NMDS14B_p2_Patient_Timelines.pdf", width = 10, height = 6)
+# Export the figures to a pdf
+pdf("NMDS14B_p2_output/NMDS14B_p2_Patient_Timelines.pdf", width = 10, height = 6)
 
 for(p in unique(p2_merged$patno)) {
   print(plot_patient_timeline(p2_merged, p))
 }
 
 dev.off()
-  
+
 
 
 

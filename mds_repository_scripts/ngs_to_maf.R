@@ -6,12 +6,14 @@ library(dplyr)
 library(tidyverse)
 
 # Set working directory
-setwd("~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p1_data")
+setwd("~/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project")
 
 # Import datasets
-ngs_p1 <- read_excel("NGS_Uppsala_2024-01-17.xlsx")
-general_info_p1_joel <- read_excel("mds_data_20240930.xlsx")
-sct_p1 <- read_excel("SCT_parameters_2026_02_20.xlsx")
+ngs_p1 <- read_excel("NMDS14B_p1_data/NGS_Uppsala_2024-01-17.xlsx")
+general_info_p1_joel <- read_excel("NMDS14B_p1_data/mds_data_20240930.xlsx")
+sct_p1 <- read_excel("NMDS14B_p1_data/SCT_parameters_2026_02_20.xlsx")
+ngs_p2 <- read_excel("NMDS14B_p2_data/NGS_lista_NMDSG14B2.xlsx")
+general_info_p2 <- read_excel("NMDS14B_p2_data/NMDS14B-Inkl-screen-EoS.xlsx")
 
 # Add Entrez_gene_id column to ngs_p1, based on gene_symbol
 ngs_p1 <- ngs_p1 %>% mutate(gene_id = case_when(
@@ -74,6 +76,10 @@ ngs_p1 <- ngs_p1 %>% mutate(gene_id = case_when(
   gene_symbol == NA ~ NA,
 ))
 
+# Change column names for ngs_p2
+names(ngs_p2)[names(ngs_p2) == "Gen"] <- "gene_id"
+names(ngs_p2)[names(ngs_p2) == "Studienummer"] <- "patno"
+
 ngs_p1 <- ngs_p1 %>% mutate(chr = case_when(
   chromosome == 1 ~ "chr1",
   chromosome == 2 ~ "chr2",
@@ -100,6 +106,35 @@ ngs_p1 <- ngs_p1 %>% mutate(chr = case_when(
   chromosome == "X" ~ "chrX",
   chromosome == "Y" ~ "chrY"
 ))
+
+# Gene to chromosome mapping
+gene_chr <- c(
+  SMC3="chr10", BCOR="chrX", STAG2="chrX", ASXL1="chr20", EZH2="chr7",
+  RUNX1="chr21", CBL="chr11", ZRSR2="chrX", TP53="chr17", SETBP1="chr18",
+  DNMT3A="chr2", SF3B1="chr2", GATA2="chr3", PTPRF="chr1", DICER1="chr14",
+  IDH1="chr2", ETV6="chr12", CEBPA="chr19", EP300="chr22", U2AF2="chr19",
+  TET2="chr4", KDM6A="chrX", SH2B3="chr12", U2AF1="chr21", ATRX="chrX",
+  MPL="chr1", CSF3R="chr1", SRSF2="chr17", SRCAP="chr16", NF1="chr17",
+  IDH2="chr15", PHF6="chrX", CUX1="chr7", JAK2="chr9", NOTCH1="chr9",
+  SMC1A="chrX", KIT="chr4", PTPN11="chr12", NRAS="chr1", DDX41="chr5",
+  NT5C2="chr10", KRAS="chr12", SF3A1="chr22", `C7orf55-LUC7L2`="chr7",
+  PHIP="chr6", MYB="chr6", FLT3="chr13", ETNK1="chr12", IKZF1="chr7",
+  RIT1="chr1", WT1="chr11", KMT2D="chr12", BRAF="chr7", BCORL1="chrX",
+  ABL1="chr9", NPM1="chr5", KMT2A="chr11", GNB1="chr1", SETPB1="chr18",
+  PPM1D="chr17", ANKRD26="chr10", `FLT3-TKD`="chr13", `FLT3-ITD`="chr13",
+  XPO1="chr2", JARID2="chr6", ARHGEF10="chr8", NXF1="chr11", ASXL2="chr2",
+  NFE2="chr12", LUC7L2="chr7", STAT5B="chr17", STAG1="chr3", JAK1="chr1",
+  CREBBP="chr16", PLCG2="chr16", BRCC3="chrX", ZBTB33="chrX", RAD21="chr8",
+  CDKN2C="chr1", CSF2RB="chr22", ASXL="chr20", CDKN2A="chr9", CBLB="chr3",
+  PRPF8="chr17", CALR="chr19", UBTF="chr17", `UBTF-TD`="chr17", MYD88="chr3"
+)
+
+# Add chromosome column
+ngs_p2 <- ngs_p2 %>%
+  mutate(chr = gene_chr[gene_id])
+
+# Optional: handle missing/NA genes
+ngs_p2$chr[is.na(ngs_p2$chr)] <- NA
 
 classify_maf_variant <- function(hgvsp, hgvsc = NA) {
   
@@ -167,29 +202,10 @@ classify_maf_variant <- function(hgvsp, hgvsc = NA) {
 # Add type_of_mutation column to ngs_p1
 ngs_p1 <- ngs_p1 %>% mutate(type_of_mutation = classify_maf_variant(protein_variant))
 
-#ngs_p1 <- ngs_p1 %>% mutate(type_of_mutation = case_when(
-#  protein_variant == 1 ~ "Frame_Shift_Del",
-#  protein_variant == 2 ~ "Frame_Shift_Ins",
-#  protein_variant == 3 ~ "In_Frame_Del",
-#  protein_variant == 4 ~ "In_Frame_Ins",
-#  protein_variant == 5 ~ "Missense_Mutation",
-#  protein_variant == 6 ~ "Nonsense_Mutation",
-#  protein_variant == 7 ~ "Silent",
-#  protein_variant == 8 ~ "Splice_Site",
-#  protein_variant == 9 ~ "Translation_Start_Site",
-#  protein_variant == 10 ~ "Nonstop_Mutation",
-#  protein_variant == 11 ~ "3'UTR",
-#  protein_variant == 12 ~ "3'Flank",
-#  protein_variant == 13 ~ "5'UTR",
-#  protein_variant == 14 ~ "5'Flank",
-#  protein_variant == 15 ~ "IGR",
-#  protein_variant == 16 ~ "Intron",
-#  protein_variant == 17 ~ "RNA",
-#  protein_variant == 18 ~ "Targeted_Region"
-#))
+# Add type_of_mutation column to ngs_p2
+ngs_p2 <- ngs_p2 %>% mutate(type_of_mutation = classify_maf_variant(Proteinförändring))
 
 # Function to determine variant_type
-
 classify_variant_type <- function(hgvsp, hgvsc = NA) {
   
   result <- rep(NA_character_, length(hgvsp))
@@ -236,15 +252,26 @@ classify_variant_type <- function(hgvsp, hgvsc = NA) {
 # Add type_of_variant column to ngs_p1
 ngs_p1 <- ngs_p1 %>% mutate(type_of_variant = classify_variant_type(protein_variant))
 
+# Add type_of_variant column to ngs_p2
+ngs_p2 <- ngs_p2 %>% mutate(type_of_variant = classify_variant_type(Proteinförändring))
+
 # Change Study number to study_number in general_info_p1_joel
 general_info_p1_joel <- general_info_p1_joel %>% 
   rename(study_number = Study_nr)
 
-# Create outcome column based on cens_CR, with censor replaced with remission
+# Create outcome columns in general_info_p1_joel and general_info_p2
 general_info_p1_joel <- general_info_p1_joel %>% 
   mutate(outcome = ifelse(cens_CR == "censor", "remission", cens_CR))
+general_info_p2 <- general_info_p2 %>%
+  mutate(
+    outcome = ifelse(
+      eosreason == "2 years post HCT" | is.na(eosreason),
+      "remission",
+      "censor"
+    )
+  )
 
-# Create TP53 column based on 
+# Create TP53 column in general_info_p1_joel
 general_info_p1_joel <- general_info_p1_joel %>%
   mutate(TP53_boolean = ifelse(Pres_dx_TP53 == 1 | Pres_incl_TP53 == 1, TRUE, FALSE))
 
@@ -261,12 +288,113 @@ ngs_p1 <- ngs_p1 %>%
   left_join(general_info_p1_joel %>% select(study_number, outcome), by = "study_number")
 ngs_p1 <- ngs_p1 %>%
   left_join(general_info_p1_joel %>% select(study_number, TP53_boolean), by = "study_number")
+general_info_p2 <- general_info_p2 %>% mutate(patno = as.character(patno))
+ngs_p2 <- ngs_p2 %>%
+  left_join(general_info_p2 %>% select(patno, outcome), by = "patno")
 
 # Add aGVHD_3_or_higher and cGVHD_severe columns from general_info_p1_joel to ngs_p1, based on study number
 ngs_p1 <- ngs_p1 %>%
   left_join(sct_p1 %>% select(study_number, aGVHD_3_or_higher), by = "study_number")
 ngs_p1 <- ngs_p1 %>%
   left_join(sct_p1 %>% select(study_number, cGVHD_severe), by = "study_number")
+
+# Gene -> HGNC ID mapping
+gene_hugo <- c(
+  SMC3="10649",
+  BCOR="20893",
+  STAG2="11355",
+  ASXL1="18391",
+  EZH2="3527",
+  RUNX1="10471",
+  CBL="1541",
+  ZRSR2="24307",
+  TP53="11998",
+  SETBP1="15573",
+  DNMT3A="2978",
+  SF3B1="10768",
+  GATA2="4171",
+  PTPRF="9671",
+  DICER1="17098",
+  IDH1="5382",
+  ETV6="3495",
+  CEBPA="1833",
+  EP300="3373",
+  U2AF2="12505",
+  TET2="25941",
+  KDM6A="12637",
+  SH2B3="29610",
+  U2AF1="12450",
+  ATRX="886",
+  MPL="7217",
+  CSF3R="2439",
+  SRSF2="10772",
+  SRCAP="11297",
+  NF1="7765",
+  IDH2="5383",
+  PHF6="18039",
+  CUX1="2557",
+  JAK2="6192",
+  NOTCH1="7881",
+  SMC1A="11111",
+  KIT="6342",
+  PTPN11="9644",
+  NRAS="7989",
+  DDX41="18647",
+  NT5C2="8026",
+  KRAS="6407",
+  SF3A1="10765",
+  `C7orf55-LUC7L2`="30426",
+  PHIP="18010",
+  MYB="7545",
+  FLT3="3765",
+  ETNK1="28509",
+  IKZF1="13176",
+  RIT1="10017",
+  WT1="12796",
+  KMT2D="7133",
+  BRAF="1097",
+  BCORL1="25654",
+  ABL1="76",
+  NPM1="7910",
+  KMT2A="7132",
+  GNB1="4396",
+  SETPB1="15573",
+  PPM1D="9277",
+  ANKRD26="24057",
+  `FLT3-TKD`="3765",
+  `FLT3-ITD`="3765",
+  XPO1="12825",
+  JARID2="6197",
+  ARHGEF10="21008",
+  NXF1="8048",
+  ASXL2="20894",
+  NFE2="7776",
+  LUC7L2="20315",
+  STAT5B="11368",
+  STAG1="11356",
+  JAK1="6190",
+  CREBBP="2348",
+  PLCG2="9076",
+  BRCC3="17393",
+  ZBTB33="29430",
+  RAD21="9811",
+  CDKN2C="1789",
+  CSF2RB="2440",
+  ASXL="18391",
+  CDKN2A="1787",
+  CBLB="1542",
+  PRPF8="17340",
+  CALR="1455",
+  UBTF="12514",
+  `UBTF-TD`="12514",
+  MYD88="7562"
+)
+
+# Add HGNC ID column to ngs_p2
+ngs_p2 <- ngs_p2 %>%
+  mutate(
+    hugo_id = gene_hugo[gene_id]
+  )
 
 # Add Hugo_Symbol column to ngs_p1
 nmds14b_p1_maf <- ngs_p1 %>% 
@@ -428,11 +556,158 @@ nmds14b_p1_maf <- ngs_p1 %>%
             cGVHD_severe,
             TP53_boolean))
   
+# Add Hugo_Symbol column to ngs_p1
+nmds14b_p2_maf <- ngs_p2 %>% 
+  mutate(Hugo_Symbol = gene_id,
+         Entrez_Gene_Id = gene_id,
+         Center = NA,
+         NCBI_Build = "GRCh38", # Use GRCh38 as the genome build
+         Chromosome = chr,
+         Start_Position = NA,
+         End_Position = NA,
+         Strand = NA,
+         Variant_Classification = type_of_mutation,
+         Variant_Type = type_of_variant,
+         Reference_Allele = NA,
+         Tumor_Seq_Allele1 = NA,
+         Tumor_Seq_Allele2 = NA,
+         dbSNP_RS = NA,
+         dbSNP_Val_Status = NA,
+         Tumor_Sample_Barcode = patno, # Use study_number as sample ID
+         Matched_Norm_Sample_Barcode = NA,
+         Match_Norm_Seq_Allele1 = NA,
+         Match_Norm_Seq_Allele2 = NA,
+         Tumor_Validation_Allele1 = NA,
+         Tumor_Validation_Allele2 = NA,
+         Match_Norm_Validation_Allele1 = NA,
+         Match_Norm_Validation_Allele2 = NA,
+         Verification_Status = NA,
+         Validation_Status = NA,
+         Mutation_Status = NA,
+         Sequencing_Phase = NA,
+         Sequence_Source = NA,
+         Validation_Method = NA,
+         Score = NA,
+         BAM_File = NA,
+         Sequencer = NA,
+         Tumor_Sample_UUID = NA,
+         Matched_Norm_Sample_UUID = NA,
+         HGVSc = NA,
+         HGVSp = NA,
+         HGVSp_Short = NA,
+         Transcript_ID = NA,
+         Exon_Number = NA,
+         t_depth = NA,
+         t_ref_count = NA,
+         t_alt_count = NA,
+         n_depth = NA,
+         n_ref_count = NA,
+         n_alt_count = NA,
+         all_effects = NA,
+         Allele = NA,
+         Gene = NA,
+         Feature = NA,
+         Feature_type = NA,
+         One_Consequence = NA,
+         Consequence = NA,
+         cDNA_position = NA,
+         CDS_position = NA,
+         Protein_position = NA,
+         Amino_acids = NA,
+         Codons = NA,
+         Existing_variation = NA,
+         ALLELE_NUM = NA,
+         DISTANCE = NA,
+         TRANSCRIPT_STRAND = NA,
+         SYMBOL = NA,
+         SYMBOL_SOURCE = NA,
+         HGNC_ID = NA,
+         BIOTYPE = NA,
+         CANONICAL = NA,
+         CCDS = NA,
+         ENSP = NA,
+         SWISSPROT = NA,
+         TREMBL = NA,
+         UNIPARC = NA,
+         RefSeq = NA,
+         SIFT = NA,
+         PolyPhen = NA,
+         EXON = NA, 
+         INTRON = NA,
+         DOMAINS = NA, 
+         GMAF = NA, 
+         AFR_MAF = NA, 
+         AMR_MAF = NA, 
+         ASN_MAF = NA, 
+         EAS_MAF = NA, 
+         EUR_MAF = NA, 
+         SAS_MAF = NA, 
+         AA_MAF = NA, 
+         EA_MAF = NA,
+         CLIN_SIG = NA,
+         SOMATIC = NA, 
+         PUBMED = NA, 
+         MOTIF_NAME = NA, 
+         MOTIF_POS = NA, 
+         HIGH_INF_POS = NA, 
+         MOTIF_SCORE_CHANGE = NA, 
+         IMPACT = NA,
+         PICK = NA,
+         VARIANT_CLASS = NA,
+         TSL = NA,
+         HGVS_OFFSET = NA,
+         PHENO = NA,
+         MINIMISED = NA,
+         ExAC_AF = NA,
+         ExAC_AF_Adj = NA,
+         ExAC_AF_AFR = NA,
+         ExAC_AF_AMR = NA,
+         ExAC_AF_EAS = NA,
+         ExAC_AF_FIN = NA,
+         ExAC_AF_NFE = NA,
+         ExAC_AF_OTH = NA,
+         ExAC_AF_SAS = NA,
+         GENE_PHENO = NA,
+         FILTER = NA,
+         CONTEXT = NA,
+         src_vcf_id = NA,
+         tumor_bam_uuid = NA,
+         normal_bam_uuid = NA,
+         case_id = NA,
+         GDC_FILTER = NA,
+         COSMIC = NA,
+         MC3_Overlap = NA,
+         GDC_Validation_Status = NA,
+         GDC_Valid_Somatic = NA,
+         vcf_region = NA,
+         vcf_info = NA,
+         vcf_format = NA,
+         vcf_tumor_gt = NA,
+         vcf_normal_gt = NA,
+         tumor_VAF = `VAF (%)`,
+         Protein_Change = NA, 
+         Outcome = outcome) %>%
+  select(!c(ScreeningID, 
+            patno, 
+            Remissnummer, 
+            `Provtagning (Diagnos/Inklusion/Relaps/Uppföljning)`, 
+            gene_id, 
+            Transkriptnummer, 
+            `cDNA förändring`, 
+            Proteinförändring, 
+            `VAF (%)`, 
+            `Bedömning (VUS/Likely Pat/Pat)`, 
+            `ddPCR design (assay ID)`, 
+            `NGS (Stockholm/Uppsala/Extern)`, 
+            Kommentar, 
+            ...14, 
+            ...15, 
+            chr, 
+            outcome,
+            hugo_id,
+            type_of_mutation,
+            type_of_variant))
 
-# Remove columns based on name from n
-
-class(nmds14b_p1_maf)
-  
-# Export nmds14b_p1_maf as tab separated .maf file
+# Export nmds14b_p1_maf and nmds14b_p2_maf as tab separated .maf files
 write.table(nmds14b_p1_maf, file='nmds14b_p1_maf.maf', sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
-  
+write.table(nmds14b_p2_maf, file='nmds14b_p2_maf.maf', sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)

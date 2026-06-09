@@ -1,0 +1,3 @@
+- The temperature will change across the four seasons: colder in winter, warmer in summer. 
+- The mean or median temperature will increase over time, indicative of global warming. 
+- The duration of the warmer seasons will increase over time, the duration of the colder seasons will shrink over time, indicative of global warming. 

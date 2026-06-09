@@ -1,24 +1,38 @@
 {
   "main": {
-    "id": "e07f59ebbbb2c210",
+    "id": "d048a836defe8d36",
     "type": "split",
     "children": [
       {
-        "id": "cedf1ffa37d6f5a1",
+        "id": "39909dc686f9a349",
         "type": "tabs",
         "children": [
           {
-            "id": "67376afdbbf8cc4b",
+            "id": "3659562f15e19a34",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "GU Programming Practices Course.md",
+                "file": "mds_repository_protocols/protocol_cd34_apc_titration.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "GU Programming Practices Course"
+              "title": "protocol_cd34_apc_titration"
+            }
+          },
+          {
+            "id": "d1cf2ae66427a62d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Programming Formalisms Course.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Programming Formalisms Course"
             }
           }
         ]
@@ -27,15 +41,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "9c2d29fb1b971e9b",
+    "id": "24f885f9bc7dc2e2",
     "type": "split",
     "children": [
       {
-        "id": "8acc50c2a22aeea7",
+        "id": "c5376b409946b42f",
         "type": "tabs",
         "children": [
           {
-            "id": "f81f2138a4637e62",
+            "id": "4d20c6371a9884b2",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -48,7 +62,7 @@
             }
           },
           {
-            "id": "492e20b54cd47a54",
+            "id": "bb95f55b46036909",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -65,7 +79,7 @@
             }
           },
           {
-            "id": "02b202c6bd38b60c",
+            "id": "4061f7101724e6a5",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -82,20 +96,20 @@
     "collapsed": true
   },
   "right": {
-    "id": "bb45f882567d5e0e",
+    "id": "2e3f248d7d3172f5",
     "type": "split",
     "children": [
       {
-        "id": "ff654375e779cea3",
+        "id": "738082d722192818",
         "type": "tabs",
         "children": [
           {
-            "id": "f5ff3bf401e16c3e",
+            "id": "b2bf481d4348ddfd",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "protocol_lsrfortessa.md",
+                "file": "mds_repository_protocols/protocol_cd34_apc_titration.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,25 +119,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for protocol_lsrfortessa"
+              "title": "Backlinks for protocol_cd34_apc_titration"
             }
           },
           {
-            "id": "39094a3969c1bf15",
+            "id": "62a818eea563291b",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "protocol_lsrfortessa.md",
+                "file": "mds_repository_protocols/protocol_cd34_apc_titration.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from protocol_lsrfortessa"
+              "title": "Outgoing links from protocol_cd34_apc_titration"
             }
           },
           {
-            "id": "2287c0f23bed0d3e",
+            "id": "52370db2c8bb86b1",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -138,7 +152,7 @@
             }
           },
           {
-            "id": "901ca7ab686dfdb3",
+            "id": "b1460ae406f22911",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -152,18 +166,18 @@
             }
           },
           {
-            "id": "8666b4aff7a4bfd0",
+            "id": "5b96f46b92fd8667",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "protocol_lsrfortessa.md",
+                "file": "mds_repository_protocols/protocol_cd34_apc_titration.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of protocol_lsrfortessa"
+              "title": "Outline of protocol_cd34_apc_titration"
             }
           }
         ]
@@ -184,44 +198,11 @@
       "bases:Skapa ny bas": false
     }
   },
-  "active": "67376afdbbf8cc4b",
+  "active": "3659562f15e19a34",
   "lastOpenFiles": [
-    "Skärmavbild 2026-06-04 kl. 10.28.37.png",
-    "Skärmavbild 2026-06-04 kl. 10.19.57.png",
-    "Skärmavbild 2026-06-04 kl. 10.17.17.png",
-    "Skärmavbild 2026-06-04 kl. 09.31.00.png",
-    "Skärmavbild 2026-05-28 kl. 11.14.07.png",
-    "Skärmavbild 2026-05-28 kl. 10.46.33.png",
-    "Skärmavbild 2026-05-28 kl. 10.45.26.png",
-    "Skärmavbild 2026-05-28 kl. 10.36.04.png",
-    "Skärmavbild 2026-05-28 kl. 10.34.26.png",
-    "README.md.md",
-    "README.md",
-    "GU Programming Practices Course.md",
-    "protocol_thawing_of_bm_mncs.md",
-    "Namnlös.md",
     "Programming Formalisms Course.md",
-    "hypotheses.md",
-    "protocol_thawing_of_bm_mncs.pdf",
-    "protocol_lsrfortessa.md",
-    "protocol_cd3_fitc_titration.md",
-    "protocol_cd3_fitc_titration.pdf",
-    "protocol_bm_mnc_biobanking.pdf",
-    "protocol_bm_mnc_biobanking.md",
-    "Skärmavbild 2026-02-12 kl. 10.35.50.png",
-    "protocol_experiment_documentation.md",
-    "Single-Cell RNA Sequencing.md",
-    "Single cell RNA sequencing data analysis.md",
-    "EMBL scRNA-seq Course Notes.md",
-    "falk_protocols/protocol_thawing_of_bm_mncs.md",
-    "protocol_sample_transport_solna_to_flemingsberg.md",
-    "protocol_lsrfortessa.pdf",
-    "falk_protocols/protocol_cd3_fitc_titration.md",
-    "falk_protocols",
-    "falk_protocols/protocol_cd3_fitc_titration.pdf",
-    "falk_protocols/protocol_lsrfortessa.md",
-    "falk_protocols/protocol_bm_mnc_biobanking.md",
-    "falk_protocols/protocol_bm_mnc_biobanking.pdf",
-    "falk_protocols/protocol_lsrfortessa.pdf"
+    "Skärmavbild 2026-04-21 kl. 10.47.31.png",
+    "Skärmavbild 2026-04-21 kl. 10.47.14.png",
+    "Skärmavbild 2026-04-21 kl. 10.46.29.png"
   ]
 }
