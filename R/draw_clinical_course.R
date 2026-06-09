@@ -21,44 +21,35 @@ draw_clinical_course <- function(
   if (!is.null(patient_subset)) {
     
     processed$general_info <-
-      processed$general_info %>%
+      processed$general_info |>
       dplyr::filter(patno %in% patient_subset)
     
     processed$treatment <-
-      processed$treatment %>%
+      processed$treatment |>
       dplyr::filter(patno %in% patient_subset)
     
     processed$mrd <-
-      processed$mrd %>%
+      processed$mrd |>
       dplyr::filter(patno %in% patient_subset)
     
     processed$gvhd <-
-      processed$gvhd %>%
+      processed$gvhd |>
       dplyr::filter(patno %in% patient_subset)
     
     processed$immune_intervals <-
-      processed$immune_intervals %>%
+      processed$immune_intervals |>
       dplyr::filter(patno %in% patient_subset)
     
     processed$ngs <-
-      processed$ngs %>%
+      processed$ngs |>
       dplyr::filter(patno %in% patient_subset)
   
   }
   
   # To achieve a log10 y axis scale, convert the 0 values in level to 0.09
-  processed$mrd <- processed$mrd %>% dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
+  processed$mrd <- processed$mrd |> dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
   
-  # Create dummy GVHD legends
-  make_legend <- function(levels, colours, title) {
-    df <- data.frame(stage=factor(levels, levels=levels), x=1, y=1)
-    cowplot::get_legend(
-      ggplot2::ggplot(df, ggplot2::aes(x, y, colour=stage)) +
-        ggplot2::geom_point(size=3) +
-        ggplot2::scale_colour_manual(name=title, values=colours) +
-        ggplot2::theme_void() + ggplot2::theme(legend.position="right")
-    )
-  }
+  
   
   agvhd_colours <- c("0" = "#EBEBEB",
                      "1" = "#EDC0C0",
@@ -70,8 +61,8 @@ draw_clinical_course <- function(
                      "Moderate" = "#622BD6",
                      "Severe" = "#290088")
   
-  agvhd_legend_grob <- make_legend(names(agvhd_colours), agvhd_colours, "aGVHD Stage")
-  cgvhd_legend_grob <- make_legend(names(cgvhd_colours), cgvhd_colours, "cGVHD Stage")
+  agvhd_legend_grob <- make_dummy_legend(names(agvhd_colours), agvhd_colours, "aGVHD Stage")
+  cgvhd_legend_grob <- make_dummy_legend(names(cgvhd_colours), cgvhd_colours, "cGVHD Stage")
   
   # Define a function to generate MRD + GVHD timeline for a given patient
   
@@ -126,10 +117,10 @@ draw_clinical_course <- function(
                fill = "lightgrey",
                alpha = 0.4) +
       
-      ggplot2::geom_line(data = d$mrd %>%
-                  dplyr::filter(!is.na(Mutation)) %>%
-                  dplyr::group_by(Mutation) %>%
-                  dplyr::filter(dplyr::n() > 1) %>%
+      ggplot2::geom_line(data = d$mrd |>
+                  dplyr::filter(!is.na(Mutation)) |>
+                  dplyr::group_by(Mutation) |>
+                  dplyr::filter(dplyr::n() > 1) |>
                   dplyr::ungroup(),
                 ggplot2::aes(x = rel_mrd_dat,
                     y = level_no0s,
@@ -171,12 +162,12 @@ draw_clinical_course <- function(
         )) +
       
       geomtextpath::geom_textvline(
-        data = d$general_info %>% dplyr::filter(outcome == "Relapse"),
+        data = d$general_info |> dplyr::filter(outcome == "Relapse"),
         ggplot2::aes(xintercept = rel_term_dat,
             label = "Relapse")) +
       
       geomtextpath::geom_textvline(
-        data = d$general_info %>% dplyr::filter(outcome == "Nonrelapse mortality"),
+        data = d$general_info |> dplyr::filter(outcome == "Nonrelapse mortality"),
         ggplot2::aes(xintercept = rel_term_dat,
             label = paste0("Death: ", deathcause))) +
       
@@ -207,7 +198,7 @@ draw_clinical_course <- function(
       
       # aGVHD
       ggplot2::geom_point(
-        data = d$gvhd %>% dplyr::filter(gvhd == "Acute GVHD" & !is.na(agvhdstage)),
+        data = d$gvhd |> dplyr::filter(gvhd == "Acute GVHD" & !is.na(agvhdstage)),
         ggplot2::aes(x = rel_gvhd_dat,
             y = 1,
             colour = agvhdstage),
@@ -227,7 +218,7 @@ draw_clinical_course <- function(
       
       # cGVHD
       ggplot2::geom_point(
-        data = d$gvhd %>% dplyr::filter(gvhd == "Chronic GVHD" & !is.na(cgvhdstage)),
+        data = d$gvhd |> dplyr::filter(gvhd == "Chronic GVHD" & !is.na(cgvhdstage)),
         ggplot2::aes(x = rel_gvhd_dat,
             y = 2,
             colour = cgvhdstage),
@@ -257,7 +248,7 @@ draw_clinical_course <- function(
       
       # Azacitidine events
       ggplot2::geom_point(
-        data = d$treatment %>% dplyr::filter(treatment == "Azacitidine"),
+        data = d$treatment |> dplyr::filter(treatment == "Azacitidine"),
         ggplot2::aes(x = rel_treatment_dat,
             y = 4),
         colour = "black",
@@ -266,7 +257,7 @@ draw_clinical_course <- function(
       
       # DLI events
       ggplot2::geom_point(
-        data = d$treatment %>% dplyr::filter(treatment == "Donor Lymphocyte Infusion"),
+        data = d$treatment |> dplyr::filter(treatment == "Donor Lymphocyte Infusion"),
         ggplot2::aes(x = rel_treatment_dat,
             y = 5),
         colour = "black",
