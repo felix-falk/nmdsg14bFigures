@@ -43,7 +43,44 @@ Rscript run_analysis.R \
   --plot_type swimmerplot \
   --filters filters/example_filters.json
 
-  
+## Run the script in R
+
+Rscript run_analysis.R \
+  --general_info_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B-Inkl-screen-EoS.xlsx \
+  --mrd_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_MRD.XLSX \
+  --dli_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_dlitrt.xlsx \
+  --aza_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_azacitkurer.xlsx \
+  --immune_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_immunsupptrtm.xlsx \
+  --gvhd_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_gvhddat.xlsx \
+  --ngs_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NGS_lista_NMDSG14B2.xlsx \
+  --immune_filter_file /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/immune_suppression_filter.csv \
+  --processed_folder processed \
+  --output_folder /Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_output \
+  --plot_type clinical_course \
+  --filters filters/example_filters.json
+
+  nmdsFiguresMain(
+
+    general_info_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B-Inkl-screen-EoS.xlsx",
+
+    mrd_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_MRD.XLSX",
+    
+    dli_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_dlitrt.xlsx",
+    
+    aza_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_azacitkurer.xlsx",
+    
+    immune_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_immunsupptrtm.xlsx",
+    
+    gvhd_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B_gvhddat.xlsx",
+    
+    ngs_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NGS_lista_NMDSG14B2.xlsx",
+    
+    immune_filter_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/immune_suppression_filter.csv",
+
+    output_folder = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_output",
+
+    plot_type = "swimmerplot"
+)
 
 ## R Markdown
 

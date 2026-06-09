@@ -29,7 +29,7 @@ apply_filters <- function(processed, filters) {
 # ==================================================
 
 patients <- general_info %>%
-  pull(patno) %>%
+  dplyr::pull(patno) %>%
   unique()
 
 # ==================================================
@@ -39,11 +39,11 @@ patients <- general_info %>%
 if (length(filter_settings$genes) > 0) {
 
   gene_patients <- ngs_processed %>%
-    filter(Gen %in% filter_settings$genes) %>%
-    distinct(patno, Gen) %>%
-    count(patno) %>%
-    filter(n == length(filter_settings$genes)) %>%
-    pull(patno)
+    dplyr::filter(Gen %in% filter_settings$genes) %>%
+    dplyr::distinct(patno, Gen) %>%
+    dplyr::count(patno) %>%
+    dplyr::filter(n == length(filter_settings$genes)) %>%
+    dplyr::pull(patno)
 
   patients <- intersect(patients, gene_patients)
 }
@@ -55,8 +55,8 @@ if (length(filter_settings$genes) > 0) {
 if (length(filter_settings$outcomes) > 0) {
 
   outcome_patients <- general_info %>%
-    filter(outcome %in% filter_settings$outcomes) %>%
-    pull(patno)
+    dplyr::filter(outcome %in% filter_settings$outcomes) %>%
+    dplyr::pull(patno)
 
   patients <- intersect(patients, outcome_patients)
 }
@@ -68,11 +68,11 @@ if (length(filter_settings$outcomes) > 0) {
 if (length(filter_settings$treatments) > 0) {
 
   treatment_patients <- treatment %>%
-    filter(treatment %in% filter_settings$treatments) %>%
-    distinct(patno, treatment) %>%
-    count(patno) %>%
-    filter(n == length(filter_settings$treatments)) %>%
-    pull(patno)
+    dplyr::filter(treatment %in% filter_settings$treatments) %>%
+    dplyr::distinct(patno, treatment) %>%
+    dplyr::count(patno) %>%
+    dplyr::filter(n == length(filter_settings$treatments)) %>%
+    dplyr::pull(patno)
 
   patients <- intersect(patients, treatment_patients)
 }
@@ -84,15 +84,15 @@ if (length(filter_settings$treatments) > 0) {
 if (!is.null(filter_settings$mrd_positive)) {
 
   mrd_positive_patients <- mrd_all %>%
-    group_by(patno) %>%
-    summarise(
+    dplyr::group_by(patno) %>%
+    dplyr::summarise(
       mrd_positive = any(level >= 0.1, na.rm = TRUE),
       .groups = "drop"
     )
 
   selected_patients <- mrd_positive_patients %>%
-    filter(mrd_positive == filter_settings$mrd_positive) %>%
-    pull(patno)
+    dplyr::filter(mrd_positive == filter_settings$mrd_positive) %>%
+    dplyr::pull(patno)
 
   patients <- intersect(patients, selected_patients)
 }
@@ -132,8 +132,8 @@ print(filtered_patients)
 # Optional detailed table
 
 filtered_patient_info <- general_info %>%
-  filter(patno %in% filtered_patients) %>%
-  select(
+  dplyr::filter(patno %in% filtered_patients) %>%
+  dplyr::select(
     patno,
     outcome,
     ipssm,

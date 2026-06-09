@@ -22,27 +22,27 @@ draw_swimmerplot <- function(
     
     processed$general_info <-
       processed$general_info %>%
-      filter(patno %in% patient_subset)
+      dplyr::filter(patno %in% patient_subset)
     
     processed$treatment <-
       processed$treatment %>%
-      filter(patno %in% patient_subset)
+      dplyr::filter(patno %in% patient_subset)
     
     processed$mrd <-
       processed$mrd %>%
-      filter(patno %in% patient_subset)
+      dplyr::filter(patno %in% patient_subset)
     
     processed$gvhd <-
       processed$gvhd %>%
-      filter(patno %in% patient_subset)
+      dplyr::filter(patno %in% patient_subset)
     
     processed$immune_intervals <-
       processed$immune_intervals %>%
-      filter(patno %in% patient_subset)
+      dplyr::filter(patno %in% patient_subset)
     
     processed$ngs <-
       processed$ngs %>%
-      filter(patno %in% patient_subset)
+      dplyr::filter(patno %in% patient_subset)
   }
   
   title_string <- "All patients"
@@ -50,71 +50,71 @@ draw_swimmerplot <- function(
   # --- MRD RECTANGLES ---
   
   mrd_base <- processed$mrd %>%
-    select(patno, rel_mrd_dat, mrd_category, rel_term_dat) %>%
-    distinct() %>%
-    arrange(patno, rel_mrd_dat)
+    dplyr::select(patno, rel_mrd_dat, mrd_category, rel_term_dat) %>%
+    dplyr::distinct() %>%
+    dplyr::arrange(patno, rel_mrd_dat)
   
   mrd_rectangles <- mrd_base %>%
-    group_by(patno) %>% # Perform following calculations on a per-patient basis
-    mutate(
+    dplyr::group_by(patno) %>% # Perform following calculations on a per-patient basis
+    dplyr::mutate(
       xmin = rel_mrd_dat,
-      xmax = coalesce(lead(rel_mrd_dat), first(rel_term_dat) + 5)
+      xmax = dplyr::coalesce(dplyr::lead(rel_mrd_dat), dplyr::first(rel_term_dat) + 5)
     ) %>%
-    ungroup() %>%
-    select(patno, xmin, xmax, mrd_category, rel_term_dat) %>%
-    bind_rows(
+    dplyr::ungroup() %>%
+    dplyr::select(patno, xmin, xmax, mrd_category, rel_term_dat) %>%
+    dplyr::bind_rows(
       mrd_base %>%
-        group_by(patno) %>%
-        slice(1) %>%
-        transmute(
+        dplyr::group_by(patno) %>%
+        dplyr::slice(1) %>%
+        dplyr::transmute(
           patno,
           xmin         = 0,
           xmax         = rel_mrd_dat,
-          mrd_category = if_else(rel_mrd_dat == 0, mrd_category, NA),
+          mrd_category = dplyr::if_else(rel_mrd_dat == 0, mrd_category, NA),
           rel_term_dat
         ) %>%
-        ungroup()
+        dplyr::ungroup()
     ) %>%
-    filter(xmin != xmax) %>%
-    arrange(patno, xmin) %>%
-    group_by(patno) %>%
-    mutate(rect_index = row_number()) %>%
-    ungroup()
+    dplyr::filter(xmin != xmax) %>%
+    dplyr::arrange(patno, xmin) %>%
+    dplyr::group_by(patno) %>%
+    dplyr::mutate(rect_index = dplyr::row_number()) %>%
+    dplyr::ungroup()
   
   # Calculate mrd_terminal
-  mrd_terminal <- mrd_base %>% filter(rel_mrd_dat == rel_term_dat)
+  mrd_terminal <- mrd_base %>% dplyr::filter(rel_mrd_dat == rel_term_dat)
   
   # --- PLOT DATA & LOOKUP ---
   
   plot_data <- mrd_rectangles %>%
-    group_by(patno) %>%
-    mutate(max_end_event = first(rel_term_dat)) %>%
-    ungroup() %>%
-    arrange(max_end_event, patno, xmin) %>%
-    mutate(
+    dplyr::group_by(patno) %>%
+    dplyr::mutate(max_end_event = dplyr::first(rel_term_dat)) %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(max_end_event, patno, xmin) %>%
+    dplyr::mutate(
       patno_factor = factor(patno, levels = unique(patno)),
       y    = as.numeric(patno_factor),
       ymin = y,
       ymax = y
     )
   
-  patient_y <- distinct(select(plot_data, patno, y))
+  patient_y <- dplyr::distinct(dplyr::select(plot_data, patno, y))
   
   # Pre-build all annotation datasets once, outside ggplot()
   mrd_terminal_pts <- mrd_terminal %>%
-    left_join(patient_y, by = "patno")
+    dplyr::left_join(patient_y, by = "patno")
   outcome_pts <- processed$general_info %>% 
-    select(patno, rel_term_dat, outcome) %>%
-    distinct() %>% 
-    left_join(patient_y, by = "patno")
+    dplyr::select(patno, rel_term_dat, outcome) %>%
+    dplyr::distinct() %>% 
+    dplyr::left_join(patient_y, by = "patno")
   gvhd_pts <- processed$gvhd %>%
-    distinct() %>%
-    left_join(patient_y, by = "patno")
+    dplyr::distinct() %>%
+    dplyr::left_join(patient_y, by = "patno")
   treatment_pts <- processed$treatment %>%
-    distinct() %>%
-    left_join(patient_y, by = "patno")
+    dplyr::distinct() %>%
+    dplyr::left_join(patient_y, by = "patno")
   immune_pts <- processed$immune_intervals %>%
-    left_join(patient_y, by = "patno")
+    dplyr::left_join(patient_y, by = "patno")
   
   # --- SWIMMER PLOT FUNCTION ---
   
@@ -126,14 +126,14 @@ draw_swimmerplot <- function(
                           treatment_pts,
                           gvhd_pts,
                           title_string){
-    swimmer_plot <- ggplot(plot_data) +
+    swimmer_plot <- ggplot2::ggplot(plot_data) +
       
-      geom_rect(aes(xmin = xmin, xmax = xmax,
+      ggplot2::geom_rect(ggplot2::aes(xmin = xmin, xmax = xmax,
                     ymin = ymin - 0.2, ymax = ymax + 0.2,
                     fill = mrd_category),
                 color = "black") +
       
-      scale_fill_manual(
+      ggplot2::scale_fill_manual(
         name = "MRD category",
         values = c(
           "Negative (< 0.1)"       = "#FFFFFF",
@@ -142,12 +142,12 @@ draw_swimmerplot <- function(
           "High (> 1)"             = "#F21C0D"
         ),
         na.value = "lightgrey",
-        guide = guide_legend(order = 1)) +
+        guide = ggplot2::guide_legend(order = 1)) +
       
       # Add immune suppression line
-      geom_segment(
+      ggplot2::geom_segment(
         data = immune_pts,
-        aes(
+        ggplot2::aes(
           x = interval_start,
           xend = interval_end,
           y = y + 0.3,
@@ -158,10 +158,10 @@ draw_swimmerplot <- function(
         color = "brown"
       ) +
       
-      scale_linetype_manual(
+      ggplot2::scale_linetype_manual(
         name = NULL,
         values = c("Immune suppression" = "solid"),
-        guide = guide_legend(
+        guide = ggplot2::guide_legend(
           order = 5,
           override.aes = list(
             linewidth = 2.5,
@@ -170,16 +170,16 @@ draw_swimmerplot <- function(
         )
       ) +
       
-      geom_text(data = filter(outcome_pts, outcome == "Relapse"),
-                aes(x = rel_term_dat + 5, y = y, label = "R"), hjust = -0.2) +
+      ggplot2::geom_text(data = dplyr::filter(outcome_pts, outcome == "Relapse"),
+                ggplot2::aes(x = rel_term_dat + 5, y = y, label = "R"), hjust = -0.2) +
       
-      geom_text(data = filter(outcome_pts, outcome == "Nonrelapse mortality"),
-                aes(x = rel_term_dat + 5, y = y, label = "\u2020"), hjust = -0.2) +
+      ggplot2::geom_text(data = dplyr::filter(outcome_pts, outcome == "Nonrelapse mortality"),
+                ggplot2::aes(x = rel_term_dat + 5, y = y, label = "\u2020"), hjust = -0.2) +
       
       # Add MRD annotations at the final recorded date
-      geom_point(
+      ggplot2::geom_point(
         data = mrd_terminal_pts,
-        aes(
+        ggplot2::aes(
           x = rel_term_dat + 5,
           y = y,
           fill = mrd_category
@@ -189,58 +189,58 @@ draw_swimmerplot <- function(
         color = "black"
       ) +
       
-      new_scale_fill() +
+      ggnewscale::new_scale_fill() +
       
-      geom_point(data = treatment_pts %>% filter(!is.na(treatment)),
-                 aes(x = rel_treatment_dat, y = y - 0.3, fill = treatment), color = "black", shape = 24) +
+      ggplot2::geom_point(data = treatment_pts %>% dplyr::filter(!is.na(treatment)),
+                 ggplot2::aes(x = rel_treatment_dat, y = y - 0.3, fill = treatment), color = "black", shape = 24) +
       
-      scale_fill_manual(
+      ggplot2::scale_fill_manual(
         name = "Treatment",
         values = c(
           "Donor Lymphocyte Infusion" = "darkgrey",
           "Azacitidine" = "white"),
-        guide = guide_legend(order = 2)) +
+        guide = ggplot2::guide_legend(order = 2)) +
       
-      new_scale_fill() +
+      ggnewscale::new_scale_fill() +
       
       # Add acute GVHD points
-      geom_point(data = gvhd_pts %>% 
-                   filter(gvhd == "Acute GVHD", agvhdstage %in% c(3, 4)),
-                 aes(x = rel_gvhd_dat, y = y - 0.3, fill = agvhdstage), color = "black", shape = 23) +
+      ggplot2::geom_point(data = gvhd_pts %>% 
+                   dplyr::filter(gvhd == "Acute GVHD", agvhdstage %in% c(3, 4)),
+                 ggplot2::aes(x = rel_gvhd_dat, y = y - 0.3, fill = agvhdstage), color = "black", shape = 23) +
       
-      scale_fill_manual(
+      ggplot2::scale_fill_manual(
         name = "Acute GVHD",
         values = c(
           "3" = "#FF8A8A",
           "4" = "#D10000"),
-        guide = guide_legend(order = 3)) +
+        guide = ggplot2::guide_legend(order = 3)) +
       
-      new_scale_fill() +
+      ggnewscale::new_scale_fill() +
       
       # Add chronic GVHD points
-      geom_point(data = gvhd_pts %>% filter(gvhd == "Chronic GVHD", cgvhdstage %in% c("Moderate", "Severe")),
-                 aes(x = rel_gvhd_dat, y = y - 0.3, fill = cgvhdstage), color = "black", shape = 23) +
+      ggplot2::geom_point(data = gvhd_pts %>% dplyr::filter(gvhd == "Chronic GVHD", cgvhdstage %in% c("Moderate", "Severe")),
+                 ggplot2::aes(x = rel_gvhd_dat, y = y - 0.3, fill = cgvhdstage), color = "black", shape = 23) +
       
-      scale_fill_manual(
+      ggplot2::scale_fill_manual(
         name = "Chronic GVHD",
         values = c(
           "Moderate" = "#27D6F5",
           "Severe"   = "#5B27F5"),
-        guide = guide_legend(order = 4)) +
+        guide = ggplot2::guide_legend(order = 4)) +
       
-      labs(x = "Days from transplantation", y = "Patient",
+      ggplot2::labs(x = "Days from transplantation", y = "Patient",
            title = "NMDS14B Part 2", subtitle = title_string) +
       
       # Start the x-axis at 0, equivalent to the date of transplantation
-      xlim(0, NA) +
+      ggplot2::xlim(0, NA) +
       
-      scale_y_continuous(
+      ggplot2::scale_y_continuous(
         breaks = unique(plot_data$y),
         labels = unique(plot_data$patno),
-        expand = expansion(add = c(1, 1))
+        expand = scales::expansion(add = c(1, 1))
       ) +
       
-      theme_classic()
+      ggplot2::theme_classic()
     
     return(swimmer_plot)
   }
@@ -254,7 +254,7 @@ draw_swimmerplot <- function(
                               title_string)
   
   # --- EXPORT ---
-  ggsave(
+  ggplot2::ggsave(
     filename = file.path(output_folder, output_filename),
     plot = swimmer_plot,
     width = 6,
