@@ -50,7 +50,7 @@ draw_clinical_course <- function(
   processed$mrd <- processed$mrd |> dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
   
   
-  
+  # Define GVHD colours
   agvhd_colours <- c("0" = "#EBEBEB",
                      "1" = "#EDC0C0",
                      "2" = "#FF7878",
@@ -61,8 +61,16 @@ draw_clinical_course <- function(
                      "Moderate" = "#622BD6",
                      "Severe" = "#290088")
   
-  agvhd_legend_grob <- make_dummy_legend(names(agvhd_colours), agvhd_colours, "aGVHD Stage")
-  cgvhd_legend_grob <- make_dummy_legend(names(cgvhd_colours), cgvhd_colours, "cGVHD Stage")
+  # Create GVHD dummy legends
+  agvhd_legend_grob <- make_dummy_legend(
+    names(agvhd_colours), 
+    agvhd_colours, 
+    "aGVHD Stage")
+
+  cgvhd_legend_grob <- make_dummy_legend(
+    names(cgvhd_colours), 
+    cgvhd_colours, 
+    "cGVHD Stage")
   
   # Define a function to generate MRD + GVHD timeline for a given patient
   
