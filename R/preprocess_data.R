@@ -96,7 +96,7 @@ preprocess_data <- function(
   
   # Merge dli and aza data frames
   treatment <- dplyr::bind_rows(
-    dli |> dplyr::select(patno, rel_treatment_dat = rel_dli_dat) |> dplyr::mutate(treatment = "Donor Lymphocyte Infusion"),
+    dli |> dplyr::select(patno, rel_treatment_dat = rel_dli_dat) |> dplyr::mutate(treatment = "DLI"),
     aza |> dplyr::select(patno, rel_treatment_dat = rel_aza_dat) |> dplyr::mutate(treatment = "Azacitidine")
   )
   

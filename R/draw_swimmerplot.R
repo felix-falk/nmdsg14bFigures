@@ -195,7 +195,7 @@ draw_swimmerplot <- function(
       ggplot2::scale_fill_manual(
         name = "Treatment",
         values = c(
-          "Donor Lymphocyte Infusion" = "darkgrey",
+          "DLI" = "darkgrey",
           "Azacitidine" = "white"),
         guide = ggplot2::guide_legend(order = 2)) +
       

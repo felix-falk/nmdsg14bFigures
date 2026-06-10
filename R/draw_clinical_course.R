@@ -246,7 +246,7 @@ draw_clinical_course <- function(
       
       # DLI events
       ggplot2::geom_point(
-        data = d$treatment |> dplyr::filter(treatment == "Donor Lymphocyte Infusion"),
+        data = d$treatment |> dplyr::filter(treatment == "DLI"),
         ggplot2::aes(x = rel_treatment_dat,
             y = 5),
         colour = "black",
