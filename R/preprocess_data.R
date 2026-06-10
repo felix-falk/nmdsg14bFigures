@@ -21,7 +21,7 @@ preprocess_data <- function(
   ngs_file,
   immune_filter_file
 ) {
-  
+
   # Check that required files are present
   required_files <- c(
     general_info_file,
@@ -33,14 +33,14 @@ preprocess_data <- function(
     ngs_file,
     immune_filter_file
   )
-  
+
   missing_files <- required_files[
     !file.exists(required_files
     )
   ]
-  
+
   if (length(missing_files) > 0) {
-    
+
     stop(
       paste(
         "Missing input files:",
@@ -49,22 +49,22 @@ preprocess_data <- function(
       )
     )
   }
-    
+
   ### Read files
-  
-  general_info_raw <- readxl::read_excel(general_info_file) # NMDS14B-Inkl-screen-EoS.xlsx
+
+  general_info_raw <- readxl::read_excel(general_info_file)
   mrd_raw <- readxl::read_excel(mrd_file) # NMDS14B_MRD.XLSX
   dli_raw <- readxl::read_excel(dli_file) # NMDS14B_dlitrt.xlsx
   aza_raw <- readxl::read_excel(aza_file) # NMDS14B_azacitkurer.xlsx
   immune_raw <- readxl::read_excel(immune_file) # NMDS14B_immunsupptrtm.xlsx
   gvhd_raw <- readxl::read_excel(gvhd_file) # NMDS14B_gvhddat.xlsx
   ngs_raw <- readxl::read_excel(ngs_file) # NGS_lista_NMDSG14B2.xlsx
-  immune_suppression_filter <- read.csv(immune_filter_file, header = TRUE, sep = ";") # immune_suppression_filter.csv
-  
+  immune_suppression_filter <- read.csv(immune_filter_file, header = TRUE, sep = ";")
+
   ### FILTERING FOR SWIMMERPLOT
-  
+
   # --- FILTERING ---
-  
+
   # Create end_date_df based on general_info_raw and mrd_raw
   end_date_df <- general_info_raw |>
     dplyr::select(patno, termindat, transpldt) |>
@@ -77,7 +77,7 @@ preprocess_data <- function(
     dplyr::mutate(end_date = dplyr::coalesce(termindat, MRDdat)) |>
     dplyr::mutate(rel_term_dat = as.numeric(difftime(as.Date(end_date), as.Date(transpldt), units = "days"))) |>
     dplyr::select(patno, transpldt, rel_term_dat)
-  
+
   # Transpose aza data frame, calculate relative aza dates, remove aza after rel_term_dat
   aza <- aza_raw |>
     tidyr::pivot_longer(dplyr::starts_with("azacitstdat"), names_to = "timepoint", values_to = "azacitstartdat") |>
@@ -87,19 +87,19 @@ preprocess_data <- function(
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(rel_aza_dat = as.numeric(difftime(as.Date(azacitstartdat), as.Date(transpldt), units = "days"))) |>
     dplyr::filter(rel_aza_dat <= rel_term_dat)
-  
+
   # Calculate relative dli dates, remove dli after rel_term_dat
   dli <- dli_raw |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(rel_dli_dat = as.numeric(difftime(as.Date(dlidat), as.Date(transpldt), units = "days"))) |>
     dplyr::filter(rel_dli_dat <= rel_term_dat)
-  
+
   # Merge dli and aza data frames
   treatment <- dplyr::bind_rows(
     dli |> dplyr::select(patno, rel_treatment_dat = rel_dli_dat) |> dplyr::mutate(treatment = "DLI"),
     aza |> dplyr::select(patno, rel_treatment_dat = rel_aza_dat) |> dplyr::mutate(treatment = "Azacitidine")
   )
-  
+
   # Calculate agvhd_raw_merged and cgvhd_raw_merged
   agvhd_raw_merged <- dplyr::bind_rows(
     gvhd_raw |> dplyr::select(patno, agvhdstage, gvhddate),
@@ -108,7 +108,7 @@ preprocess_data <- function(
     dplyr::filter(!is.na(agvhdstage), !is.na(gvhddate)) |>
     dplyr::distinct() |>
     dplyr::mutate(gvhd = "Acute GVHD")
-  
+
   cgvhd_raw_merged <- dplyr::bind_rows(
     gvhd_raw |> dplyr::select(patno, cgvhdstage, gvhddate),
     gvhd_raw |> dplyr::select(patno, cgvhdstage = cgvhdmaxstage, gvhddate = cgvhdmaxdt)
@@ -116,14 +116,14 @@ preprocess_data <- function(
     dplyr::filter(!is.na(cgvhdstage), !is.na(gvhddate)) |>
     dplyr::distinct() |>
     dplyr::mutate(gvhd = "Chronic GVHD")
-  
+
   # Calculate gvhd_raw_merged
   gvhd_processed <- dplyr::bind_rows(cgvhd_raw_merged, agvhd_raw_merged) |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(rel_gvhd_dat = as.numeric(difftime(as.Date(gvhddate), as.Date(transpldt), units = "days"))) |>
     dplyr::filter(rel_gvhd_dat <= rel_term_dat) |>
     dplyr::mutate(cgvhdstage = dplyr::if_else(cgvhdstage %in% c("N/A", "N/K", ".", "N/D"), NA, cgvhdstage))
-  
+
   # Add mrd_category column to mrd_raw, calculate rel_mrd_dat
   mrd_all <- mrd_raw |>
     dplyr::mutate(mrd_category = dplyr::case_when(
@@ -144,7 +144,7 @@ preprocess_data <- function(
       )
     ) |>
     dplyr::filter(rel_mrd_dat >= 0)
-  
+
   # Create a list of patno which have level >= 10 at the last measurement, these
   # also count as relapses.
   mrd_relapse_cases <- mrd_all |>
@@ -153,10 +153,10 @@ preprocess_data <- function(
     dplyr::slice_tail(n = 1) |>
     dplyr::filter(level >= 10) |>
     dplyr::pull(patno)
-  
+
   # Change name of mutname column in p2_mrd from mutname to Mutation
   mrd_all <- mrd_all |> dplyr::rename(Mutation = mutname)
-  
+
   immune <- immune_raw |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
@@ -192,7 +192,7 @@ preprocess_data <- function(
       drugname_standardized
     ) |>
     dplyr::distinct()
-  
+
   # Calulate outcomes based on general_info and mrd_relapse_cases
   general_info <- general_info_raw |>
     dplyr::mutate(outcome = dplyr::case_when(

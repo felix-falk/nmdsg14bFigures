@@ -14,8 +14,20 @@
 #'
 #' @export
 #' #' @examples
-#' nmdsFiguresMain(general_info_file = "~/general.xlsx", mrd_file = "~/mrd.xlsx", dli_file = "~/dli.xlsx", aza_file = "~/aza.xlsx", immune_file = "~/immune.xlsx", gvhd_file = "~/gvhd.xlsx", ngs_file = "~/ngs.xlsx", immune_filter_file = "~/immune_filter.csv", output_folder = "~/output", plot_type = "clinical_course", filters = NULL)
-nmdsFiguresMain <- function(
+#' nmds_figures_main(
+#' general_info_file = "~/general.xlsx",
+#' mrd_file = "~/mrd.xlsx",
+#' dli_file = "~/dli.xlsx",
+#' aza_file = "~/aza.xlsx",
+#' immune_file = "~/immune.xlsx",
+#' gvhd_file = "~/gvhd.xlsx",
+#' ngs_file = "~/ngs.xlsx",
+#' immune_filter_file = "~/immune_filter.csv",
+#' output_folder = "~/output",
+#' plot_type = "clinical_course",
+#' filters = NULL
+#' )
+nmds_figures_main <- function(
   general_info_file,
   mrd_file,
   dli_file,
@@ -138,6 +150,11 @@ nmdsFiguresMain <- function(
       output_folder = output_folder
     )
 
+    message(paste0(
+      "Swimmer plot saved to: ",
+      file.path(output_folder, "swimmer_plot.png")
+    ))
+
   } else if (plot_type == "clinical_course") {
 
     message("Drawing clinical course plots...")
@@ -147,9 +164,13 @@ nmdsFiguresMain <- function(
       patient_subset = selected_patients,
       output_folder = output_folder
     )
-  }
 
-  message("Finished.")
+    message(paste0(
+      "Clinical course plots saved to: ",
+      file.path(output_folder, "clinical_course_plots.pdf")
+    ))
+
+  }
 
   invisible(
     list(
