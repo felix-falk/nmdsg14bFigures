@@ -23,101 +23,66 @@ apply_filters <- function(processed, filters) {
 
   filter_settings[names(filters)] <- filters
 
-  # ==================================================
-  # START WITH ALL PATIENTS
-  # ==================================================
-
+  # Create a list of all patients in the study
   patients <- general_info |>
     dplyr::pull(patno) |>
     unique()
 
-  # ==================================================
-  # GENE FILTER
-  # ==================================================
-
+  # Filter patients based on genes in the NGS data
   if (length(filter_settings$genes) > 0) {
-
     gene_patients <- ngs_processed |>
       dplyr::filter(Gen %in% filter_settings$genes) |>
       dplyr::distinct(patno, Gen) |>
       dplyr::count(patno) |>
       dplyr::filter(n == length(filter_settings$genes)) |>
       dplyr::pull(patno)
-
     patients <- intersect(patients, gene_patients)
   }
 
-  # ==================================================
-  # OUTCOME FILTER
-  # ==================================================
-
+  # Filter patients based on outcome in the general info data
   if (length(filter_settings$outcomes) > 0) {
-
     outcome_patients <- general_info |>
       dplyr::filter(outcome %in% filter_settings$outcomes) |>
       dplyr::pull(patno)
-
     patients <- intersect(patients, outcome_patients)
   }
 
-  # ==================================================
-  # TREATMENT FILTER
-  # ==================================================
-
+  # Filter patients based on treatments in the treatment data
   if (length(filter_settings$treatments) > 0) {
-
     treatment_patients <- treatment |>
       dplyr::filter(treatment %in% filter_settings$treatments) |>
       dplyr::distinct(patno, treatment) |>
       dplyr::count(patno) |>
       dplyr::filter(n == length(filter_settings$treatments)) |>
       dplyr::pull(patno)
-
     patients <- intersect(patients, treatment_patients)
   }
 
-  # ==================================================
-  # MRD FILTER
-  # ==================================================
-
+  # Filter patients based on MRD positivity in the MRD data
   if (!is.null(filter_settings$mrd_positive)) {
-
     mrd_positive_patients <- mrd_all |>
       dplyr::group_by(patno) |>
       dplyr::summarise(
         mrd_positive = any(level >= 0.1, na.rm = TRUE),
         .groups = "drop"
       )
-
     selected_patients <- mrd_positive_patients |>
       dplyr::filter(mrd_positive == filter_settings$mrd_positive) |>
       dplyr::pull(patno)
-
     patients <- intersect(patients, selected_patients)
   }
 
-  # ==================================================
-  # IMMUNE SUPPRESSION FILTER
-  # ==================================================
-
+  # Filter patients based on immune suppression in the immune data
   if (!is.null(filter_settings$immune_suppression)) {
-
     immune_patients <- unique(immune$patno)
-
     if (filter_settings$immune_suppression) {
-
       patients <- intersect(patients, immune_patients)
-
     } else {
-
       patients <- setdiff(patients, immune_patients)
     }
   }
 
-  # ==================================================
-  # FINAL OUTPUT
-  # ==================================================
-
+  # Final list of filtered patients
   filtered_patients <- sort(unique(patients))
 
   cat(
