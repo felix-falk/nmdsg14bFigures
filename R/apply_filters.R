@@ -25,7 +25,7 @@ apply_filters <- function(processed, filters) {
 
   # Create a list of all patients in the study
   patients <- general_info |>
-    dplyr::pull(patno) |>
+    dplyr::pull(general_info$patno) |>
     unique()
 
   # Filter patients based on genes in the NGS data
@@ -96,13 +96,13 @@ apply_filters <- function(processed, filters) {
   # Optional detailed table
 
   filtered_patient_info <- general_info |>
-    dplyr::filter(patno %in% filtered_patients) |>
+    dplyr::filter(general_info$patno %in% filtered_patients) |>
     dplyr::select(
-      patno,
-      outcome,
-      ipssm,
-      ipssm_title,
-      rel_term_dat
+      general_info$patno,
+      general_info$outcome,
+      general_info$ipssm,
+      general_info$ipssm_title,
+      general_info$rel_term_dat
     )
 
   print(filtered_patient_info)

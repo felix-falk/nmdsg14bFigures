@@ -29,11 +29,11 @@ swimmerplot <- function(
 
     # Add MRD rectangles
     ggplot2::geom_rect(ggplot2::aes(
-      xmin = xmin,
-      xmax = xmax,
-      ymin = ymin - 0.2,
-      ymax = ymax + 0.2,
-      fill = mrd_category
+      xmin = plot_data$xmin,
+      xmax = plot_data$xmax,
+      ymin = plot_data$ymin - 0.2,
+      ymax = plot_data$ymax + 0.2,
+      fill = plot_data$mrd_category
     ),
     color = "black"
     ) +
@@ -81,7 +81,7 @@ swimmerplot <- function(
     # Add relapse annotation
     ggplot2::geom_text(data = dplyr::filter(
       outcome_pts,
-      outcome == "Relapse"
+      outcome_pts$outcome == "Relapse"
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
