@@ -69,3 +69,36 @@ make_dummy_legend <- function(levels, colours, title) {
         ggplot2::theme_void() + ggplot2::theme(legend.position="right")
         )
         }
+
+#' Called by the draw_clinical_course function to select one patient per graph.
+#' 
+#' @param df Data frame containing patient information with a "patno" column.
+#' @returns Returns a filtered data frame for a specific patient or the original data frame if it does not meet the criteria.
+#' @examples
+#' select_one_patient(df)
+select_one_patient <- function(df) {
+    if (is.null(df)) {
+        return(NULL)
+        }
+        if (!is.data.frame(df)) {
+            return(df)
+            }
+            if (!"patno" %in% names(df)) {
+                return(df)
+                }
+                dplyr::filter(df, patno == pat_id)
+                }
+
+#' Called by the draw_clinical_course function to list the class of each element in the processed data list.
+#' 
+#' @param x An object whose class needs to be identified.
+#' @returns A string indicating the class of the object.
+#' @examples
+#' class_finder(processed)
+class_finder <- function(x) {
+    if (is.null(x)) {
+        "NULL"
+        } else {
+            paste(class(x), collapse = ", ")
+            }
+            }

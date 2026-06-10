@@ -69,18 +69,7 @@ draw_clinical_course <- function(
   plot_patient_timeline <- function(processed, pat_id) {
     
     # Select one patient
-    d <- lapply(processed, function(df) {
-      if (is.null(df)) {
-        return(NULL)
-      }
-      if (!is.data.frame(df)) {
-        return(df)
-      }
-      if (!"patno" %in% names(df)) {
-        return(df)
-      }
-      dplyr::filter(df, patno == pat_id)
-    })
+    d <- lapply(processed, select_one_patient(df))
     
     # Determine the range of the x axis
     x_end <- d$general_info$rel_term_dat[1]
@@ -307,13 +296,7 @@ draw_clinical_course <- function(
   print(
     sapply(
       processed,
-      function(x) {
-        if (is.null(x)) {
-          "NULL"
-        } else {
-          paste(class(x), collapse = ", ")
-        }
-      }
+      class_finder(x)
     )
   )
   

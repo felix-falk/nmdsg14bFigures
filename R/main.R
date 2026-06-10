@@ -1,4 +1,4 @@
-#' Run analysis workflow
+#' Run analysis using the nmdsFiguresMain function
 #'
 #' @param general_info_file Excel file with general patient clinical information
 #' @param mrd_file Excel file with MRD measurements
@@ -13,6 +13,8 @@
 #' @param filters Optional filter list or path to JSON file
 #'
 #' @export
+#' #' @examples
+#' nmdsFiguresMain(general_info_file = "~/general.xlsx", mrd_file = "~/mrd.xlsx", dli_file = "~/dli.xlsx", aza_file = "~/aza.xlsx", immune_file = "~/immune.xlsx", gvhd_file = "~/gvhd.xlsx", ngs_file = "~/ngs.xlsx", immune_filter_file = "~/immune_filter.csv", output_folder = "~/output", plot_type = "clinical_course", filters = NULL)
 nmdsFiguresMain <- function(
   general_info_file,
   mrd_file,
