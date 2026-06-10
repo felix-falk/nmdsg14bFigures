@@ -49,17 +49,21 @@ plot_patient_timeline <- function(processed, pat_id) {
 
     ggplot2::geom_line(
       data = d$mrd |>
-        dplyr::filter(!is.na(Mutation)) |>
-        dplyr::group_by(Mutation) |>
+        dplyr::filter(!is.na(d$mrd$Mutation)) |>
+        dplyr::group_by(d$mrd$Mutation) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
-      ggplot2::aes(x = rel_mrd_dat, y = level_no0s, colour = Mutation)
+      ggplot2::aes(
+        x = d$mrd$rel_mrd_dat,
+        y = d$mrd$level_no0s,
+        colour = d$mrd$Mutation
+      )
     ) +
 
     ggplot2::geom_point(data = d$mrd, ggplot2::aes(
-      x = rel_mrd_dat,
-      y = level_no0s,
-      colour = Mutation
+      x = rlang::.data$rel_mrd_dat,
+      y = rlang::.data$level_no0s,
+      colour = rlang::.data$Mutation
     )
     ) +
 
@@ -96,15 +100,17 @@ plot_patient_timeline <- function(processed, pat_id) {
 
     geomtextpath::geom_textvline(
       data = d$general_info |>
-        dplyr::filter(outcome == "Relapse"),
-      ggplot2::aes(xintercept = rel_term_dat, label = "Relapse")
+        dplyr::filter(rlang::.data$outcome == "Relapse"),
+      ggplot2::aes(xintercept = rlang::.data$rel_term_dat, label = "Relapse")
     ) +
 
     geomtextpath::geom_textvline(
-      data = d$general_info |> dplyr::filter(outcome == "Nonrelapse mortality"),
+      data = d$general_info |> dplyr::filter(
+        rlang::.data$outcome == "Nonrelapse mortality"
+      ),
       ggplot2::aes(
-        xintercept = rel_term_dat,
-        label = paste0("Death: ", deathcause)
+        xintercept = rlang::.data$rel_term_dat,
+        label = paste0("Death: ", rlang::.data$deathcause)
       )
     ) +
 
@@ -137,11 +143,13 @@ plot_patient_timeline <- function(processed, pat_id) {
 
     # aGVHD
     ggplot2::geom_point(
-      data = d$gvhd |> dplyr::filter(gvhd == "Acute GVHD" & !is.na(agvhdstage)),
+      data = d$gvhd |> dplyr::filter(
+        rlang::.data$gvhd == "Acute GVHD" & !is.na(rlang::.data$agvhdstage)
+      ),
       ggplot2::aes(
-        x = rel_gvhd_dat,
+        x = rlang::.data$rel_gvhd_dat,
         y = 1,
-        colour = agvhdstage
+        colour = rlang::.data$agvhdstage
       ),
       size = 3
     ) +
@@ -162,12 +170,12 @@ plot_patient_timeline <- function(processed, pat_id) {
     # cGVHD
     ggplot2::geom_point(
       data = d$gvhd |> dplyr::filter(
-        gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
+        rlang::.data$gvhd == "Chronic GVHD" & !is.na(rlang::.data$cgvhdstage)
       ),
       ggplot2::aes(
-        x = rel_gvhd_dat,
+        x = rlang::.data$rel_gvhd_dat,
         y = 2,
-        colour = cgvhdstage
+        colour = rlang::.data$cgvhdstage
       ),
       size = 3
     ) +
@@ -186,8 +194,8 @@ plot_patient_timeline <- function(processed, pat_id) {
     ggplot2::geom_segment(
       data = d$immune_intervals,
       ggplot2::aes(
-        x = interval_start,
-        xend = interval_end,
+        x = rlang::.data$interval_start,
+        xend = rlang::.data$interval_end,
         y = 3,
         yend = 3
       ),
@@ -197,9 +205,11 @@ plot_patient_timeline <- function(processed, pat_id) {
 
     # Azacitidine events
     ggplot2::geom_point(
-      data = d$treatment |> dplyr::filter(treatment == "Azacitidine"),
+      data = d$treatment |> dplyr::filter(
+        rlang::.data$treatment == "Azacitidine"
+      ),
       ggplot2::aes(
-        x = rel_treatment_dat,
+        x = rlang::.data$rel_treatment_dat,
         y = 4
       ),
       colour = "black",
@@ -208,9 +218,9 @@ plot_patient_timeline <- function(processed, pat_id) {
 
     # DLI events
     ggplot2::geom_point(
-      data = d$treatment |> dplyr::filter(treatment == "DLI"),
+      data = d$treatment |> dplyr::filter(rlang::.data$treatment == "DLI"),
       ggplot2::aes(
-        x = rel_treatment_dat,
+        x = rlang::.data$rel_treatment_dat,
         y = 5
       ),
       colour = "black",

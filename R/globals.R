@@ -1,0 +1,13 @@
+utils::globalVariables(
+  c(
+    "patno",
+    "Gen",
+    "outcome",
+    "level",
+    "xmin",
+    "xmax",
+    "y",
+    "pat_id",
+    "Mutation"
+  )
+)
