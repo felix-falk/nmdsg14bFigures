@@ -9,7 +9,7 @@
 plot_patient_timeline <- function(processed, pat_id) {
 
   # Select one patient
-  d <- lapply(processed, select_one_patient(df))
+  d <- lapply(processed, function(x) select_one_patient(x, pat_id))
 
   # Determine the range of the x axis
   x_end <- d$general_info$rel_term_dat[1]
@@ -49,21 +49,21 @@ plot_patient_timeline <- function(processed, pat_id) {
 
     ggplot2::geom_line(
       data = d$mrd |>
-        dplyr::filter(!is.na(d$mrd$Mutation)) |>
-        dplyr::group_by(d$mrd$Mutation) |>
+        dplyr::filter(!is.na(Mutation)) |>
+        dplyr::group_by(Mutation) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
       ggplot2::aes(
-        x = d$mrd$rel_mrd_dat,
-        y = d$mrd$level_no0s,
-        colour = d$mrd$Mutation
+        x = rel_mrd_dat,
+        y = level_no0s,
+        colour = Mutation
       )
     ) +
 
     ggplot2::geom_point(data = d$mrd, ggplot2::aes(
-      x = rlang::.data$rel_mrd_dat,
-      y = rlang::.data$level_no0s,
-      colour = rlang::.data$Mutation
+      x = rel_mrd_dat,
+      y = level_no0s,
+      colour = Mutation
     )
     ) +
 
@@ -88,29 +88,29 @@ plot_patient_timeline <- function(processed, pat_id) {
     ),
     subtitle = paste0(
       "Diagnosis: ",
-      d$general_info$mdsdiagnosis,
+      d$general_info$mdsdiagnosis[1],
       "\nIPSS-M: ",
-      d$general_info$ipssm_title,
+      d$general_info$ipssm_title[1],
       "\nKaryotype: ",
-      d$general_info$karyotyp,
+      d$general_info$karyotyp[1],
       "\nNGS: ",
-      d$ngs$mutlist
+      d$ngs$mutlist[1]
     )
     ) +
 
     geomtextpath::geom_textvline(
       data = d$general_info |>
-        dplyr::filter(rlang::.data$outcome == "Relapse"),
-      ggplot2::aes(xintercept = rlang::.data$rel_term_dat, label = "Relapse")
+        dplyr::filter(outcome == "Relapse"),
+      ggplot2::aes(xintercept = rel_term_dat, label = "Relapse")
     ) +
 
     geomtextpath::geom_textvline(
       data = d$general_info |> dplyr::filter(
-        rlang::.data$outcome == "Nonrelapse mortality"
+        outcome == "Nonrelapse mortality"
       ),
       ggplot2::aes(
-        xintercept = rlang::.data$rel_term_dat,
-        label = paste0("Death: ", rlang::.data$deathcause)
+        xintercept = rel_term_dat,
+        label = paste0("Death: ", deathcause)
       )
     ) +
 
@@ -144,12 +144,12 @@ plot_patient_timeline <- function(processed, pat_id) {
     # aGVHD
     ggplot2::geom_point(
       data = d$gvhd |> dplyr::filter(
-        rlang::.data$gvhd == "Acute GVHD" & !is.na(rlang::.data$agvhdstage)
+        gvhd == "Acute GVHD" & !is.na(agvhdstage)
       ),
       ggplot2::aes(
-        x = rlang::.data$rel_gvhd_dat,
+        x = rel_gvhd_dat,
         y = 1,
-        colour = rlang::.data$agvhdstage
+        colour = agvhdstage
       ),
       size = 3
     ) +
@@ -170,12 +170,12 @@ plot_patient_timeline <- function(processed, pat_id) {
     # cGVHD
     ggplot2::geom_point(
       data = d$gvhd |> dplyr::filter(
-        rlang::.data$gvhd == "Chronic GVHD" & !is.na(rlang::.data$cgvhdstage)
+        gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
       ),
       ggplot2::aes(
-        x = rlang::.data$rel_gvhd_dat,
+        x = rel_gvhd_dat,
         y = 2,
-        colour = rlang::.data$cgvhdstage
+        colour = cgvhdstage
       ),
       size = 3
     ) +
@@ -194,8 +194,8 @@ plot_patient_timeline <- function(processed, pat_id) {
     ggplot2::geom_segment(
       data = d$immune_intervals,
       ggplot2::aes(
-        x = rlang::.data$interval_start,
-        xend = rlang::.data$interval_end,
+        x = interval_start,
+        xend = interval_end,
         y = 3,
         yend = 3
       ),
@@ -206,10 +206,10 @@ plot_patient_timeline <- function(processed, pat_id) {
     # Azacitidine events
     ggplot2::geom_point(
       data = d$treatment |> dplyr::filter(
-        rlang::.data$treatment == "Azacitidine"
+        treatment == "Azacitidine"
       ),
       ggplot2::aes(
-        x = rlang::.data$rel_treatment_dat,
+        x = rel_treatment_dat,
         y = 4
       ),
       colour = "black",
@@ -218,9 +218,9 @@ plot_patient_timeline <- function(processed, pat_id) {
 
     # DLI events
     ggplot2::geom_point(
-      data = d$treatment |> dplyr::filter(rlang::.data$treatment == "DLI"),
+      data = d$treatment |> dplyr::filter(treatment == "DLI"),
       ggplot2::aes(
-        x = rlang::.data$rel_treatment_dat,
+        x = rel_treatment_dat,
         y = 5
       ),
       colour = "black",
@@ -259,6 +259,20 @@ plot_patient_timeline <- function(processed, pat_id) {
     align = "v",
     axis = "tblr"
   )
+
+  # Create GVHD dummy legends locally (so they are available in this function)
+  agvhd_colours <- c("0" = "#EBEBEB",
+                     "1" = "#EDC0C0",
+                     "2" = "#FF7878",
+                     "3" = "#D42626",
+                     "4" = "#800000")
+  cgvhd_colours <- c("None" = "#EBEBEB",
+                     "Mild" = "#AA88BB",
+                     "Moderate" = "#622BD6",
+                     "Severe" = "#290088")
+
+  agvhd_legend_grob <- make_dummy_legend(names(agvhd_colours), agvhd_colours, "aGVHD Stage")
+  cgvhd_legend_grob <- make_dummy_legend(names(cgvhd_colours), cgvhd_colours, "cGVHD Stage")
 
   # Combine all legends vertically
   combined_legends <- cowplot::plot_grid(
@@ -367,7 +381,7 @@ draw_clinical_course <- function(
   print(
     sapply(
       processed,
-      class_finder(x)
+      class_finder
     )
   )
 

@@ -80,7 +80,7 @@ make_dummy_legend <- function(levels, colours, title) {
 #' or the original data frame if it does not meet the criteria.
 #' @examples
 #' select_one_patient(df)
-select_one_patient <- function(df) {
+select_one_patient <- function(df, pat_id = NULL) {
   if (is.null(df)) {
     return(NULL)
   }
@@ -90,7 +90,10 @@ select_one_patient <- function(df) {
   if (!"patno" %in% names(df)) {
     return(df)
   }
-  dplyr::filter(df, df$patno == pat_id)
+  if (is.null(pat_id)) {
+    return(df)
+  }
+  dplyr::filter(df, patno == pat_id)
 }
 
 #' Called by the draw_clinical_course function to
