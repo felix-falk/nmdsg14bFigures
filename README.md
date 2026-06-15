@@ -81,7 +81,7 @@ Rscript run_analysis.R \
 
     plot_type = "swimmerplot", 
 
-    filters = NULL
+    filters = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/nmdsFigures/filters/test_filters.json"
 )
 
 ## R Markdown

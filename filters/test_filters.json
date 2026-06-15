@@ -1,13 +1,11 @@
 {
-  "genes": [],
+  "genes": ["TP53"],
 
-  "outcomes": [
-  ],
+  "outcomes": [],
 
-  "treatments": [
-  ],
+  "treatments": [],
 
-  "mrd_positive": true,
+  "mrd_positive": null,
 
-  "immune_suppression": false
+  "immune_suppression": null
 }

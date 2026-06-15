@@ -23,13 +23,25 @@ apply_filters <- function(processed, filters) {
 
   filter_settings[names(filters)] <- filters
 
+  # Normalize filter settings: treat empty values (empty vector/string/NA)
+  # as NULL => do not apply that filter
+  normalize_filter <- function(x) {
+    if (is.null(x)) return(NULL)
+    if (length(x) == 0) return(NULL)
+    if (is.character(x) && all(nzchar(x) == FALSE)) return(NULL)
+    if (all(is.na(x))) return(NULL)
+    x
+  }
+
+  filter_settings <- lapply(filter_settings, normalize_filter)
+
   # Create a list of all patients in the study
   patients <- general_info |>
-    dplyr::pull(general_info$patno) |>
+    dplyr::pull(patno) |>
     unique()
 
   # Filter patients based on genes in the NGS data
-  if (length(filter_settings$genes) > 0) {
+  if (!is.null(filter_settings$genes) && length(filter_settings$genes) > 0) {
     gene_patients <- ngs_processed |>
       dplyr::filter(Gen %in% filter_settings$genes) |>
       dplyr::distinct(patno, Gen) |>
@@ -40,7 +52,7 @@ apply_filters <- function(processed, filters) {
   }
 
   # Filter patients based on outcome in the general info data
-  if (length(filter_settings$outcomes) > 0) {
+  if (!is.null(filter_settings$outcomes) && length(filter_settings$outcomes) > 0) {
     outcome_patients <- general_info |>
       dplyr::filter(outcome %in% filter_settings$outcomes) |>
       dplyr::pull(patno)
@@ -48,7 +60,7 @@ apply_filters <- function(processed, filters) {
   }
 
   # Filter patients based on treatments in the treatment data
-  if (length(filter_settings$treatments) > 0) {
+  if (!is.null(filter_settings$treatments) && length(filter_settings$treatments) > 0) {
     treatment_patients <- treatment |>
       dplyr::filter(treatment %in% filter_settings$treatments) |>
       dplyr::distinct(patno, treatment) |>
@@ -96,13 +108,13 @@ apply_filters <- function(processed, filters) {
   # Optional detailed table
 
   filtered_patient_info <- general_info |>
-    dplyr::filter(general_info$patno %in% filtered_patients) |>
+    dplyr::filter(patno %in% filtered_patients) |>
     dplyr::select(
-      general_info$patno,
-      general_info$outcome,
-      general_info$ipssm,
-      general_info$ipssm_title,
-      general_info$rel_term_dat
+      patno,
+      outcome,
+      ipssm,
+      ipssm_title,
+      rel_term_dat
     )
 
   print(filtered_patient_info)
