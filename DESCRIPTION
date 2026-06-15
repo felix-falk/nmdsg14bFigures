@@ -2,6 +2,7 @@ Package: nmdsFigures
 Type: Package
 Title: Clinical Timeline Visualization Tools
 Version: 0.1.0
+Depends: R (>= 4.1.0)
 Authors@R:
     person("Felix", "Falk",
            email = "felixemilfalk@gmail.com",
@@ -10,7 +11,6 @@ Description: Tools for preprocessing clinical datasets from the NMDSG14B studies
     generating swimmer plots and clinical course visualizations.
 License: MIT + file LICENSE
 Imports:
-    optparse (== 1.8.2),
     jsonlite (== 2.0.0),
     readxl (== 1.5.0),
     dplyr (== 1.2.1),
@@ -19,13 +19,15 @@ Imports:
     stringr (== 1.6.0),
     ggnewscale (== 0.5.2),
     purrr (== 1.2.2),
-    patchwork (== 1.3.2),
     geomtextpath (== 0.2.0),
     scales (== 1.4.0),
     cowplot (== 1.2.0),
-    tibble (== 3.3.1)
+    tibble (== 3.3.1),
+    rlang (>= 1.0.0)
 Suggests:
-    roxygen2 (== 8.0.0)
+    roxygen2 (== 8.0.0),
+    optparse (== 1.8.2),
+    patchwork (== 1.3.2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0

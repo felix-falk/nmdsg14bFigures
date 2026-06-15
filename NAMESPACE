@@ -16,4 +16,7 @@ importFrom(cowplot, get_legend, plot_grid)
 importFrom(ggnewscale, new_scale_fill)
 importFrom(geomtextpath, geom_textvline, geom_texthline)
 importFrom(scales, label_number)
+importFrom(rlang, .data)
+importFrom(grDevices, dev.off, pdf)
+importFrom(utils, read.csv)
 

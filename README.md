@@ -59,7 +59,7 @@ Rscript run_analysis.R \
   --plot_type clinical_course \
   --filters filters/example_filters.json
 
-  nmdsFiguresMain(
+  nmds_figures_main(
 
     general_info_file = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_data/NMDS14B-Inkl-screen-EoS.xlsx",
 
@@ -79,7 +79,9 @@ Rscript run_analysis.R \
 
     output_folder = "/Users/felix.falk/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Dokument/mds_project/NMDS14B_p2_output",
 
-    plot_type = "swimmerplot"
+    plot_type = "swimmerplot", 
+
+    filters = NULL
 )
 
 ## R Markdown

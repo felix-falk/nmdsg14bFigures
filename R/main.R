@@ -13,7 +13,7 @@
 #' @param filters Optional filter list or path to JSON file
 #'
 #' @export
-#' #' @examples
+#' @examples
 #' nmds_figures_main(
 #' general_info_file = "~/general.xlsx",
 #' mrd_file = "~/mrd.xlsx",
