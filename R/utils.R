@@ -107,3 +107,13 @@ class_finder <- function(x) {
     paste(class(x), collapse = ", ")
   }
 }
+
+normalize_names <- function(df) {
+  nm <- names(df)
+  nm <- iconv(nm, from="UTF-8", to="ASCII//TRANSLIT")
+  nm <- trimws(nm)
+  nm <- gsub("[^A-Za-z0-9]+", "_", nm)
+  nm <- tolower(nm)
+  names(df) <- nm
+  df
+}

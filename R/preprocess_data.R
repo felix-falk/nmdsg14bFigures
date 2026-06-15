@@ -68,6 +68,16 @@ preprocess_data <- function(
   immune_raw <- readxl::read_excel(immune_file)
   gvhd_raw <- readxl::read_excel(gvhd_file)
   ngs_raw <- readxl::read_excel(ngs_file)
+
+  ### Normalize column names
+general_info_raw <-normalize_names(general_info_raw)
+mrd_raw <- normalize_names(mrd_raw)
+dli_raw <- normalize_names(dli_raw)
+aza_raw <- normalize_names(aza_raw)
+immune_raw <- normalize_names(immune_raw)
+gvhd_raw <- normalize_names(gvhd_raw)
+ngs_raw <- normalize_names(ngs_raw)
+
   # Make column names ASCII-safe (transliterate non-ASCII characters and replace spaces)
   names(ngs_raw) <- iconv(names(ngs_raw), from = "UTF-8", to = "ASCII//TRANSLIT")
   names(ngs_raw) <- gsub(" ", "_", names(ngs_raw), fixed = TRUE)
@@ -278,7 +288,7 @@ preprocess_data <- function(
   # NGS Data filtering
   gene_lists <-
     ngs_raw |>
-    dplyr::filter(!is.na(Studienummer)) |>
+    dplyr::filter(!is.na(studienummer)) |>
     dplyr::summarise(
       mutlist = paste(unique(Gen), collapse = ", "),
       .by = Studienummer
@@ -286,12 +296,12 @@ preprocess_data <- function(
 
   ngs_processed <-
     ngs_raw |>
-    dplyr::left_join(gene_lists, by = "Studienummer") |>
+    dplyr::left_join(gene_lists, by = "studienummer") |>
     dplyr::mutate(
       mutname = paste0(Gen, "_", `cDNA_forandring`),
-      patno = as.double(Studienummer)
+      patno = as.double(studienummer)
     ) |>
-    dplyr::select(-Studienummer)
+    dplyr::select(-studienummer)
 
   interval_df <- interval_finder(immune)
 
