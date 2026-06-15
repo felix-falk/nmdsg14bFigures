@@ -23,6 +23,7 @@ swimmerplot <- function(
   outcome_pts,
   treatment_pts,
   gvhd_pts,
+  mrd_terminal_pts,
   title_string
 ) {
   swimmer_plot <- ggplot2::ggplot(plot_data) +
@@ -269,28 +270,28 @@ draw_swimmerplot <- function(
 
   mrd_base <- processed$mrd |>
     dplyr::select(
-      processed$mrd$patno,
-      processed$mrd$rel_mrd_dat,
-      processed$mrd$mrd_category,
-      processed$mrd$rel_term_dat
+      patno,
+      rel_mrd_dat,
+      mrd_category,
+      rel_term_dat
     ) |>
     dplyr::distinct() |>
     dplyr::arrange(patno, rel_mrd_dat)
 
   # Perform following calculations on a per-patient basis
   mrd_rectangles <- mrd_base |>
-    dplyr::group_by(mrd_base$patno) |>
+    dplyr::group_by(patno) |>
     dplyr::mutate(
-      xmin = mrd_base$rel_mrd_dat,
+      xmin = rel_mrd_dat,
       xmax = dplyr::coalesce(
-        dplyr::lead(mrd_base$rel_mrd_dat),
-        dplyr::first(mrd_base$rel_term_dat) + 5
+        dplyr::lead(rel_mrd_dat),
+        dplyr::first(rel_term_dat) + 5
       )
     ) |>
     dplyr::ungroup() |>
     dplyr::select(patno, xmin, xmax, mrd_category, rel_term_dat) |>
     dplyr::bind_rows(
-      mrd_base |>
+        mrd_base |>
         dplyr::group_by(patno) |>
         dplyr::slice(1) |>
         dplyr::transmute(
@@ -352,6 +353,7 @@ draw_swimmerplot <- function(
     outcome_pts,
     treatment_pts,
     gvhd_pts,
+    mrd_terminal_pts,
     title_string
   )
 

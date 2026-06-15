@@ -44,3 +44,18 @@ nmds_figures_main(
 \description{
 Run analysis using the nmdsFiguresMain function
 }
+\examples{
+nmds_figures_main(
+general_info_file = "~/general.xlsx",
+mrd_file = "~/mrd.xlsx",
+dli_file = "~/dli.xlsx",
+aza_file = "~/aza.xlsx",
+immune_file = "~/immune.xlsx",
+gvhd_file = "~/gvhd.xlsx",
+ngs_file = "~/ngs.xlsx",
+immune_filter_file = "~/immune_filter.csv",
+output_folder = "~/output",
+plot_type = "clinical_course",
+filters = NULL
+)
+}

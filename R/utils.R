@@ -8,8 +8,8 @@
 interval_finder <- function(df) {
 
   df |>
-    dplyr::arrange(df$patno, df$drugname_standardized, df$rel_immune_dat) |>
-    dplyr::group_by(df$patno, df$drugname_standardized) |>
+    dplyr::arrange(patno, drugname_standardized, rel_immune_dat) |>
+    dplyr::group_by(patno, drugname_standardized) |>
     dplyr::group_modify(~ {
 
       stop_idx <- which(.x$drugstopped == "Yes")
@@ -108,12 +108,3 @@ class_finder <- function(x) {
   }
 }
 
-normalize_names <- function(df) {
-  nm <- names(df)
-  nm <- iconv(nm, from="UTF-8", to="ASCII//TRANSLIT")
-  nm <- trimws(nm)
-  nm <- gsub("[^A-Za-z0-9]+", "_", nm)
-  nm <- tolower(nm)
-  names(df) <- nm
-  df
-}
