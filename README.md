@@ -32,6 +32,18 @@ packageVersion("nmdsFigures")
 
 2. If any files used in the package are open in the background, the files cannot be read by the package. Therefore, close any open data files before running the package. 
 
+3. The excel data file require the following columns
+
+| excel_file | required_columns |
+| ------- | ------- |
+| general_info |  patno, mdsdiagndat, mdsdiagnosis, ipssr, ipssm, cellularity, marrowblasts, karyotyp, transpldt, termindat, eosreason, relapsedat, deathdat |
+| mrd | mycophenolic acid |
+| dli | patno, dlidat, dlidostxt |
+| aza | budesonide |
+| immune | budesonide |
+| gvhd | budesonide |
+| ngs | Studienummer, Gen, cDNA förändring |
+
 ## Run the package in R
 
 ```r
@@ -44,7 +56,7 @@ nmds_figures_main(
   gvhd_file = "gvhd.xlsx",
   ngs_file = "ngs.xlsx",
   immune_filter_file = "immune_suppression_filter.csv",
-  output_folder = "~/NMDS14B_p2_output",
+  output_folder = "~/nmdsg14bFigures_output",
   plot_type = "swimmerplot", 
   filters = c(genes = "TP53", outcomes = "Remission")
 )
