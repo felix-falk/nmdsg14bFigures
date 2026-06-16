@@ -13,6 +13,15 @@ apply_filters <- function(processed, filters) {
   immune <- processed$immune
   ngs_processed <- processed$ngs
 
+  # Allow `filters` to be a list, a named vector, or a JSON filepath.
+  if (!is.null(filters) && !is.list(filters)) {
+    if (is.character(filters) && length(filters) == 1 && file.exists(filters)) {
+      filters <- jsonlite::fromJSON(filters)
+    } else {
+      filters <- as.list(filters)
+    }
+  }
+
   filter_settings <- list(
     genes = NULL,
     outcomes = NULL,
@@ -21,7 +30,9 @@ apply_filters <- function(processed, filters) {
     immune_suppression = NULL
   )
 
-  filter_settings[names(filters)] <- filters
+  if (!is.null(filters)) {
+    filter_settings[names(filters)] <- filters
+  }
 
   # Normalize filter settings: treat empty values (empty vector/string/NA)
   # as NULL => do not apply that filter
@@ -114,7 +125,6 @@ apply_filters <- function(processed, filters) {
   return(
     list(
       patient_ids = filtered_patients,
-      patient_info = filtered_patient_info,
       n_patients = length(filtered_patients)
     )
   )
