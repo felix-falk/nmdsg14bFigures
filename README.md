@@ -66,6 +66,7 @@ Pass either (1) a .json filepath or (2) an R-compatible list to the filters opti
 ### .json filtering
 
 Below is the test_filters.json file that is included in the package and found in the filters directory. It selects patients with the TP53 mutation as per the NGS data set, and the Relapse outcome as per the general information and MRD data sets. 
+
 ```json
 {
   "genes": ["TP53"],
@@ -78,47 +79,20 @@ Below is the test_filters.json file that is included in the package and found in
 
 ### R list filtering 
 
-## R Markdown
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```r
+filters = c(genes = c("TP53", "ASXL1"), outcomes = c("Remission", "Relapse", "Nonrelapse mortality"), treatments = c("Azacitidine", "Donor lymphocyte infusion"), mrd_positive = true, immune_suppresison = true)
 ```
 
 ## Install from GitHub
 
-To install this package from GitHub on another machine, replace `OWNER/REPO` with your repository path (for example `your-username/nmdsFigures`) and run the following in R:
-
 ```r
-# install helper if needed
+# Install remotes package
 install.packages("remotes")
 
-# install from GitHub (public repo)
-remotes::install_github("OWNER/REPO")
+# Install nmdsg14bFigures GitHub repository
+remotes::install_github("felix-falk/nmdsg14bFigures")
 
-# install a specific branch, tag or commit
-remotes::install_github("OWNER/REPO@main")
-
-# alternative (pak):
-# install.packages("pak"); pak::pkg_install("gh::OWNER/REPO")
-```
-
-If the repository is private, set a GitHub Personal Access Token in the environment first:
-
-```sh
-# macOS / Linux
-export GITHUB_PAT=your_token
-
-# Windows (PowerShell)
-setx GITHUB_PAT "your_token"
-```
-
-After installation verify with:
-
-```r
+# Verify that nmdsg14bFigures is installed
 library(nmdsFigures)
 packageVersion("nmdsFigures")
 ```
