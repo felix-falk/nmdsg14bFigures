@@ -8,6 +8,7 @@ utils::globalVariables(
     "xmax",
     "y",
     "pat_id",
-    "Mutation"
+    "Mutation",
+    "mrd_positive"
   )
 )

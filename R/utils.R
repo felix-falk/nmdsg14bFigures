@@ -111,3 +111,51 @@ class_finder <- function(x) {
   }
 }
 
+#' Called by the draw_clinical_course function to
+#' find the upper limit of the MRD y-axis.
+#'
+#' @param mrd_data A data frame containing MRD data.
+#' @returns A numeric value indicating the upper y-axis limit.
+#' @examples
+#' y_limit_finder(d$mrd)
+y_limit_finder <- function(mrd_data) {
+
+  # Determine the upper y-axis limit for the MRD figure
+  if (nrow(mrd_data) == 0 ||
+        all(is.na(mrd_data$level_no0s))) {
+    y_upper <- 10
+  } else {
+    y_upper <- max(
+      10,
+      ceiling(max(mrd_data$level_no0s, na.rm = TRUE))
+    )
+  }
+
+  return(y_upper)
+
+}
+
+#' Called by the draw_clinical_course function to
+#' find the range of MRD x-axis values.
+#'
+#' @param general_info_data A data frame containing the
+#' termination date of the patient, relative to the transplantation date.
+#' @returns A numeric vector indicating the range of the x-axis.
+#' @examples
+#' x_range_finder(d$general_info)
+x_range_finder <- function(general_info_data){
+
+  # Determine the range of the x axis
+  x_end <- general_info_data$rel_term_dat[1]
+
+  # Fallback if rel_term_dat does not exist
+  if (is.na(x_end) || !is.finite(x_end)) {
+    x_end <- 365
+  }
+
+  # Add 10 days to the upper x-axis limit
+  x_range <- c(0, x_end)
+
+  return(x_range)
+
+}

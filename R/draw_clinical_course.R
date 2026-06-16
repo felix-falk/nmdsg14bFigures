@@ -1,3 +1,261 @@
+#' Generate MRD plot for a given patient
+#'
+#' @param data A data frame containing longitudinal MRD data
+#' @param x_range The range of the x-axis.
+#' @param y_upper The upper limit of the y-axis.
+#' @returns A ggplot object representing the MRD plot for the patient.
+#' @examples
+#' draw_mrd_plot(d$mrd)
+draw_mrd_plot <- function(
+  mrd_data,
+  general_info_data,
+  ngs_data,
+  x_range,
+  y_upper
+) {
+
+  plot <- ggplot2::ggplot() +
+
+    # Add a shaded rectangle to indicate the MRD negative range (below 0.1 %)
+    ggplot2::annotate("rect",
+      xmin = -Inf,
+      xmax = Inf,
+      ymin = 0.08,
+      ymax = 0.1,
+      fill = "lightgrey",
+      alpha = 0.4
+    ) +
+
+    # Add MRD lines, only for mutations with more than 1 data point.
+    ggplot2::geom_line(
+      data = mrd_data |>
+        dplyr::filter(!is.na(Mutation)) |>
+        dplyr::group_by(Mutation) |>
+        dplyr::filter(dplyr::n() > 1) |>
+        dplyr::ungroup(),
+      ggplot2::aes(
+        x = mrd_data$rel_mrd_dat,
+        y = mrd_data$level_no0s,
+        colour = Mutation
+      )
+    ) +
+
+    # Add MRD points, including those with only one data point.
+    ggplot2::geom_point(data = mrd_data, ggplot2::aes(
+      x = mrd_data$rel_mrd_dat,
+      y = mrd_data$level_no0s,
+      colour = Mutation
+    )
+    ) +
+
+    # Set theme, adjust x and y labels, set color of MRD lines and points
+    ggplot2::theme_minimal() +
+    ggplot2::xlab(NULL) +
+    ggplot2::ylab("VAF (%)") +
+    ggplot2::scale_colour_brewer(palette = "Set1", na.translate = FALSE) +
+
+    # Set x and y axis limits based on x_range and y_upper parameters
+    ggplot2::scale_x_continuous(limits = x_range) +
+    ggplot2::scale_y_log10(limits = c(
+      0.08,
+      y_upper
+    ), labels = scales::label_number()) +
+
+    # Add clinical information title, based on general_info_data and ngs_data
+    ggplot2::labs(title = paste0(
+      "Patient: ",
+      pat_id
+    ),
+    subtitle = paste0(
+      "Diagnosis: ",
+      general_info_data$mdsdiagnosis[1],
+      "\nIPSS-M: ",
+      general_info_data$ipssm_title[1],
+      "\nKaryotype: ",
+      general_info_data$karyotyp[1],
+      "\nNGS: ",
+      ngs_data$mutlist[1]
+    )
+    ) +
+
+    # Add vertical line at the time of relapse
+    geomtextpath::geom_textvline(
+      data = general_info_data |>
+        dplyr::filter(outcome == "Relapse"),
+      ggplot2::aes(
+        xintercept = general_info_data$rel_term_dat,
+        label = "Relapse"
+      )
+    ) +
+
+    # Add vertical line at the time of nonrelapse mortality
+    geomtextpath::geom_textvline(
+      data = general_info_data |> dplyr::filter(
+        outcome == "Nonrelapse mortality"
+      ),
+      ggplot2::aes(
+        xintercept = general_info_data$rel_term_dat,
+        label = paste0("Death: ", general_info_data$deathcause)
+      )
+    ) +
+
+    # Add horisontal line at the MRD positive threshold of 0.1
+    geomtextpath::geom_texthline(
+      yintercept = 0.1,
+      label = "MRD Threshold",
+      linetype = "dashed",
+      color = "darkgrey",
+      size = 3,
+      vjust = -0.2,
+      hjust = 1
+    ) +
+
+    # Define the legend position, title size and subtitle size
+    ggplot2::theme(legend.position = "right",
+      plot.title = ggplot2::element_text(size = 12),
+      plot.subtitle = ggplot2::element_text(size = 9)
+    )
+
+  return(plot)
+
+}
+
+#' Generate events plot for a given patient
+#'
+#' @param gvhd_data A data frame containing longitudinal GVHD data
+#' @param immune_intervals_data A data frame containing
+#' immune suppression intervals
+#' @param treatment_data A data frame containing treatment data
+#' @param x_range The range of the x-axis.
+#' @returns A ggplot object representing the events plot for the patient.
+#' @examples
+#' draw_events_plot(d$gvhd, d$immune_intervals, d$treatment, x_range)
+draw_events_plot <- function(
+  gvhd_data,
+  immune_intervals_data,
+  treatment_data,
+  x_range
+) {
+
+  events_plot <- ggplot2::ggplot() +
+
+    # Draw acute GVHD points
+    ggplot2::geom_point(
+      data = gvhd_data |> dplyr::filter(
+        gvhd_data$gvhd == "Acute GVHD" & !is.na(gvhd_data$agvhdstage)
+      ),
+      ggplot2::aes(
+        x = gvhd_data$rel_gvhd_dat,
+        y = 1,
+        colour = gvhd_data$agvhdstage
+      ),
+      size = 3
+    ) +
+
+    # Set a manual acute GVHD color scale
+    ggplot2::scale_colour_manual(
+      values = c(
+        "0" = "#EBEBEB",
+        "1" = "#EDC0C0",
+        "2" = "#FF7878",
+        "3" = "#D42626",
+        "4" = "#800000"
+      ),
+      guide = "none"
+    ) +
+
+    # Reset color scale
+    ggnewscale::new_scale_colour() +
+
+    # Draw chronic GVHD points.
+    ggplot2::geom_point(
+      data = gvhd_data |> dplyr::filter(
+        gvhd_data$gvhd == "Chronic GVHD" & !is.na(gvhd_data$cgvhdstage)
+      ),
+      ggplot2::aes(
+        x = gvhd_data$rel_gvhd_dat,
+        y = 2,
+        colour = gvhd_data$cgvhdstage
+      ),
+      size = 3
+    ) +
+
+    # Set a manual chronic GVHD color scale
+    ggplot2::scale_colour_manual(
+      values = c(
+        "None" = "#EBEBEB",
+        "Mild" = "#AA88BB",
+        "Moderate" = "#622BD6",
+        "Severe" = "#290088"
+      ),
+      guide = "none"
+    ) +
+
+    # Draw immune suppression intervals as horizontal segments
+    ggplot2::geom_segment(
+      data = immune_intervals_data,
+      ggplot2::aes(
+        x = immune_intervals_data$interval_start,
+        xend = immune_intervals_data$interval_end,
+        y = 3,
+        yend = 3
+      ),
+      linewidth = 2,
+      colour = "black"
+    ) +
+
+
+    # Draw azacitidine treatment points
+    ggplot2::geom_point(
+      data = treatment_data |> dplyr::filter(
+        treatment_data$treatment == "Azacitidine"
+      ),
+      ggplot2::aes(
+        x = treatment_data$rel_treatment_dat,
+        y = 4
+      ),
+      colour = "black",
+      size = 3
+    ) +
+
+    # Draw DLI treatment points
+    ggplot2::geom_point(
+      data = treatment_data |> dplyr::filter(treatment_data$treatment == "DLI"),
+      ggplot2::aes(
+        x = treatment_data$rel_treatment_dat,
+        y = 5
+      ),
+      colour = "black",
+      size = 3
+    ) +
+
+    # Set custom x-axis label, graph theme and y-axis label size
+    ggplot2::labs(x = "Days after transplantation", y = NULL) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      legend.position = "none",
+      axis.text.y = ggplot2::element_text(size = 10)
+    ) +
+
+    # Set custom x-axis range and y-axis breaks and labels
+    ggplot2::scale_x_continuous(limits = x_range) +
+    ggplot2::scale_y_continuous(
+      breaks = c(1, 2, 3, 4, 5),
+      labels = c(
+        "aGVHD",
+        "cGVHD",
+        "Immune suppression",
+        "Azacitidine",
+        "DLI"
+      ),
+      limits = c(0.5, 5.5)
+    )
+
+  return(events_plot)
+
+}
+
+
 #' Generate MRD + GVHD timeline for a given patient
 #'
 #' @param processed A list of data frames containing the processed data
@@ -11,123 +269,18 @@ plot_patient_timeline <- function(processed, pat_id) {
   # Select one patient
   d <- lapply(processed, function(x) select_one_patient(x, pat_id))
 
-  # Determine the range of the x axis
-  x_end <- d$general_info$rel_term_dat[1]
+  # Find the MRD graph x-axis range.
+  x_range <- x_range_finder(d$general_info)
 
-  # Fallback if rel_term_dat does not exist
-  if (is.na(x_end) || !is.finite(x_end)) {
-    x_end <- 365
-  }
-
-  # Add 10 days to the upper x-axis limit
-  x_range <- c(0, x_end)
-
-  # Determine MRD y-axis range
-  if (nrow(d$mrd) == 0 ||
-        all(is.na(d$mrd$level_no0s))) {
-    y_upper <- 10
-  } else {
-    y_upper <- max(
-      10,
-      ceiling(max(d$mrd$level_no0s, na.rm = TRUE))
-    )
-  }
+  # Find the MRD graph y-axis upper limit.
+  y_upper <- y_limit_finder(d$mrd)
 
   # ----------------------------
   # MRD plot (top)
   # ----------------------------
-  mrd_plot <- ggplot2::ggplot() +
 
-    ggplot2::annotate("rect",
-      xmin = -Inf,
-      xmax = Inf,
-      ymin = 0.08,
-      ymax = 0.1,
-      fill = "lightgrey",
-      alpha = 0.4
-    ) +
-
-    ggplot2::geom_line(
-      data = d$mrd |>
-        dplyr::filter(!is.na(Mutation)) |>
-        dplyr::group_by(Mutation) |>
-        dplyr::filter(dplyr::n() > 1) |>
-        dplyr::ungroup(),
-      ggplot2::aes(
-        x = rel_mrd_dat,
-        y = level_no0s,
-        colour = Mutation
-      )
-    ) +
-
-    ggplot2::geom_point(data = d$mrd, ggplot2::aes(
-      x = rel_mrd_dat,
-      y = level_no0s,
-      colour = Mutation
-    )
-    ) +
-
-    ggplot2::theme_minimal() +
-
-    ggplot2::xlab(NULL) +
-    ggplot2::ylab(NULL) +
-
-    ggplot2::scale_colour_brewer(palette = "Set2", na.translate = FALSE) +
-
-    ggplot2::scale_x_continuous(limits = x_range) +
-
-    ggplot2::scale_y_log10(limits = c(
-      0.08,
-      y_upper
-    ), labels = scales::label_number()) +
-
-    # Add clinical information title
-    ggplot2::labs(title = paste0(
-      "Patient: ",
-      pat_id
-    ),
-    subtitle = paste0(
-      "Diagnosis: ",
-      d$general_info$mdsdiagnosis[1],
-      "\nIPSS-M: ",
-      d$general_info$ipssm_title[1],
-      "\nKaryotype: ",
-      d$general_info$karyotyp[1],
-      "\nNGS: ",
-      d$ngs$mutlist[1]
-    )
-    ) +
-
-    geomtextpath::geom_textvline(
-      data = d$general_info |>
-        dplyr::filter(outcome == "Relapse"),
-      ggplot2::aes(xintercept = rel_term_dat, label = "Relapse")
-    ) +
-
-    geomtextpath::geom_textvline(
-      data = d$general_info |> dplyr::filter(
-        outcome == "Nonrelapse mortality"
-      ),
-      ggplot2::aes(
-        xintercept = rel_term_dat,
-        label = paste0("Death: ", deathcause)
-      )
-    ) +
-
-    geomtextpath::geom_texthline(
-      yintercept = 0.1,
-      label = "MRD Threshold",
-      linetype = "dashed",
-      color = "darkgrey",
-      size = 3,
-      vjust = -0.2,
-      hjust = 1
-    ) +
-
-    ggplot2::theme(legend.position = "right",
-      plot.title = ggplot2::element_text(size = 12),
-      plot.subtitle = ggplot2::element_text(size = 9)
-    )
+  # Draw MRD plot
+  mrd_plot <- draw_mrd_plot(d$mrd, d$general_info, d$ngs, x_range, y_upper)
 
   # Extract mrd legend
   mrd_legend <- cowplot::get_legend(mrd_plot)
@@ -139,116 +292,12 @@ plot_patient_timeline <- function(processed, pat_id) {
   # GVHD / IS events plot (bottom)
   # ----------------------------
 
-  events_plot <- ggplot2::ggplot() +
-
-    # aGVHD
-    ggplot2::geom_point(
-      data = d$gvhd |> dplyr::filter(
-        gvhd == "Acute GVHD" & !is.na(agvhdstage)
-      ),
-      ggplot2::aes(
-        x = rel_gvhd_dat,
-        y = 1,
-        colour = agvhdstage
-      ),
-      size = 3
-    ) +
-
-    ggplot2::scale_colour_manual(
-      values = c(
-        "0" = "#EBEBEB",
-        "1" = "#EDC0C0",
-        "2" = "#FF7878",
-        "3" = "#D42626",
-        "4" = "#800000"
-      ),
-      guide = "none"
-    ) +
-
-    ggnewscale::new_scale_colour() +
-
-    # cGVHD
-    ggplot2::geom_point(
-      data = d$gvhd |> dplyr::filter(
-        gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
-      ),
-      ggplot2::aes(
-        x = rel_gvhd_dat,
-        y = 2,
-        colour = cgvhdstage
-      ),
-      size = 3
-    ) +
-
-    ggplot2::scale_colour_manual(
-      values = c(
-        "None" = "#EBEBEB",
-        "Mild" = "#AA88BB",
-        "Moderate" = "#622BD6",
-        "Severe" = "#290088"
-      ),
-      guide = "none"
-    ) +
-
-    # Immune suppression duration
-    ggplot2::geom_segment(
-      data = d$immune_intervals,
-      ggplot2::aes(
-        x = interval_start,
-        xend = interval_end,
-        y = 3,
-        yend = 3
-      ),
-      linewidth = 2,
-      colour = "black"
-    ) +
-
-    # Azacitidine events
-    ggplot2::geom_point(
-      data = d$treatment |> dplyr::filter(
-        treatment == "Azacitidine"
-      ),
-      ggplot2::aes(
-        x = rel_treatment_dat,
-        y = 4
-      ),
-      colour = "black",
-      size = 3
-    ) +
-
-    # DLI events
-    ggplot2::geom_point(
-      data = d$treatment |> dplyr::filter(treatment == "DLI"),
-      ggplot2::aes(
-        x = rel_treatment_dat,
-        y = 5
-      ),
-      colour = "black",
-      size = 3
-    ) +
-
-    ggplot2::labs(x = "Days after transplantation", y = NULL) +
-
-    ggplot2::theme_minimal() +
-
-    ggplot2::theme(
-      legend.position = "none",
-      axis.text.y = ggplot2::element_text(size = 10)
-    ) +
-
-    ggplot2::scale_x_continuous(limits = x_range) +
-
-    ggplot2::scale_y_continuous(
-      breaks = c(1, 2, 3, 4, 5),
-      labels = c(
-        "aGVHD",
-        "cGVHD",
-        "Immune suppression",
-        "Azacitidine",
-        "DLI"
-      ),
-      limits = c(0.5, 5.5)
-    )
+  events_plot <- draw_events_plot(
+    d$gvhd,
+    d$immune_intervals,
+    d$treatment,
+    x_range
+  )
 
   # Combine MRD + events vertically
   combined_plots <- cowplot::plot_grid(
@@ -271,8 +320,12 @@ plot_patient_timeline <- function(processed, pat_id) {
                      "Moderate" = "#622BD6",
                      "Severe" = "#290088")
 
-  agvhd_legend_grob <- make_dummy_legend(names(agvhd_colours), agvhd_colours, "aGVHD Stage")
-  cgvhd_legend_grob <- make_dummy_legend(names(cgvhd_colours), cgvhd_colours, "cGVHD Stage")
+  agvhd_legend_grob <- make_dummy_legend(
+    names(agvhd_colours), agvhd_colours, "aGVHD Stage"
+  )
+  cgvhd_legend_grob <- make_dummy_legend(
+    names(cgvhd_colours), cgvhd_colours, "cGVHD Stage"
+  )
 
   # Combine all legends vertically
   combined_legends <- cowplot::plot_grid(
@@ -351,30 +404,6 @@ draw_clinical_course <- function(
   # To achieve a log10 y axis scale, convert the 0 values in level to 0.09
   processed$mrd <- processed$mrd |>
     dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
-
-  # Define GVHD colours
-  agvhd_colours <- c("0" = "#EBEBEB",
-                     "1" = "#EDC0C0",
-                     "2" = "#FF7878",
-                     "3" = "#D42626",
-                     "4" = "#800000")
-  cgvhd_colours <- c("None" = "#EBEBEB",
-                     "Mild" = "#AA88BB",
-                     "Moderate" = "#622BD6",
-                     "Severe" = "#290088")
-
-  # Create GVHD dummy legends
-  agvhd_legend_grob <- make_dummy_legend(
-    names(agvhd_colours),
-    agvhd_colours,
-    "aGVHD Stage"
-  )
-
-  cgvhd_legend_grob <- make_dummy_legend(
-    names(cgvhd_colours),
-    cgvhd_colours,
-    "cGVHD Stage"
-  )
 
   cat("\nProcessed objects:\n")
 

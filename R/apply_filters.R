@@ -63,7 +63,13 @@ apply_filters <- function(processed, filters) {
   }
 
   # Filter patients based on outcome in the general info data
-  if (!is.null(filter_settings$outcomes) && length(filter_settings$outcomes) > 0) {
+  if (
+    !is.null(
+      filter_settings$outcomes
+    ) && length(
+      filter_settings$outcomes
+    ) > 0
+  ) {
     outcome_patients <- general_info |>
       dplyr::filter(outcome %in% filter_settings$outcomes) |>
       dplyr::pull(patno)
@@ -71,7 +77,13 @@ apply_filters <- function(processed, filters) {
   }
 
   # Filter patients based on treatments in the treatment data
-  if (!is.null(filter_settings$treatments) && length(filter_settings$treatments) > 0) {
+  if (
+    !is.null(
+      filter_settings$treatments
+    ) && length(
+      filter_settings$treatments
+    ) > 0
+  ) {
     treatment_patients <- treatment |>
       dplyr::filter(treatment %in% filter_settings$treatments) |>
       dplyr::distinct(patno, treatment) |>
@@ -90,7 +102,9 @@ apply_filters <- function(processed, filters) {
         .groups = "drop"
       )
     selected_patients <- mrd_positive_patients |>
-      dplyr::filter(mrd_positive == filter_settings$mrd_positive) |>
+      dplyr::filter(
+        selected_patients$mrd_positive == filter_settings$mrd_positive
+      ) |>
       dplyr::pull(patno)
     patients <- intersect(patients, selected_patients)
   }
