@@ -1,6 +1,6 @@
-Package: nmdsFigures
+Package: nmdsg14bFigures
 Type: Package
-Title: Clinical Timeline Visualization Tools
+Title: nmdsg14bFigures
 Version: 0.1.0
 Depends: R (>= 4.1.0)
 Authors:
