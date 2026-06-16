@@ -87,3 +87,38 @@ You can also embed plots, for example:
 ```{r pressure, echo=FALSE}
 plot(pressure)
 ```
+
+## Install from GitHub
+
+To install this package from GitHub on another machine, replace `OWNER/REPO` with your repository path (for example `your-username/nmdsFigures`) and run the following in R:
+
+```r
+# install helper if needed
+install.packages("remotes")
+
+# install from GitHub (public repo)
+remotes::install_github("OWNER/REPO")
+
+# install a specific branch, tag or commit
+remotes::install_github("OWNER/REPO@main")
+
+# alternative (pak):
+# install.packages("pak"); pak::pkg_install("gh::OWNER/REPO")
+```
+
+If the repository is private, set a GitHub Personal Access Token in the environment first:
+
+```sh
+# macOS / Linux
+export GITHUB_PAT=your_token
+
+# Windows (PowerShell)
+setx GITHUB_PAT "your_token"
+```
+
+After installation verify with:
+
+```r
+library(nmdsFigures)
+packageVersion("nmdsFigures")
+```
