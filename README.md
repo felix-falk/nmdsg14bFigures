@@ -75,7 +75,7 @@ nmds_figures_main(
 
 ## Mandatory filtering of immune suppression data
 
-Only immune suppression treatments relevant to the study are kept using the immune_suppression_filter.csv file, which must be created by the user (see example below). The file should use ";" as separator. Those imunne suppressive treatments that should not be included are put as exlude = TRUE.
+Only immune suppression treatments relevant to the study are kept using a ";"-separated csv file, provided by the user (see example below). Imunne suppressive treatments that should be excluded are put as exlude = TRUE.
 
 | pattern | standardized_name | exclude |
 | ------- | ------- | ------- |
@@ -103,11 +103,26 @@ Below is the test_filters.json file that is included in the package and found in
 
 ### (2) R list filtering 
 
+The possible options for ```r outcomes ``` are ```r "Remission" ```, ```r "Relapse" ``` and ```r "Nonrelapse mortality" ```.
+The possible options for ```r treatments ``` are ```r "Azacitidine" ``` and ```r "Donor lymphocyte infusion" ```.
+The possible options for ```r mrd_positive ``` are ```r true ```, ```r false ``` and ```r null ```.
+The possible options for ```r immune_suppression ``` are ```r true ```, ```r false ``` and ```r null ```.
+
 ```r
 filters = c(
-  genes = c("TP53", "ASXL1"), 
-  outcomes = c("Remission", "Relapse", "Nonrelapse mortality"), 
-  treatments = c("Azacitidine", "Donor lymphocyte infusion"), 
+  genes = c(
+    "TP53", 
+    "ASXL1"
+    ), 
+  outcomes = c(
+    "Remission", 
+    "Relapse", 
+    "Nonrelapse mortality"
+    ), 
+  treatments = c(
+    "Azacitidine", 
+    "Donor lymphocyte infusion"
+    ), 
   mrd_positive = true, 
   immune_suppresison = true
 )
