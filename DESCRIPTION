@@ -3,13 +3,13 @@ Type: Package
 Title: Clinical Timeline Visualization Tools
 Version: 0.1.0
 Depends: R (>= 4.1.0)
-Authors@R:
+Authors:
     person("Felix", "Falk",
            email = "felixemilfalk@gmail.com",
            role = c("aut", "cre"))
 Description: Tools for preprocessing clinical datasets from the NMDSG14B studies and
     generating swimmer plots and clinical course visualizations.
-License: MIT + file LICENSE
+License: MIT
 Imports:
     jsonlite (== 2.0.0),
     readxl (== 1.5.0),

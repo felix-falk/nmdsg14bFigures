@@ -86,32 +86,20 @@ preprocess_data <- function(
 
   # Create end_date_df based on general_info_raw and mrd_raw
   end_date_df <- general_info_raw |>
-    dplyr::select(
-      patno,
-      general_info_raw$termindat,
-      general_info_raw$transpldt
-    ) |>
+    dplyr::select(patno, termindat, transpldt) |>
     dplyr::left_join(
       mrd_raw |>
         dplyr::group_by(patno) |>
-        dplyr::summarise(
-          MRDdat = max(mrd_raw$MRDdat, na.rm = TRUE), .groups = "drop"
-        ),
+        dplyr::summarise(MRDdat = max(MRDdat, na.rm = TRUE), .groups = "drop"),
       by = "patno"
     ) |>
     dplyr::mutate(
-      end_date = dplyr::coalesce(general_info_raw$termindat, mrd_raw$MRDdat)
+      end_date = dplyr::coalesce(termindat, MRDdat),
+      rel_term_dat = as.numeric(
+        difftime(as.Date(end_date), as.Date(transpldt), units = "days")
+      )
     ) |>
-    dplyr::mutate(
-      rel_term_dat = as.numeric(difftime(
-        as.Date(general_info_raw$end_date),
-        as.Date(general_info_raw$transpldt),
-        units = "days"
-      ))
-    ) |>
-    dplyr::select(
-      patno, general_info_raw$transpldt, general_info_raw$rel_term_dat
-    )
+    dplyr::transmute(patno, transpldt, rel_term_dat)
 
   # Transpose aza data frame,
   # calculate relative aza dates,
@@ -122,18 +110,18 @@ preprocess_data <- function(
       names_to = "timepoint",
       values_to = "azacitstartdat"
     ) |>
-    dplyr::select(patno, azacitstartdat) |>
-    dplyr::filter(!is.na(azacitstartdat)) |>
+    dplyr::select(patno, aza_raw$azacitstartdat) |>
+    dplyr::filter(!is.na(aza_raw$azacitstartdat)) |>
     dplyr::distinct() |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_aza_dat = as.numeric(difftime(
-        as.Date(azacitstartdat),
-        as.Date(transpldt),
+        as.Date(aza_raw$azacitstartdat),
+        as.Date(end_date_df$transpldt),
         units = "days"
       ))
     ) |>
-    dplyr::filter(rel_aza_dat <= rel_term_dat)
+    dplyr::filter(aza_raw$rel_aza_dat <= aza_raw$rel_term_dat)
 
   # Calculate relative dli dates, remove dli after rel_term_dat
   dli <- dli_raw |>
@@ -200,18 +188,18 @@ preprocess_data <- function(
       level <  1   ~ "Intermediate (0.5 - 1)",
       level >= 1   ~ "High (> 1)"
     )) |>
-    dplyr::group_by(patno, MRDdat) |>
+    dplyr::group_by(patno, mrd_raw$MRDdat) |>
     dplyr::slice_max(order_by = level, n = 1, with_ties = FALSE) |>
     dplyr::ungroup() |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_mrd_dat = as.numeric(
-        difftime(as.Date(MRDdat),
-                 as.Date(transpldt),
+        difftime(as.Date(mrd_raw$MRDdat),
+                 as.Date(mrd_raw$transpldt),
                  units = "days")
       )
     ) |>
-    dplyr::filter(rel_mrd_dat >= 0)
+    dplyr::filter(mrd_raw$rel_mrd_dat >= 0)
 
   # Create a list of patno which have level >= 10 at the last measurement, these
   # also count as relapses.
@@ -229,33 +217,26 @@ preprocess_data <- function(
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_immune_dat = as.numeric(
-        difftime(as.Date(drugdt),
-                 as.Date(transpldt),
-                 units = "days")
-      )
-    ) |>
-    dplyr::filter(rel_immune_dat <= rel_term_dat) |>
-    dplyr::filter(rel_immune_dat > 0) |>
-    dplyr::mutate(
+        difftime(as.Date(drugdt), as.Date(transpldt), units = "days")
+      ),
       drugname = tolower(drugname),
       drugname_standardized = purrr::map_chr(
-        drugname,
-        standardize_drug,
-        mapping_df = immune_suppression_filter
+        drugname, standardize_drug, mapping_df = immune_suppression_filter
       )
     ) |>
+    dplyr::filter(rel_immune_dat > 0, rel_immune_dat <= rel_term_dat) |>
     dplyr::left_join(
       immune_suppression_filter |>
         dplyr::distinct(standardized_name, exclude),
       by = c("drugname_standardized" = "standardized_name")
     ) |>
-    dplyr::filter(is.na(exclude) | !exclude) |>
+    dplyr::filter(!dplyr::coalesce(exclude, FALSE)) |>
     dplyr::select(
       patno,
       immunsupptreatm,
       drugname,
       drugstopped,
-      rel_term_dat,
+      el_term_dat,
       rel_immune_dat,
       drugname_standardized
     ) |>
