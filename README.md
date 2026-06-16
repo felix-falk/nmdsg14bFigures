@@ -29,7 +29,7 @@ packageVersion("nmdsFigures")
 
 ## Precautions
 
-(1) The package cannot read "\" in file paths, which is the default on Windows. Therefore, replace any "\" with "/" in your file paths. 
+(1) The package cannot read "\\" in file paths, which is the default on Windows. Therefore, replace any "\\" with "/" in your file paths. 
 (2) If any excel files that are used in the package are open, the excel files cannot be read by the package. Therefore, close any excel files before running the package. 
 
 ## Run the run_analysis.R script from the terminal
