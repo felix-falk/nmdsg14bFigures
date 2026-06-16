@@ -4,6 +4,10 @@
 
 **Author: [Felix Falk](https://github.com/felix-falk)**
 
+## About
+
+An R package that draws a swimmer plot or per-patient clinical course figures based on the data sets collected in the NMDSG14B part 2 clinical study.
+
 ## Installation
 
 In R: 
