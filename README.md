@@ -103,10 +103,10 @@ Below is the test_filters.json file that is included in the package and found in
 
 ### (2) R list filtering 
 
-The possible options for ```r outcomes ``` are ```r "Remission" ```, ```r "Relapse" ``` and ```r "Nonrelapse mortality" ```.
-The possible options for ```r treatments ``` are ```r "Azacitidine" ``` and ```r "Donor lymphocyte infusion" ```.
-The possible options for ```r mrd_positive ``` are ```r true ```, ```r false ``` and ```r null ```.
-The possible options for ```r immune_suppression ``` are ```r true ```, ```r false ``` and ```r null ```.
+The possible options for ```outcomes ``` are ```"Remission" ```, ```"Relapse" ``` and ```"Nonrelapse mortality" ```.
+The possible options for ```treatments ``` are ```"Azacitidine" ``` and ```"Donor lymphocyte infusion" ```.
+The possible options for ```mrd_positive ``` are ```true ```, ```false ``` and ```null ```.
+The possible options for ```immune_suppression ``` are ```true ```, ```false ``` and ```null ```.
 
 ```r
 filters = c(
