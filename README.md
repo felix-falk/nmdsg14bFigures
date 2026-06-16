@@ -1,15 +1,10 @@
----
-title: "README.md"
-author: "Felix Falk"
-date: "2026-06-08"
-output: html_document
----
+# nmdsg14bFigures
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+**Version: 0.1.0**
 
-# Installation
+**Author: [Felix Falk](https://github.com/felix-falk)**
+
+## Installation
 
 In R: 
 
@@ -29,8 +24,9 @@ packageVersion("nmdsFigures")
 
 ## Precautions
 
-(1) The package cannot read "\\" in file paths, which is the default on Windows. Therefore, replace any "\\" with "/" in your file paths. 
-(2) If any excel files that are used in the package are open, the excel files cannot be read by the package. Therefore, close any excel files before running the package. 
+1. The package cannot read "\\" in file paths, which is the default on Windows. Therefore, replace any "\\" with "/" in your file paths. 
+
+2. If any excel files that are used in the package are open, the excel files cannot be read by the package. Therefore, close any excel files before running the package. 
 
 ## Run the run_analysis.R script from the terminal
 
@@ -55,7 +51,7 @@ Rscript run_analysis.R \
   --filters ~/nmdsg14bFigures/filters/test_filters.json
 ```
 
-## Run the script in R
+## Run the package in R
 
 ```r
 nmds_figures_main(
