@@ -14,10 +14,23 @@ knitr::opts_chunk$set(echo = TRUE)
 In R: 
 
 ```r
-knitr::opts_chunk$set(echo = TRUE)
+# Install remotes package
+install.packages("remotes")
+
+# Install nmdsg14bFigures GitHub repository
+remotes::install_github("felix-falk/nmdsg14bFigures")
+
+# Verify that nmdsg14bFigures is installed
+library(nmdsFigures)
+packageVersion("nmdsFigures")
 ```
 
 # Usage
+
+## Precautions
+
+(1) The package cannot read "\" in file paths, which is the default on Windows. Therefore, replace any "\" with "/" in your file paths. 
+(2) If any excel files that are used in the package are open, the excel files cannot be read by the package. Therefore, close any excel files before running the package. 
 
 ## Run the run_analysis.R script from the terminal
 
@@ -88,18 +101,4 @@ filters = c(
   mrd_positive = true, 
   immune_suppresison = true
 )
-```
-
-## Install from GitHub
-
-```r
-# Install remotes package
-install.packages("remotes")
-
-# Install nmdsg14bFigures GitHub repository
-remotes::install_github("felix-falk/nmdsg14bFigures")
-
-# Verify that nmdsg14bFigures is installed
-library(nmdsFigures)
-packageVersion("nmdsFigures")
 ```
