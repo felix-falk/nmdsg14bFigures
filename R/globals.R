@@ -9,6 +9,21 @@ utils::globalVariables(
     "y",
     "pat_id",
     "Mutation",
-    "mrd_positive"
+    "mrd_positive",
+    "mrd_category",
+    "rel_mrd_dat",
+    "rel_term_dat",
+    "drugname_standardized",
+    "rel_immune_dat",
+    "immune_suppression",
+    "treatment",
+    "max_end_event",
+    "patno_factor",
+    "interval_start",
+    "interval_end",
+    "drugstopped",
+    "drugname",
+    "rel_immune_dat",
+    "end_date"
   )
 )

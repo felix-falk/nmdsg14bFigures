@@ -8,8 +8,8 @@
 interval_finder <- function(df) {
 
   df |>
-    dplyr::arrange(patno, drugname_standardized, rel_immune_dat) |>
-    dplyr::group_by(patno, drugname_standardized) |>
+    dplyr::arrange(patno, df$drugname_standardized, df$rel_immune_dat) |>
+    dplyr::group_by(patno, df$drugname_standardized) |>
     dplyr::group_modify(~ {
 
       stop_idx <- which(.x$drugstopped == "Yes")

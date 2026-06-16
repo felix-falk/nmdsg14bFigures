@@ -69,8 +69,10 @@ preprocess_data <- function(
   gvhd_raw <- readxl::read_excel(gvhd_file)
   ngs_raw <- readxl::read_excel(ngs_file)
 
-  # Make column names ASCII-safe (transliterate non-ASCII characters and replace spaces)
-  names(ngs_raw) <- iconv(names(ngs_raw), from = "UTF-8", to = "ASCII//TRANSLIT")
+  # Make column names ASCII-safe
+  names(ngs_raw) <- iconv(
+    names(ngs_raw), from = "UTF-8", to = "ASCII//TRANSLIT"
+  )
   names(ngs_raw) <- gsub(" ", "_", names(ngs_raw), fixed = TRUE)
   immune_suppression_filter <- read.csv(
     immune_filter_file,
@@ -86,26 +88,30 @@ preprocess_data <- function(
   end_date_df <- general_info_raw |>
     dplyr::select(
       patno,
-      termindat,
-      transpldt
+      general_info_raw$termindat,
+      general_info_raw$transpldt
     ) |>
     dplyr::left_join(
       mrd_raw |>
         dplyr::group_by(patno) |>
-        dplyr::summarise(MRDdat = max(MRDdat, na.rm = TRUE), .groups = "drop"),
+        dplyr::summarise(
+          MRDdat = max(mrd_raw$MRDdat, na.rm = TRUE), .groups = "drop"
+        ),
       by = "patno"
     ) |>
     dplyr::mutate(
-      end_date = dplyr::coalesce(termindat, MRDdat)
+      end_date = dplyr::coalesce(general_info_raw$termindat, mrd_raw$MRDdat)
     ) |>
     dplyr::mutate(
       rel_term_dat = as.numeric(difftime(
-        as.Date(end_date),
-        as.Date(transpldt),
+        as.Date(general_info_raw$end_date),
+        as.Date(general_info_raw$transpldt),
         units = "days"
       ))
     ) |>
-    dplyr::select(patno, transpldt, rel_term_dat)
+    dplyr::select(
+      patno, general_info_raw$transpldt, general_info_raw$rel_term_dat
+    )
 
   # Transpose aza data frame,
   # calculate relative aza dates,
@@ -277,23 +283,22 @@ preprocess_data <- function(
     )
 
   # NGS Data filtering
-  # NGS: use normalized (lowercase) column names
   gene_lists <-
     ngs_raw |>
-    dplyr::filter(!is.na(Studienummer)) |>
+    dplyr::filter(!is.na(ngs_raw$Studienummer)) |>
     dplyr::summarise(
       mutlist = paste(unique(Gen), collapse = ", "),
-      .by = Studienummer
+      .by = ngs_raw$Studienummer
     )
 
   ngs_processed <-
     ngs_raw |>
     dplyr::left_join(gene_lists, by = "Studienummer") |>
     dplyr::mutate(
-      mutname = paste0(Gen, "_", 'cDNA förändring'),
-      patno = as.double(Studienummer)
+      mutname = paste0(Gen, "_", "cDNA förändring"),
+      patno = as.double(ngs_raw$Studienummer)
     ) |>
-    dplyr::select(-Studienummer)
+    dplyr::select(-ngs_raw$Studienummer)
 
   interval_df <- interval_finder(immune)
 
