@@ -77,8 +77,10 @@ nmds_figures_main <- function(
 
   if (!is.null(filters)) {
 
-    if (is.character(filters) && length(filters) == 1) {
-
+    # If a single character string that points to an existing file,
+    # treat it as a JSON filepath. Otherwise, accept an R list or
+    # named/vector form and normalize to a list.
+    if (is.character(filters) && length(filters) == 1 && file.exists(filters)) {
       user_filters <- jsonlite::fromJSON(filters)
 
       message(
@@ -89,8 +91,11 @@ nmds_figures_main <- function(
       )
 
     } else {
-
-      user_filters <- filters
+      if (is.character(filters) && !is.list(filters)) {
+        user_filters <- as.list(filters)
+      } else {
+        user_filters <- filters
+      }
     }
   }
 
