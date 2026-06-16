@@ -30,30 +30,7 @@ packageVersion("nmdsFigures")
 
 1. The package cannot read "\\" in file paths, which is the default on Windows. Therefore, replace any "\\" with "/" in your file paths. 
 
-2. If any excel files that are used in the package are open in the background, the excel files cannot be read by the package. Therefore, close any excel files before running the package. 
-
-## Run the run_analysis.R script from the terminal
-
-Move to the directory containing your data files: 
-
-```bash
-cd ~/mds_project
-```
-
-```bash
-Rscript run_analysis.R \
-  --general_info_file general_info.xlsx \
-  --mrd_file dli.xlsx \
-  --dli_file mrd.xlsx \
-  --aza_file aza.xlsx \
-  --immune_file immune.xlsx \
-  --gvhd_file gvhd.xlsx \
-  --ngs_file ngs.xlsx \
-  --immune_filter_file immune_suppression_filter.csv \
-  --output_folder ~/NMDS14B_p2_output \
-  --plot_type swimmerplot \
-  --filters ~/nmdsg14bFigures/filters/test_filters.json
-```
+2. If any files used in the package are open in the background, the files cannot be read by the package. Therefore, close any open data files before running the package. 
 
 ## Run the package in R
 
@@ -73,7 +50,11 @@ nmds_figures_main(
 )
 ```
 
-## Mandatory filtering of immune suppression data
+## Filtering
+
+### Mandatory filtering
+
+#### Immune suppression data
 
 Only immune suppression treatments relevant to the study are kept using a ";"-separated csv file, provided by the user (see example below). Imunne suppressive treatments that should be excluded are put as exlude = TRUE.
 
@@ -83,11 +64,11 @@ Only immune suppression treatments relevant to the study are kept using a ";"-se
 | mmf\|my.\*enol | mycophenolic acid | FALSE |
 | entocort\|jorv | budesonide | TRUE |
 
-## Optional filtering
+### Optional filtering
 
 Pass either (1) a .json filepath or (2) an R-compatible list to the filters option, containing your filters of interest. Either work, but using an R list is probably the more user-friendly option. 
 
-### (1) .json filtering
+#### (1) .json filtering
 
 Below is the test_filters.json file that is included in the package and found in the filters directory. It selects patients with the TP53 mutation as per the NGS data set, and the Relapse outcome as per the general information and MRD data sets. 
 
@@ -101,7 +82,7 @@ Below is the test_filters.json file that is included in the package and found in
 }
 ```
 
-### (2) R list filtering 
+#### (2) R list filtering 
 
 The possible options for ```outcomes``` are ```"Remission"```, ```"Relapse"``` and ```"Nonrelapse mortality"```.
 The possible options for ```treatments``` are ```"Azacitidine"``` and ```"Donor lymphocyte infusion"```.
@@ -119,10 +100,9 @@ filters = c(
     "Nonrelapse mortality"
     ), 
   treatments = c(
-    "Azacitidine", 
-    "Donor lymphocyte infusion"
+    "Azacitidine"
     ), 
-  mrd_positive = true, 
-  immune_suppresison = true
+  mrd_positive = null, 
+  immune_suppresison = null
 )
 ```
