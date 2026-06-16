@@ -97,27 +97,19 @@ apply_filters <- function(processed, filters) {
   # Final list of filtered patients
   filtered_patients <- sort(unique(patients))
 
+  # Message about the number of patients matching the criteria
   cat(
-    "\nNumber of matching patients:",
+    "\nNumber of selected patients after filtering:",
     length(filtered_patients),
     "\n\n"
   )
 
-  print(filtered_patients)
-
-  # Optional detailed table
-
-  filtered_patient_info <- general_info |>
-    dplyr::filter(patno %in% filtered_patients) |>
-    dplyr::select(
-      patno,
-      outcome,
-      ipssm,
-      ipssm_title,
-      rel_term_dat
-    )
-
-  print(filtered_patient_info)
+  # Message about the IDs of patients matching the criteria
+  cat(
+    "\nIDs of selected patients after filtering:",
+    filtered_patients,
+    "\n\n"
+  )
 
   return(
     list(
