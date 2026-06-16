@@ -73,12 +73,12 @@ nmds_figures_main(
 )
 ```
 
-## Automatic filtering of immune suppression data
+## Mandatory filtering of immune suppression data
 
-Only immune suppression treatments relevant to the study are kept using the immune_suppression_filter.csv file. 
+Only immune suppression treatments relevant to the study are kept using the immune_suppression_filter.csv file, which must be created by the user (see example below). The file should use ";" as separator. Those imunne suppressive treatments that should not be included are put as exlude = TRUE.
 
 | pattern | standardized_name | exclude |
-| -------- | ------- | ------- |
+| ------- | ------- | ------- |
 | c.\*osp.\*in |  ciclosporin | FALSE |
 | mmf\|my.\*enol | mycophenolic acid | FALSE |
 | entocort\|jorv | budesonide | TRUE |
