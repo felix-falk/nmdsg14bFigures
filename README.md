@@ -105,8 +105,7 @@ Below is the test_filters.json file that is included in the package and found in
 
 The possible options for ```outcomes ``` are ```"Remission" ```, ```"Relapse" ``` and ```"Nonrelapse mortality" ```.
 The possible options for ```treatments ``` are ```"Azacitidine" ``` and ```"Donor lymphocyte infusion" ```.
-The possible options for ```mrd_positive ``` are ```true ```, ```false ``` and ```null ```.
-The possible options for ```immune_suppression ``` are ```true ```, ```false ``` and ```null ```.
+The possible options for ```mrd_positive ``` and ```immune_suppression ``` are ```true ```, ```false ``` and ```null ```.
 
 ```r
 filters = c(
