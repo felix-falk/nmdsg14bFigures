@@ -60,6 +60,21 @@ swimmerplot <- function(
       guide = ggplot2::guide_legend(order = 1)
     ) +
 
+    # Add MRD annotations at the final recorded date
+    ggplot2::geom_point(
+      data = mrd_terminal_pts,
+      ggplot2::aes(
+        x = rel_term_dat,
+        y = y,
+        fill = mrd_category
+      ),
+      shape = 22,
+      size = 1,
+      color = "black"
+    ) +
+
+    ggnewscale::new_scale_fill() +
+
     # Add immune suppression line
     ggplot2::geom_segment(
       data = immune_pts,
@@ -86,6 +101,8 @@ swimmerplot <- function(
         )
       )
     ) +
+
+    ggnewscale::new_scale_fill() +
 
     # Add relapse annotation
     ggplot2::geom_text(data = dplyr::filter(
@@ -129,19 +146,6 @@ swimmerplot <- function(
       ggplot2::aes(x = x, y = y, label = symbol, colour = outcome),
       show.legend = TRUE,
       hjust = 0
-    ) +
-
-    # Add MRD annotations at the final recorded date
-    ggplot2::geom_point(
-      data = mrd_terminal_pts,
-      ggplot2::aes(
-        x = rel_term_dat,
-        y = y,
-        fill = mrd_category
-      ),
-      shape = 22,
-      size = 1,
-      color = "black"
     ) +
 
     ggplot2::scale_colour_manual(
