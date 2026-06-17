@@ -245,7 +245,8 @@ preprocess_data <- function(
     dplyr::mutate(outcome = dplyr::case_when(
       eosreason == "Death" ~ "Nonrelapse mortality",
       eosreason == "Full hematological relapse" ~ "Relapse",
-      eosreason == "Consent withdrawal" ~ "Other reason",
+      eosreason == "Consent withdrawal" ~ "Other exclusion reason",
+      eosreason == "Other reason" ~ "Other exclusion reason",
       is.na(eosreason) & patno %in% mrd_relapse_cases ~ "Relapse",
       TRUE ~ "Remission"
     )) |>

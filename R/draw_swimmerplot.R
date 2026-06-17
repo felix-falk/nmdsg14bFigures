@@ -103,6 +103,18 @@ swimmerplot <- function(
     hjust = -0.2
     ) +
 
+    # Add Other exclusion reason annotation
+    ggplot2::geom_text(data = dplyr::filter(
+      outcome_pts,
+      outcome == "Other exclusion reason"
+    ), ggplot2::aes(
+      x = rel_term_dat + 5,
+      y = y,
+      label = "*"
+    ),
+    hjust = -0.2
+    ) +
+
     # Add MRD annotations at the final recorded date
     ggplot2::geom_point(
       data = mrd_terminal_pts,
@@ -276,6 +288,10 @@ draw_swimmerplot <- function(
       rel_term_dat
     ) |>
     dplyr::distinct() |>
+    # Ensure MRD measurements occurring after the recorded end/relapse
+    # date are not plotted. Keep rows where rel_term_dat is NA (no end
+    # date) or where the MRD date is on or before rel_term_dat.
+    dplyr::filter(is.na(rel_term_dat) | rel_mrd_dat <= rel_term_dat) |>
     dplyr::arrange(patno, rel_mrd_dat)
 
   # Perform following calculations on a per-patient basis
