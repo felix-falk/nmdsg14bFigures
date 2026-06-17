@@ -376,7 +376,7 @@ preprocess_data <- function(
       )
     )
 
-  print(general_info[, c("patno", "event_time", "event_status")], n = Inf, widht = Inf)
+  print(general_info[, c("patno", "eosreason", "event_time", "event_status")], n = Inf, widht = Inf)
 
   # Transpose chimerism data, calculate relative chimerism dates
   chimerism <- chimerism_raw |>
