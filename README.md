@@ -58,9 +58,14 @@ nmds_figures_main(
   immune_filter_file = "immune_suppression_filter.csv",
   output_folder = "~/nmdsg14bFigures_output",
   plot_type = "swimmerplot", 
-  filters = c(genes = "TP53", outcomes = "Remission")
+  output_format = "pdf",
+  filters = list(genes = "TP53", outcomes = "Remission")
 )
 ```
+
+## Output format
+
+Set ```output_format``` to either ```"pdf"``` (default) or ```"svg"```.
 
 ## Filtering
 
