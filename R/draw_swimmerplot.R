@@ -26,12 +26,14 @@ swimmerplot <- function(
   mrd_terminal_pts,
   title_string
 ) {
-  # Build a small legend dataset for outcome symbols (to be shown as glyphs)
-  outcome_legend_df <- data.frame(
-    outcome = c("Relapse", "Nonrelapse mortality", "Other exclusion reason"),
-    symbol = c("R", "\u2020", "*"),
-    x = max(plot_data$xmax, na.rm = TRUE) + 5,
-    y = max(plot_data$y, na.rm = TRUE) + c(0.5, 0, -0.5)
+  # Build an annotation grob for outcome symbols legend
+  outcome_legend_grob <- grid::grobTree(
+    grid::textGrob("R", x = grid::unit(0, "npc"), y = grid::unit(1, "npc"), just = c("left", "top"), gp = grid::gpar(fontsize = 10)),
+    grid::textGrob("\u2020", x = grid::unit(0, "npc"), y = grid::unit(0.5, "npc"), just = c("left", "centre"), gp = grid::gpar(fontsize = 10)),
+    grid::textGrob("*", x = grid::unit(0, "npc"), y = grid::unit(0, "npc"), just = c("left", "bottom"), gp = grid::gpar(fontsize = 10)),
+    grid::textGrob("Relapse", x = grid::unit(0.18, "npc"), y = grid::unit(1, "npc"), just = c("left", "top"), gp = grid::gpar(fontsize = 10)),
+    grid::textGrob("Nonrelapse mortality", x = grid::unit(0.18, "npc"), y = grid::unit(0.5, "npc"), just = c("left", "centre"), gp = grid::gpar(fontsize = 10)),
+    grid::textGrob("Other exclusion reason", x = grid::unit(0.18, "npc"), y = grid::unit(0, "npc"), just = c("left", "bottom"), gp = grid::gpar(fontsize = 10))
   )
 
   swimmer_plot <- ggplot2::ggplot(plot_data) +
@@ -143,29 +145,13 @@ swimmerplot <- function(
     show.legend = FALSE
     ) +
 
-    # Add small invisible geom to create an Outcome legend with symbol glyphs
-    ggplot2::geom_text(
-      data = outcome_legend_df,
-      ggplot2::aes(x = x, y = y, label = symbol, colour = outcome),
-      show.legend = TRUE,
-      hjust = 0
-    ) +
-
-    ggplot2::scale_colour_manual(
-      name = "Outcome",
-      values = c(
-        "Relapse" = "black",
-        "Nonrelapse mortality" = "black",
-        "Other exclusion reason" = "black"
-      ),
-      guide = ggplot2::guide_legend(
-        order = 6,
-        override.aes = list(
-          label = c("R", "\u2020", "*"),
-          size = 4,
-          colour = "black"
-        )
-      )
+    # Add an annotation grob for the Outcome legend (symbols left, labels right)
+    ggplot2::annotation_custom(
+      outcome_legend_grob,
+      xmin = max(plot_data$xmax, na.rm = TRUE) + 5,
+      xmax = max(plot_data$xmax, na.rm = TRUE) + 15,
+      ymin = max(plot_data$y, na.rm = TRUE) - 0.6,
+      ymax = max(plot_data$y, na.rm = TRUE) + 0.6
     ) +
 
     ggnewscale::new_scale_fill() +
