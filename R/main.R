@@ -195,6 +195,8 @@ nmds_figures_main <- function(
 
     print(processed$chimerism, n = Inf, width = Inf)
 
+    names(processed$chimerism)
+
     draw_clinical_course_chimerism(
       processed = processed,
       patient_subset = selected_patients,
