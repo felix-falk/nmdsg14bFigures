@@ -172,8 +172,7 @@ nmds_figures_main <- function(
 
     message(paste0(
       "Clinical course plots saved to: ",
-      output_folder,
-      " (one .svg file per patient, pattern: <base>_<patno>.svg)"
+      output_folder
     ))
 
   }
