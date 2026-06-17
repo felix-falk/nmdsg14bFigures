@@ -11,7 +11,8 @@ draw_mrd_plot <- function(
   general_info_data,
   ngs_data,
   x_range,
-  y_upper
+  y_upper,
+  pat_id
 ) {
 
   plot <- ggplot2::ggplot() +
@@ -280,7 +281,7 @@ plot_patient_timeline <- function(processed, pat_id) {
   # ----------------------------
 
   # Draw MRD plot
-  mrd_plot <- draw_mrd_plot(d$mrd, d$general_info, d$ngs, x_range, y_upper)
+  mrd_plot <- draw_mrd_plot(d$mrd, d$general_info, d$ngs, x_range, y_upper, pat_id)
 
   # Extract mrd legend
   mrd_legend <- cowplot::get_legend(mrd_plot)
