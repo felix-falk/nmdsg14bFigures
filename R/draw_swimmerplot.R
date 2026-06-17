@@ -26,6 +26,14 @@ swimmerplot <- function(
   mrd_terminal_pts,
   title_string
 ) {
+  # Build a small legend dataset for outcome symbols (to be shown as glyphs)
+  outcome_legend_df <- data.frame(
+    outcome = c("Relapse", "Nonrelapse mortality", "Other exclusion reason"),
+    symbol = c("R", "\u2020", "*"),
+    x = max(plot_data$xmax, na.rm = TRUE) + 5,
+    y = max(plot_data$y, na.rm = TRUE) + c(0.5, 0, -0.5)
+  )
+
   swimmer_plot <- ggplot2::ggplot(plot_data) +
 
     # Add MRD rectangles
@@ -115,14 +123,12 @@ swimmerplot <- function(
     hjust = -0.2
     ) +
 
-    # Add outcomes legend
-    ggplot2::scale_fill_manual(
-      name = "Outcome",
-      values = c(
-        "Relapse" = "R",
-        "Nonrelapse mortality" = "\u2020",
-        "Other exclusion reason" = "*"
-      )
+    # Add small invisible geom to create an Outcome legend with symbol glyphs
+    ggplot2::geom_text(
+      data = outcome_legend_df,
+      ggplot2::aes(x = x, y = y, label = symbol, colour = outcome),
+      show.legend = TRUE,
+      hjust = 0
     ) +
 
     # Add MRD annotations at the final recorded date
@@ -136,6 +142,23 @@ swimmerplot <- function(
       shape = 22,
       size = 1,
       color = "black"
+    ) +
+
+    ggplot2::scale_colour_manual(
+      name = "Outcome",
+      values = c(
+        "Relapse" = "black",
+        "Nonrelapse mortality" = "black",
+        "Other exclusion reason" = "black"
+      ),
+      guide = ggplot2::guide_legend(
+        order = 6,
+        override.aes = list(
+          label = c("R", "\u2020", "*"),
+          size = 4,
+          colour = "black"
+        )
+      )
     ) +
 
     ggnewscale::new_scale_fill() +
