@@ -418,12 +418,14 @@ draw_clinical_course <- function(
     dir.create(output_folder, recursive = TRUE)
   }
 
-  # Export the figures to a pdf
-  pdf(file.path(output_folder, output_filename), width = 10, height = 6)
-  purrr::walk(
-    unique(processed$general_info$patno),
-    \(p) print(plot_patient_timeline(processed, p))
-  )
-  dev.off()
+  # Export each patient's figure to a separate SVG file
+  base_name <- tools::file_path_sans_ext(output_filename)
+  patient_ids <- unique(processed$general_info$patno)
+  for (p in patient_ids) {
+    svg_filename <- file.path(output_folder, paste0(base_name, "_", p, ".svg"))
+    grDevices::svg(filename = svg_filename, width = 10, height = 6)
+    print(plot_patient_timeline(processed, p))
+    grDevices::dev.off()
+  }
 
 }
