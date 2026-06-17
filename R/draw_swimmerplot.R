@@ -303,7 +303,7 @@ draw_swimmerplot <- function(
           mrd_category = dplyr::if_else(
             rel_mrd_dat == 0, mrd_category, NA
           ),
-          mrd_base$rel_term_dat
+          rel_term_dat
         ) |>
         dplyr::ungroup()
     ) |>
