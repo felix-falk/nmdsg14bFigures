@@ -54,7 +54,6 @@ standardize_drug <- function(drug, mapping_df) {
   return(NA_character_)
 }
 
-
 #' Called by the draw_clinical_course function to create GVHD dummy legends.
 #'
 #' @param levels The levels of the legend.
