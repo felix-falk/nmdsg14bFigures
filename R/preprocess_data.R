@@ -320,6 +320,8 @@ preprocess_data <- function(
     ) |>
     dplyr::filter(rel_chimerism_dat <= rel_term_dat)
 
+  print(chimerism, n = Inf, width = Inf)
+
   return(
     list(
       general_info = general_info,
