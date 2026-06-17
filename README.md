@@ -32,7 +32,7 @@ packageVersion("nmdsg14bFigures")
 
 2. If any files used in the package are open in the background, the files cannot be read by the package. Therefore, close any open data files before running the package. 
 
-3. The excel data file require the following columns
+3. The excel data files require the following columns
 
 | excel_file | required_columns |
 | ------- | ------- |
@@ -47,6 +47,10 @@ packageVersion("nmdsg14bFigures")
 ## Run the package in R
 
 ```r
+# Optional: navigate to the files directory
+setwd("~/study_files")
+
+# Run nmds_figures_main
 nmds_figures_main(
   general_info_file = "general_info.xlsx",
   mrd_file = "mrd.xlsx",
@@ -65,7 +69,11 @@ nmds_figures_main(
 
 ## Output format
 
-Set ```output_format``` to either ```"pdf"``` (default) or ```"svg"```.
+Set ```output_format``` to ```"pdf"``` (default) or ```"svg"```.
+
+## Plot type
+
+Set ```plot_type``` to ```"swimmerplot"```, ```"clinical_course"```, or ```"clinical_course_chimerism"```.
 
 ## Filtering
 
@@ -73,7 +81,7 @@ Set ```output_format``` to either ```"pdf"``` (default) or ```"svg"```.
 
 #### Immune suppression data
 
-Only immune suppression treatments relevant to the study are kept using a ";"-separated csv file, provided by the user (see example below). Imunne suppressive treatments that should be excluded are put as exlude = TRUE.
+Only immune suppression treatments relevant to the study are kept using a ";"-separated csv file, provided by the user (see example below). Imunne suppressive treatments that should be excluded are put as exlude = TRUE. The immune suppresion treatment names are recognized using the ```pattern``` column, and are changed to a given ```standardized_name```. Treatments that are to be excluded from the analysis are put as ```TRUE``` in the ```exclude``` column.
 
 | pattern | standardized_name | exclude |
 | ------- | ------- | ------- |
