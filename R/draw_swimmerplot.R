@@ -313,6 +313,8 @@ draw_swimmerplot <- function(
     dplyr::mutate(rect_index = dplyr::row_number()) |>
     dplyr::ungroup()
 
+  print(mrd_rectangles)
+
   # Calculate mrd_terminal
   mrd_terminal <- mrd_base |> dplyr::filter(
     rel_mrd_dat == rel_term_dat
