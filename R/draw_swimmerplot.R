@@ -285,7 +285,7 @@ draw_swimmerplot <- function(
       xmin = mrd_base$rel_mrd_dat,
       xmax = dplyr::coalesce(
         dplyr::lead(mrd_base$rel_mrd_dat),
-        dplyr::first(mrd_base$rel_term_dat) + 5
+        dplyr::first(mrd_base$rel_term_dat) #+ 5
       )
     ) |>
     dplyr::ungroup() |>
