@@ -94,13 +94,13 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   # Chimerism plot (middle)
   # ----------------------------
 
-  # Draw MRD plot
-  chimerism_plot <- draw_chimerism_plot(d$general_info, d$chimerism, x_range, pat_id)
+  # Draw chimerism plot (pass chimerism data first, then general info)
+  chimerism_plot <- draw_chimerism_plot(d$chimerism, d$general_info, x_range, pat_id)
 
-  # Extract mrd legend
+  # Extract chimerism legend
   chimerism_legend <- cowplot::get_legend(chimerism_plot)
 
-  # Remove mrd legend from mrd_plot
+  # Remove chimerism legend from chimerism_plot
   chimerism_plot_clean <- chimerism_plot + ggplot2::theme(legend.position = "none")
 
   # ----------------------------
