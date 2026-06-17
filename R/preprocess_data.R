@@ -376,8 +376,7 @@ preprocess_data <- function(
       )
     )
 
-  print(general_info$event_time)
-  print(general_info$event_status)
+  print(general_info, n = Inf, widht = Inf)
 
   # Transpose chimerism data, calculate relative chimerism dates
   chimerism <- chimerism_raw |>
@@ -396,8 +395,6 @@ preprocess_data <- function(
       ))
     ) |>
     dplyr::filter(rel_chimerism_dat <= rel_term_dat)
-
-  print(chimerism, n = Inf, width = Inf)
 
   return(
     list(
