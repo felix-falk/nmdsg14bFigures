@@ -229,15 +229,6 @@ draw_clinical_course_chimerism <- function(
   processed$mrd <- processed$mrd |>
     dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
 
-  cat("\nProcessed objects:\n")
-
-  print(
-    sapply(
-      processed,
-      class_finder
-    )
-  )
-
   if (!dir.exists(output_folder)) {
     dir.create(output_folder, recursive = TRUE)
   }
@@ -252,7 +243,7 @@ draw_clinical_course_chimerism <- function(
     for (p in patient_ids) {
       svg_filename <- file.path(output_folder, paste0(base_name, "_", p, ".svg"))
       svglite::svglite(file = svg_filename, width = 10, height = 6)
-      print(plot_patient_timeline(processed, p))
+      print(plot_chimerism_timeline(processed, p))
       grDevices::dev.off()
     }
   } else {
@@ -260,7 +251,7 @@ draw_clinical_course_chimerism <- function(
     pdf_filename <- file.path(output_folder, output_filename)
     grDevices::pdf(file = pdf_filename, width = 10, height = 6)
     for (p in patient_ids) {
-      print(plot_patient_timeline(processed, p))
+      print(plot_chimerism_timeline(processed, p))
     }
     grDevices::dev.off()
   }
