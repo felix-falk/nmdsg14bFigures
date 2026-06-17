@@ -20,8 +20,8 @@ install.packages("remotes")
 remotes::install_github("felix-falk/nmdsg14bFigures")
 
 # Verify that nmdsg14bFigures is installed
-library(nmdsFigures)
-packageVersion("nmdsFigures")
+library(nmdsg14bFigures)
+packageVersion("nmdsg14bFigures")
 ```
 
 # Usage
@@ -101,7 +101,7 @@ The possible options for ```treatments``` are ```"Azacitidine"``` and ```"Donor 
 The possible options for ```mrd_positive``` and ```immune_suppression``` are ```true```, ```false``` and ```null```.
 
 ```r
-filters = c(
+filters = list(
   genes = c(
     "TP53", 
     "ASXL1"
