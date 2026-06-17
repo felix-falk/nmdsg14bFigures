@@ -193,9 +193,7 @@ nmds_figures_main <- function(
 
     message("Drawing clinical course chimerism plots...")
 
-    print(processed$chimerism)
-
-    print(processed$chimerism_file)
+    print(processed$chimerism, n = Inf, width = Inf)
 
     draw_clinical_course_chimerism(
       processed = processed,
