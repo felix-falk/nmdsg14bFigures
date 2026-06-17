@@ -194,10 +194,7 @@ preprocess_data <- function(
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_mrd_dat = as.numeric(
-        difftime(as.Date(MRDdat),
-                 as.Date(MRDdat),
-                 as.Date(transpldt),
-                 units = "days")
+          difftime(as.Date(MRDdat), as.Date(transpldt), units = "days")
       )
     ) |>
     dplyr::filter(rel_mrd_dat >= 0)
