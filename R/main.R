@@ -38,7 +38,7 @@ nmds_figures_main <- function(
   chimerism_file,
   immune_filter_file,
   output_folder,
-  plot_type = c("swimmerplot", "clinical_course"),
+  plot_type = c("swimmerplot", "clinical_course", "clinical_course_chimerism"),
   filters = NULL,
   output_format = c("svg", "pdf")
 ) {
