@@ -120,13 +120,15 @@ class_finder <- function(x) {
 y_limit_finder <- function(mrd_data) {
 
   # Determine the upper y-axis limit for the MRD figure
-  if (nrow(mrd_data) == 0 ||
-        all(is.na(level_no0s))) {
+  # If there's no data or the column doesn't exist, fall back to 10
+  if (is.null(mrd_data) || nrow(mrd_data) == 0 ||
+      !"level_no0s" %in% names(mrd_data) ||
+      all(is.na(mrd_data$level_no0s))) {
     y_upper <- 10
   } else {
     y_upper <- max(
       10,
-      ceiling(max(level_no0s, na.rm = TRUE))
+      ceiling(max(mrd_data$level_no0s, na.rm = TRUE))
     )
   }
 

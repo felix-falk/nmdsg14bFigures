@@ -423,7 +423,22 @@ draw_clinical_course <- function(
   patient_ids <- unique(processed$general_info$patno)
   for (p in patient_ids) {
     svg_filename <- file.path(output_folder, paste0(base_name, "_", p, ".svg"))
-    grDevices::svg(filename = svg_filename, width = 10, height = 6)
+    opened <- FALSE
+    # Try the default SVG device (may fail if cairo/X11 is missing)
+    try({
+      grDevices::svg(filename = svg_filename, width = 10, height = 6)
+      opened <- TRUE
+    }, silent = TRUE)
+
+    # Fallback to svglite if the system SVG device failed
+    if (!opened) {
+      if (!requireNamespace("svglite", quietly = TRUE)) {
+        stop(paste0("Failed to open SVG device for '", svg_filename,
+                    "'. Install the 'svglite' package or fix cairo/X11."))
+      }
+      svglite::svglite(file = svg_filename, width = 10, height = 6)
+    }
+
     print(plot_patient_timeline(processed, p))
     grDevices::dev.off()
   }
