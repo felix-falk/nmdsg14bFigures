@@ -237,7 +237,7 @@ preprocess_data <- function(
       immunsupptreatm,
       drugname,
       drugstopped,
-      el_term_dat,
+      rel_term_dat,
       rel_immune_dat,
       drugname_standardized
     ) |>
