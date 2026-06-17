@@ -313,6 +313,27 @@ draw_swimmerplot <- function(
     dplyr::mutate(rect_index = dplyr::row_number()) |>
     dplyr::ungroup()
 
+  # Add patients without MRD measurements but with a transplant and end date
+  # as a single long (grey) rectangle from 0 to rel_term_dat
+  missing_mrd <- processed$general_info |>
+    dplyr::select(patno, rel_term_dat) |>
+    dplyr::filter(!is.na(rel_term_dat)) |>
+    dplyr::anti_join(dplyr::distinct(mrd_rectangles, patno), by = "patno") |>
+    dplyr::mutate(
+      xmin = 0,
+      xmax = rel_term_dat,
+      mrd_category = NA
+    ) |>
+    dplyr::select(patno, xmin, xmax, mrd_category, rel_term_dat)
+
+  if (nrow(missing_mrd) > 0) {
+    mrd_rectangles <- dplyr::bind_rows(mrd_rectangles, missing_mrd) |>
+      dplyr::arrange(patno, xmin) |>
+      dplyr::group_by(patno) |>
+      dplyr::mutate(rect_index = dplyr::row_number()) |>
+      dplyr::ungroup()
+  }
+
   print(mrd_rectangles, n = Inf, width = Inf)
 
   # Calculate mrd_terminal
