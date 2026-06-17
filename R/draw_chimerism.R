@@ -120,7 +120,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
     chimerism_plot_clean,
     events_plot,
     ncol = 1,
-    rel_heights = c(5, 1),
+    rel_heights = c(2, 2, 1),
     align = "v",
     axis = "tblr"
   )
