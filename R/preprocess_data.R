@@ -28,7 +28,8 @@ preprocess_data <- function(
   immune_file,
   gvhd_file,
   ngs_file,
-  immune_filter_file
+  immune_filter_file,
+  chimerism_file
 ) {
 
   # Check that required files are present
@@ -68,6 +69,7 @@ preprocess_data <- function(
   immune_raw <- readxl::read_excel(immune_file)
   gvhd_raw <- readxl::read_excel(gvhd_file)
   ngs_raw <- readxl::read_excel(ngs_file)
+  chimerism_raw <- readxl::read_excel(chimerism_file)
 
   # Make column names ASCII-safe
   names(ngs_raw) <- iconv(
@@ -300,6 +302,18 @@ preprocess_data <- function(
       .groups = "drop"
     )
 
+  # Transpose chimerism data, calculate relative chimerism dates
+  chimerism <- chimerism_raw |>
+    dplyr::left_join(end_date_df, by = "patno") |>
+    dplyr::mutate(
+      rel_chimerism_dat = as.numeric(difftime(
+        as.Date(chimbmdt),
+        as.Date(transpldt),
+        units = "days"
+      ))
+    ) |>
+    dplyr::filter(chimbmdt <= rel_term_dat)
+
   return(
     list(
       general_info = general_info,
@@ -308,7 +322,8 @@ preprocess_data <- function(
       gvhd = gvhd_processed,
       ngs = ngs_processed,
       immune_events = immune,
-      immune_intervals = overlapping_interval_df
+      immune_intervals = overlapping_interval_df,
+      chimerism = chimerism
 
     )
   )

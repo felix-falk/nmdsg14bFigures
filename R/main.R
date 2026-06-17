@@ -35,6 +35,7 @@ nmds_figures_main <- function(
   immune_file,
   gvhd_file,
   ngs_file,
+  chimerism_file,
   immune_filter_file,
   output_folder,
   plot_type = c("swimmerplot", "clinical_course"),
@@ -115,7 +116,8 @@ nmds_figures_main <- function(
     immune_file = immune_file,
     gvhd_file = gvhd_file,
     ngs_file = ngs_file,
-    immune_filter_file = immune_filter_file
+    immune_filter_file = immune_filter_file,
+    chimerism_file = chimerism_file
   )
 
   # ----------------------------------------------------------
@@ -186,6 +188,10 @@ nmds_figures_main <- function(
         file.path(output_folder, "clinical_course_plots.pdf")
       ))
     }
+
+  } else if (plot_type == "clinical_course_chimerism") {
+
+    message("Drawing clinical course chimerism plots...")
 
   }
 
