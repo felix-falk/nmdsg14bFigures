@@ -264,6 +264,8 @@ preprocess_data <- function(
       end_date_df |> dplyr::select(patno, rel_term_dat), by = "patno"
     )
 
+  
+
   # NGS Data filtering
   gene_lists <-
     ngs_raw |>
@@ -302,6 +304,81 @@ preprocess_data <- function(
       .groups = "drop"
     )
 
+  # Based on gvhd, compute earliest relevant GVHD event per patient:
+  # - aGVHD grade III-IV
+  # - cGVHD severe
+  # - cGVHD moderate (only if the cGVHD moderate event falls inside an
+  #   overlapping immune suppression interval)
+
+  # Acute GVHD grade III-IV
+  agvhd_events <- gvhd_processed |>
+    dplyr::filter(gvhd == "Acute GVHD") |>
+    dplyr::mutate(
+      stage_norm = toupper(as.character(agvhdstage)),
+      stage_num = suppressWarnings(as.numeric(stage_norm))
+    ) |>
+    dplyr::filter(
+      stage_norm %in% c("III", "IV") |
+        (!is.na(stage_num) & stage_num >= 3)
+    ) |>
+    dplyr::select(patno, rel_gvhd_dat) |>
+    dplyr::mutate(event_type = "aGVHD III-IV")
+
+  # Chronic GVHD severe
+  cgvhd_severe_events <- gvhd_processed |>
+    dplyr::filter(gvhd == "Chronic GVHD") |>
+    dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
+    dplyr::filter(grepl("severe", stage_norm)) |>
+    dplyr::select(patno, rel_gvhd_dat) |>
+    dplyr::mutate(event_type = "cGVHD severe")
+
+  # Chronic GVHD moderate but only keep those overlapping immune intervals
+  cgvhd_moderate_events <- gvhd_processed |>
+    dplyr::filter(gvhd == "Chronic GVHD") |>
+    dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
+    dplyr::filter(grepl("moderate", stage_norm)) |>
+    dplyr::left_join(overlapping_interval_df, by = "patno") |>
+    dplyr::filter(!is.na(interval_start) & rel_gvhd_dat >= interval_start & rel_gvhd_dat <= interval_end) |>
+    dplyr::select(patno, rel_gvhd_dat) |>
+    dplyr::mutate(event_type = "cGVHD moderate (overlaps immune)")
+
+  # Combine and pick earliest event per patient
+  gvhd_events <- dplyr::bind_rows(agvhd_events, cgvhd_severe_events, cgvhd_moderate_events) |>
+    dplyr::arrange(patno, rel_gvhd_dat) |>
+    dplyr::group_by(patno) |>
+    dplyr::slice_head(n = 1) |>
+    dplyr::ungroup()
+
+  # Calculate events based on general_info and earliest GVHD events.
+  # If a GVHD event (as computed in `gvhd_events`) occurs before the
+  # censoring/termination time (`rel_term_dat`), register that as the
+  # event (time and status = 1). Otherwise fall back to the previous
+  # rules based on `eosreason` (death/relapse/other).
+  general_info <- general_info |>
+    dplyr::left_join(
+      gvhd_events |>
+        dplyr::select(patno, gvhd_event_time = rel_gvhd_dat, gvhd_event_type = event_type),
+      by = "patno"
+    ) |>
+    dplyr::mutate(
+      event_time = dplyr::case_when(
+        !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
+        eosreason %in% c("Nonrelapse mortality", "Relapse") ~ rel_term_dat,
+        eosreason == "Other exclusion reason" ~ rel_term_dat,
+        is.na(eosreason) ~ 720
+      ),
+      event_status = dplyr::case_when(
+        !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ 1,
+        eosreason == "Nonrelapse mortality" ~ 1,
+        eosreason == "Relapse" ~ 1,
+        eosreason == "Other exclusion reason" ~ 0,
+        is.na(eosreason) ~ 0
+      )
+    )
+
+  print(general_info$event_time)
+  print(general_info$event_status)
+
   # Transpose chimerism data, calculate relative chimerism dates
   chimerism <- chimerism_raw |>
     tidyr::pivot_longer(
@@ -328,6 +405,7 @@ preprocess_data <- function(
       treatment = treatment,
       mrd = mrd_all,
       gvhd = gvhd_processed,
+      gvhd_events = gvhd_events,
       ngs = ngs_processed,
       immune_events = immune,
       immune_intervals = overlapping_interval_df,
