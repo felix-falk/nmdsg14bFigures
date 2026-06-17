@@ -12,13 +12,13 @@ interval_finder <- function(df) {
     dplyr::group_by(patno, drugname_standardized) |>
     dplyr::group_modify(~ {
 
-      stop_idx <- which(drugstopped == "Yes")
+      stop_idx <- which(.x$drugstopped == "Yes")
 
       if (length(stop_idx) == 0) {
         return(tibble::tibble(
           interval_no = 1,
-          interval_start = min(rel_immune_dat),
-          interval_end = max(rel_term_dat)
+          interval_start = min(.x$rel_immune_dat, na.rm = TRUE),
+          interval_end = max(.x$rel_term_dat, na.rm = TRUE)
         ))
       }
 
@@ -27,8 +27,8 @@ interval_finder <- function(df) {
 
       tibble::tibble(
         interval_no = seq_along(starts),
-        interval_start = rel_immune_dat[starts],
-        interval_end = rel_immune_dat[ends]
+        interval_start = .x$rel_immune_dat[starts],
+        interval_end = .x$rel_immune_dat[ends]
       )
     }) |>
     dplyr::ungroup()
