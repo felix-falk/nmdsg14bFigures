@@ -193,6 +193,26 @@ nmds_figures_main <- function(
 
     message("Drawing clinical course chimerism plots...")
 
+    draw_clinical_course_chimerism(
+      processed = processed,
+      patient_subset = selected_patients,
+      output_folder = output_folder,
+      output_format = output_format
+    )
+
+    if (output_format == "svg") {
+      message(paste0(
+        "Clinical course chimerism plots saved to: ",
+        output_folder,
+        " (one .svg file per patient, pattern: <base>_<patno>.svg)"
+      ))
+    } else {
+      message(paste0(
+        "Clinical course chimerism plots saved to: ",
+        file.path(output_folder, "clinical_course_chimerism_plots.pdf")
+      ))
+    }
+
   }
 
   invisible(
