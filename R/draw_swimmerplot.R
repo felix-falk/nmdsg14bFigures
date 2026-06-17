@@ -259,8 +259,11 @@ draw_swimmerplot <- function(
   processed,
   patient_subset = NULL,
   output_folder,
-  output_filename = "swimmerplot.svg"
+  output_filename = "swimmerplot.svg",
+  output_format = c("svg", "pdf")
 ) {
+
+  output_format <- match.arg(output_format)
 
   if (nrow(processed$general_info) == 0) {
     stop("No patients available after filtering.")
@@ -418,10 +421,15 @@ draw_swimmerplot <- function(
   )
 
   # --- EXPORT ---
+  out_filename <- file.path(
+    output_folder,
+    paste0(tools::file_path_sans_ext(output_filename), ".", output_format)
+  )
+
   ggplot2::ggsave(
-    filename = file.path(output_folder, output_filename),
+    filename = out_filename,
     plot = swimmer_plot,
-    device = "svg",
+    device = output_format,
     width = 6,
     height = max(5, length(unique(plot_data$patno)) * 0.2),
     units = "in",

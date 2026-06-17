@@ -38,10 +38,12 @@ nmds_figures_main <- function(
   immune_filter_file,
   output_folder,
   plot_type = c("swimmerplot", "clinical_course"),
-  filters = NULL
+  filters = NULL,
+  output_format = c("svg", "pdf")
 ) {
 
   plot_type <- match.arg(plot_type)
+  output_format <- match.arg(output_format)
 
   required_args <- list(
     general_info_file = general_info_file,
@@ -152,12 +154,13 @@ nmds_figures_main <- function(
     draw_swimmerplot(
       processed = processed,
       patient_subset = selected_patients,
-      output_folder = output_folder
+      output_folder = output_folder,
+      output_format = output_format
     )
 
     message(paste0(
       "Swimmer plot saved to: ",
-      file.path(output_folder, "swimmer_plot.svg")
+      file.path(output_folder, paste0("swimmerplot.", output_format))
     ))
 
   } else if (plot_type == "clinical_course") {
@@ -167,13 +170,22 @@ nmds_figures_main <- function(
     draw_clinical_course(
       processed = processed,
       patient_subset = selected_patients,
-      output_folder = output_folder
+      output_folder = output_folder,
+      output_format = output_format
     )
 
-    message(paste0(
-      "Clinical course plots saved to: ",
-      output_folder
-    ))
+    if (output_format == "svg") {
+      message(paste0(
+        "Clinical course plots saved to: ",
+        output_folder,
+        " (one .svg file per patient, pattern: <base>_<patno>.svg)"
+      ))
+    } else {
+      message(paste0(
+        "Clinical course plots saved to: ",
+        file.path(output_folder, "clinical_course_plots.pdf")
+      ))
+    }
 
   }
 
