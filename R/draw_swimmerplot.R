@@ -115,6 +115,16 @@ swimmerplot <- function(
     hjust = -0.2
     ) +
 
+    # Add outcomes legend
+    ggplot2::scale_fill_manual(
+      name = "Outcome",
+      values = c(
+        "Relapse" = "R",
+        "Nonrelapse mortality" = "\u2020",
+        "Other exclusion reason" = "*"
+      )
+    ) +
+
     # Add MRD annotations at the final recorded date
     ggplot2::geom_point(
       data = mrd_terminal_pts,
