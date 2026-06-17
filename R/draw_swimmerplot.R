@@ -145,15 +145,6 @@ swimmerplot <- function(
     show.legend = FALSE
     ) +
 
-    # Add an annotation grob for the Outcome legend (symbols left, labels right)
-    ggplot2::annotation_custom(
-      outcome_legend_grob,
-      xmin = max(plot_data$xmax, na.rm = TRUE) + 5,
-      xmax = max(plot_data$xmax, na.rm = TRUE) + 15,
-      ymin = max(plot_data$y, na.rm = TRUE) - 0.6,
-      ymax = max(plot_data$y, na.rm = TRUE) + 0.6
-    ) +
-
     ggnewscale::new_scale_fill() +
 
     # Add treatment annotations
