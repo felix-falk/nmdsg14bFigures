@@ -365,14 +365,16 @@ preprocess_data <- function(
         !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
         eosreason %in% c("Nonrelapse mortality", "Relapse") ~ rel_term_dat,
         eosreason == "Other exclusion reason" ~ rel_term_dat,
-        is.na(eosreason) ~ 720
+        eosreason == "2 years post HCT" ~ 720,
+        is.na(eosreason) ~ NA
       ),
       event_status = dplyr::case_when(
         !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ 1,
         eosreason == "Nonrelapse mortality" ~ 1,
         eosreason == "Relapse" ~ 1,
         eosreason == "Other exclusion reason" ~ 0,
-        is.na(eosreason) ~ 0
+        eosreason == "2 years post HCT" ~ 0,
+        is.na(eosreason) ~ NA
       )
     )
 
