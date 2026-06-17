@@ -113,7 +113,8 @@ swimmerplot <- function(
       y = y,
       label = "R"
     ),
-    hjust = -0.2
+    hjust = -0.2,
+    show.legend = FALSE
     ) +
 
     # Add nonrelapse mortality annotation
@@ -125,7 +126,8 @@ swimmerplot <- function(
       y = y,
       label = "\u2020"
     ),
-    hjust = -0.2
+    hjust = -0.2,
+    show.legend = FALSE
     ) +
 
     # Add Other exclusion reason annotation
@@ -137,7 +139,8 @@ swimmerplot <- function(
       y = y,
       label = "*"
     ),
-    hjust = -0.2
+    hjust = -0.2,
+    show.legend = FALSE
     ) +
 
     # Add small invisible geom to create an Outcome legend with symbol glyphs
