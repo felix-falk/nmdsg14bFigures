@@ -110,13 +110,13 @@ preprocess_data <- function(
       names_to = "timepoint",
       values_to = "azacitstartdat"
     ) |>
-    dplyr::select(patno, aza_raw$azacitstartdat) |>
-    dplyr::filter(!is.na(aza_raw$azacitstartdat)) |>
+    dplyr::select(patno, azacitstartdat) |>
+    dplyr::filter(!is.na(azacitstartdat)) |>
     dplyr::distinct() |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_aza_dat = as.numeric(difftime(
-        as.Date(aza_raw$azacitstartdat),
+        as.Date(azacitstartdat),
         as.Date(end_date_df$transpldt),
         units = "days"
       ))
