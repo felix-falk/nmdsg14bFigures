@@ -353,7 +353,7 @@ preprocess_data <- function(
   # If a GVHD event (as computed in `gvhd_events`) occurs before the
   # censoring/termination time (`rel_term_dat`), register that as the
   # event (time and status = 1). Otherwise fall back to the previous
-  # rules based on `eosreason` (death/relapse/other).
+  # rules based on `outcome` (death/relapse/other).
   general_info <- general_info |>
     dplyr::left_join(
       gvhd_events |>
@@ -363,22 +363,22 @@ preprocess_data <- function(
     dplyr::mutate(
       event_time = dplyr::case_when(
         !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
-        eosreason %in% c("Nonrelapse mortality", "Relapse") ~ rel_term_dat,
-        eosreason == "Other exclusion reason" ~ rel_term_dat,
-        eosreason == "2 years post HCT" ~ 720,
-        is.na(eosreason) ~ NA
+        outcome %in% c("Nonrelapse mortality", "Relapse") ~ rel_term_dat,
+        outcome == "Other exclusion reason" ~ rel_term_dat,
+        outcome == "Remission" ~ 720,
+        is.na(outcome) ~ NA
       ),
       event_status = dplyr::case_when(
         !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ 1,
-        eosreason == "Nonrelapse mortality" ~ 1,
-        eosreason == "Relapse" ~ 1,
-        eosreason == "Other exclusion reason" ~ 0,
-        eosreason == "2 years post HCT" ~ 0,
-        is.na(eosreason) ~ NA
+        outcome == "Nonrelapse mortality" ~ 1,
+        outcome == "Relapse" ~ 1,
+        outcome == "Other exclusion reason" ~ 0,
+        outcome == "Remission" ~ 0,
+        is.na(outcome) ~ NA
       )
     )
 
-  print(general_info[, c("patno", "eosreason", "event_time", "event_status")], n = Inf, widht = Inf)
+  print(general_info[, c("patno", "eosreason", "outcome", "event_time", "event_status")], n = Inf, widht = Inf)
 
   # Transpose chimerism data, calculate relative chimerism dates
   chimerism <- chimerism_raw |>
