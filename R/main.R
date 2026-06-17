@@ -157,7 +157,7 @@ nmds_figures_main <- function(
 
     message(paste0(
       "Swimmer plot saved to: ",
-      file.path(output_folder, "swimmer_plot.png")
+      file.path(output_folder, "swimmer_plot.svg")
     ))
 
   } else if (plot_type == "clinical_course") {

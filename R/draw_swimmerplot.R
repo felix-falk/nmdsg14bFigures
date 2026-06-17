@@ -259,7 +259,7 @@ draw_swimmerplot <- function(
   processed,
   patient_subset = NULL,
   output_folder,
-  output_filename = "swimmerplot.png"
+  output_filename = "swimmerplot.svg"
 ) {
 
   if (nrow(processed$general_info) == 0) {
@@ -423,6 +423,7 @@ draw_swimmerplot <- function(
   ggplot2::ggsave(
     filename = file.path(output_folder, output_filename),
     plot = swimmer_plot,
+    device = "svg",
     width = 6,
     height = max(5, length(unique(plot_data$patno)) * 0.2),
     units = "in",
