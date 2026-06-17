@@ -56,10 +56,10 @@ swimmerplot <- function(
     ggplot2::geom_segment(
       data = immune_pts,
       ggplot2::aes(
-        x = immune_pts$interval_start,
-        xend = immune_pts$interval_end,
-        y = immune_pts$y + 0.3,
-        yend = immune_pts$y + 0.3,
+        x = interval_start,
+        xend = interval_end,
+        y = y + 0.3,
+        yend = y + 0.3,
         linetype = "Immune suppression"
       ),
       linewidth = 1.5,
@@ -82,9 +82,9 @@ swimmerplot <- function(
     # Add relapse annotation
     ggplot2::geom_text(data = dplyr::filter(
       outcome_pts,
-      outcome_pts$outcome == "Relapse"
+      outcome == "Relapse"
     ), ggplot2::aes(
-      x = outcome_pts$rel_term_dat + 5,
+      x = rel_term_dat + 5,
       y = y,
       label = "R"
     ),
@@ -96,7 +96,7 @@ swimmerplot <- function(
       outcome_pts,
       outcome == "Nonrelapse mortality"
     ), ggplot2::aes(
-      x = outcome_pts$rel_term_dat + 5,
+      x = rel_term_dat + 5,
       y = y,
       label = "\u2020"
     ),
@@ -107,9 +107,9 @@ swimmerplot <- function(
     ggplot2::geom_point(
       data = mrd_terminal_pts,
       ggplot2::aes(
-        x = mrd_terminal_pts$rel_term_dat + 5,
+        x = rel_term_dat + 5,
         y = y,
-        fill = mrd_terminal_pts$mrd_category
+        fill = mrd_category
       ),
       shape = 22,
       size = 1,
@@ -120,11 +120,11 @@ swimmerplot <- function(
 
     # Add treatment annotations
     ggplot2::geom_point(
-      data = treatment_pts |> dplyr::filter(!is.na(treatment_pts$treatment)),
+      data = treatment_pts |> dplyr::filter(!is.na(treatment)),
       ggplot2::aes(
-        x = treatment_pts$rel_treatment_dat,
+        x = rel_treatment_dat,
         y = y - 0.3,
-        fill = treatment_pts$treatment
+        fill = treatment
       ),
       color = "black",
       shape = 24
@@ -145,13 +145,13 @@ swimmerplot <- function(
     # Add acute GVHD annotation
     ggplot2::geom_point(
       data = gvhd_pts |> dplyr::filter(
-        gvhd_pts$gvhd == "Acute GVHD",
-        gvhd_pts$agvhdstage %in% c(3, 4)
+        gvhd == "Acute GVHD",
+        agvhdstage %in% c(3, 4)
       ),
       ggplot2::aes(
-        x = gvhd_pts$rel_gvhd_dat,
+        x = rel_gvhd_dat,
         y = y - 0.3,
-        fill = gvhd_pts$agvhdstage
+        fill = agvhdstage
       ),
       color = "black",
       shape = 23
@@ -172,13 +172,13 @@ swimmerplot <- function(
     # Add chronic GVHD annotation
     ggplot2::geom_point(
       data = gvhd_pts |> dplyr::filter(
-        gvhd_pts$gvhd == "Chronic GVHD",
-        gvhd_pts$cgvhdstage %in% c("Moderate", "Severe")
+        gvhd == "Chronic GVHD",
+        cgvhdstage %in% c("Moderate", "Severe")
       ),
       ggplot2::aes(
-        x = gvhd_pts$rel_gvhd_dat,
+        x = rel_gvhd_dat,
         y = y - 0.3,
-        fill = gvhd_pts$cgvhdstage
+        fill = cgvhdstage
       ),
       color = "black",
       shape = 23
@@ -271,26 +271,26 @@ draw_swimmerplot <- function(
   mrd_base <- processed$mrd |>
     dplyr::select(
       patno,
-      processed$mrd$rel_mrd_dat,
-      processed$mrd$mrd_category,
-      processed$mrd$rel_term_dat
+      rel_mrd_dat,
+      mrd_category,
+      rel_term_dat
     ) |>
     dplyr::distinct() |>
-    dplyr::arrange(patno, processed$mrd$rel_mrd_dat)
+    dplyr::arrange(patno, rel_mrd_dat)
 
   # Perform following calculations on a per-patient basis
   mrd_rectangles <- mrd_base |>
     dplyr::group_by(patno) |>
     dplyr::mutate(
-      xmin = mrd_base$rel_mrd_dat,
+      xmin = rel_mrd_dat,
       xmax = dplyr::coalesce(
-        dplyr::lead(mrd_base$rel_mrd_dat),
-        dplyr::first(mrd_base$rel_term_dat) #+ 5
+        dplyr::lead(rel_mrd_dat),
+        dplyr::first(rel_term_dat) #+ 5
       )
     ) |>
     dplyr::ungroup() |>
     dplyr::select(
-      patno, xmin, xmax, mrd_base$mrd_category, mrd_base$rel_term_dat
+      patno, xmin, xmax, mrd_category, rel_term_dat
     ) |>
     dplyr::bind_rows(
       mrd_base |>
@@ -299,9 +299,9 @@ draw_swimmerplot <- function(
         dplyr::transmute(
           patno,
           xmin = 0,
-          xmax = mrd_base$rel_mrd_dat,
+          xmax = rel_mrd_dat,
           mrd_category = dplyr::if_else(
-            mrd_base$rel_mrd_dat == 0, mrd_base$mrd_category, NA
+            rel_mrd_dat == 0, mrd_category, NA
           ),
           mrd_base$rel_term_dat
         ) |>
@@ -315,19 +315,19 @@ draw_swimmerplot <- function(
 
   # Calculate mrd_terminal
   mrd_terminal <- mrd_base |> dplyr::filter(
-    mrd_base$rel_mrd_dat == mrd_base$rel_term_dat
+    rel_mrd_dat == rel_term_dat
   )
 
   # --- PLOT DATA & LOOKUP ---
 
   plot_data <- mrd_rectangles |>
     dplyr::group_by(patno) |>
-    dplyr::mutate(max_end_event = dplyr::first(mrd_rectangles$rel_term_dat)) |>
+    dplyr::mutate(max_end_event = dplyr::first(rel_term_dat)) |>
     dplyr::ungroup() |>
-    dplyr::arrange(mrd_rectangles$max_end_event, patno, xmin) |>
+    dplyr::arrange(max_end_event, patno, xmin) |>
     dplyr::mutate(
       patno_factor = factor(patno, levels = unique(patno)),
-      y = as.numeric(mrd_rectangles$patno_factor),
+      y = as.numeric(patno_factor),
       ymin = y,
       ymax = y
     )
@@ -338,7 +338,7 @@ draw_swimmerplot <- function(
   mrd_terminal_pts <- mrd_terminal |>
     dplyr::left_join(patient_y, by = "patno")
   outcome_pts <- processed$general_info |>
-    dplyr::select(patno, processed$general_info$rel_term_dat, outcome) |>
+    dplyr::select(patno, rel_term_dat, outcome) |>
     dplyr::distinct() |>
     dplyr::left_join(patient_y, by = "patno")
   gvhd_pts <- processed$gvhd |>

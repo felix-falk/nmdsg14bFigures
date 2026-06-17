@@ -8,17 +8,17 @@
 interval_finder <- function(df) {
 
   df |>
-    dplyr::arrange(patno, df$drugname_standardized, df$rel_immune_dat) |>
-    dplyr::group_by(patno, df$drugname_standardized) |>
+    dplyr::arrange(patno, drugname_standardized, rel_immune_dat) |>
+    dplyr::group_by(patno, drugname_standardized) |>
     dplyr::group_modify(~ {
 
-      stop_idx <- which(.x$drugstopped == "Yes")
+      stop_idx <- which(drugstopped == "Yes")
 
       if (length(stop_idx) == 0) {
         return(tibble::tibble(
           interval_no = 1,
-          interval_start = min(.x$rel_immune_dat),
-          interval_end = max(.x$rel_term_dat)
+          interval_start = min(rel_immune_dat),
+          interval_end = max(rel_term_dat)
         ))
       }
 
@@ -27,8 +27,8 @@ interval_finder <- function(df) {
 
       tibble::tibble(
         interval_no = seq_along(starts),
-        interval_start = .x$rel_immune_dat[starts],
-        interval_end = .x$rel_immune_dat[ends]
+        interval_start = rel_immune_dat[starts],
+        interval_end = rel_immune_dat[ends]
       )
     }) |>
     dplyr::ungroup()
@@ -65,7 +65,7 @@ standardize_drug <- function(drug, mapping_df) {
 make_dummy_legend <- function(levels, colours, title) {
   df <- data.frame(stage = factor(levels, levels = levels), x = 1, y = 1)
   cowplot::get_legend(
-    ggplot2::ggplot(df, ggplot2::aes(df$x, df$y, colour = df$stage)) +
+    ggplot2::ggplot(df, ggplot2::aes(x, y, colour = stage)) +
       ggplot2::geom_point(size = 3) +
       ggplot2::scale_colour_manual(name = title, values = colours) +
       ggplot2::theme_void() + ggplot2::theme(legend.position = "right")
@@ -121,12 +121,12 @@ y_limit_finder <- function(mrd_data) {
 
   # Determine the upper y-axis limit for the MRD figure
   if (nrow(mrd_data) == 0 ||
-        all(is.na(mrd_data$level_no0s))) {
+        all(is.na(level_no0s))) {
     y_upper <- 10
   } else {
     y_upper <- max(
       10,
-      ceiling(max(mrd_data$level_no0s, na.rm = TRUE))
+      ceiling(max(level_no0s, na.rm = TRUE))
     )
   }
 

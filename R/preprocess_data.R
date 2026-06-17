@@ -117,11 +117,11 @@ preprocess_data <- function(
     dplyr::mutate(
       rel_aza_dat = as.numeric(difftime(
         as.Date(azacitstartdat),
-        as.Date(end_date_df$transpldt),
+        as.Date(transpldt),
         units = "days"
       ))
     ) |>
-    dplyr::filter(aza_raw$rel_aza_dat <= aza_raw$rel_term_dat)
+    dplyr::filter(rel_aza_dat <= rel_term_dat)
 
   # Calculate relative dli dates, remove dli after rel_term_dat
   dli <- dli_raw |>
@@ -188,18 +188,19 @@ preprocess_data <- function(
       level <  1   ~ "Intermediate (0.5 - 1)",
       level >= 1   ~ "High (> 1)"
     )) |>
-    dplyr::group_by(patno, mrd_raw$MRDdat) |>
+    dplyr::group_by(patno, MRDdat) |>
     dplyr::slice_max(order_by = level, n = 1, with_ties = FALSE) |>
     dplyr::ungroup() |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_mrd_dat = as.numeric(
-        difftime(as.Date(mrd_raw$MRDdat),
-                 as.Date(mrd_raw$transpldt),
+        difftime(as.Date(MRDdat),
+                 as.Date(MRDdat),
+                 as.Date(transpldt),
                  units = "days")
       )
     ) |>
-    dplyr::filter(mrd_raw$rel_mrd_dat >= 0)
+    dplyr::filter(rel_mrd_dat >= 0)
 
   # Create a list of patno which have level >= 10 at the last measurement, these
   # also count as relapses.
@@ -266,10 +267,10 @@ preprocess_data <- function(
   # NGS Data filtering
   gene_lists <-
     ngs_raw |>
-    dplyr::filter(!is.na(ngs_raw$Studienummer)) |>
+    dplyr::filter(!is.na(Studienummer)) |>
     dplyr::summarise(
       mutlist = paste(unique(Gen), collapse = ", "),
-      .by = ngs_raw$Studienummer
+      .by = Studienummer
     )
 
   ngs_processed <-
@@ -277,9 +278,9 @@ preprocess_data <- function(
     dplyr::left_join(gene_lists, by = "Studienummer") |>
     dplyr::mutate(
       mutname = paste0(Gen, "_", "cDNA förändring"),
-      patno = as.double(ngs_raw$Studienummer)
+      patno = as.double(Studienummer)
     ) |>
-    dplyr::select(-ngs_raw$Studienummer)
+    dplyr::select(-Studienummer)
 
   interval_df <- interval_finder(immune)
 

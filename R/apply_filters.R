@@ -54,10 +54,10 @@ apply_filters <- function(processed, filters) {
   # Filter patients based on genes in the NGS data
   if (!is.null(filter_settings$genes) && length(filter_settings$genes) > 0) {
     gene_patients <- ngs_processed |>
-      dplyr::filter(Gen %in% filter_settings$genes) |>
+      dplyr::filter(Gen %in% genes) |>
       dplyr::distinct(patno, Gen) |>
       dplyr::count(patno) |>
-      dplyr::filter(n == length(filter_settings$genes)) |>
+      dplyr::filter(n == length(genes)) |>
       dplyr::pull(patno)
     patients <- intersect(patients, gene_patients)
   }
@@ -71,7 +71,7 @@ apply_filters <- function(processed, filters) {
     ) > 0
   ) {
     outcome_patients <- general_info |>
-      dplyr::filter(outcome %in% filter_settings$outcomes) |>
+      dplyr::filter(outcome %in% outcomes) |>
       dplyr::pull(patno)
     patients <- intersect(patients, outcome_patients)
   }

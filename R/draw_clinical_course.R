@@ -34,16 +34,16 @@ draw_mrd_plot <- function(
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
       ggplot2::aes(
-        x = mrd_data$rel_mrd_dat,
-        y = mrd_data$level_no0s,
+        x = rel_mrd_dat,
+        y = level_no0s,
         colour = Mutation
       )
     ) +
 
     # Add MRD points, including those with only one data point.
     ggplot2::geom_point(data = mrd_data, ggplot2::aes(
-      x = mrd_data$rel_mrd_dat,
-      y = mrd_data$level_no0s,
+      x = rel_mrd_dat,
+      y = level_no0s,
       colour = Mutation
     )
     ) +
@@ -83,7 +83,7 @@ draw_mrd_plot <- function(
       data = general_info_data |>
         dplyr::filter(outcome == "Relapse"),
       ggplot2::aes(
-        xintercept = general_info_data$rel_term_dat,
+        xintercept = rel_term_dat,
         label = "Relapse"
       )
     ) +
@@ -94,8 +94,8 @@ draw_mrd_plot <- function(
         outcome == "Nonrelapse mortality"
       ),
       ggplot2::aes(
-        xintercept = general_info_data$rel_term_dat,
-        label = paste0("Death: ", general_info_data$deathcause)
+        xintercept = rel_term_dat,
+        label = paste0("Death: ", deathcause)
       )
     ) +
 
@@ -142,12 +142,12 @@ draw_events_plot <- function(
     # Draw acute GVHD points
     ggplot2::geom_point(
       data = gvhd_data |> dplyr::filter(
-        gvhd_data$gvhd == "Acute GVHD" & !is.na(gvhd_data$agvhdstage)
+        gvhd == "Acute GVHD" & !is.na(agvhdstage)
       ),
       ggplot2::aes(
-        x = gvhd_data$rel_gvhd_dat,
+        x = rel_gvhd_dat,
         y = 1,
-        colour = gvhd_data$agvhdstage
+        colour = agvhdstage
       ),
       size = 3
     ) +
@@ -170,12 +170,12 @@ draw_events_plot <- function(
     # Draw chronic GVHD points.
     ggplot2::geom_point(
       data = gvhd_data |> dplyr::filter(
-        gvhd_data$gvhd == "Chronic GVHD" & !is.na(gvhd_data$cgvhdstage)
+        gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
       ),
       ggplot2::aes(
-        x = gvhd_data$rel_gvhd_dat,
+        x = rel_gvhd_dat,
         y = 2,
-        colour = gvhd_data$cgvhdstage
+        colour = cgvhdstage
       ),
       size = 3
     ) +
@@ -195,8 +195,8 @@ draw_events_plot <- function(
     ggplot2::geom_segment(
       data = immune_intervals_data,
       ggplot2::aes(
-        x = immune_intervals_data$interval_start,
-        xend = immune_intervals_data$interval_end,
+        x = interval_start,
+        xend = interval_end,
         y = 3,
         yend = 3
       ),
@@ -208,10 +208,10 @@ draw_events_plot <- function(
     # Draw azacitidine treatment points
     ggplot2::geom_point(
       data = treatment_data |> dplyr::filter(
-        treatment_data$treatment == "Azacitidine"
+        treatment == "Azacitidine"
       ),
       ggplot2::aes(
-        x = treatment_data$rel_treatment_dat,
+        x = rel_treatment_dat,
         y = 4
       ),
       colour = "black",
@@ -220,9 +220,9 @@ draw_events_plot <- function(
 
     # Draw DLI treatment points
     ggplot2::geom_point(
-      data = treatment_data |> dplyr::filter(treatment_data$treatment == "DLI"),
+      data = treatment_data |> dplyr::filter(treatment == "DLI"),
       ggplot2::aes(
-        x = treatment_data$rel_treatment_dat,
+        x = rel_treatment_dat,
         y = 5
       ),
       colour = "black",
