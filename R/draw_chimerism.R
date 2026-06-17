@@ -158,7 +158,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
     combined_plots,
     combined_legends,
     ncol = 2,
-    rel_widths = c(4, 1),
+    rel_widths = c(3, 1),
     align = "v"
   )
   return(final_plot)
