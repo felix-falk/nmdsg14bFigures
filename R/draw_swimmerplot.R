@@ -107,7 +107,7 @@ swimmerplot <- function(
     ggplot2::geom_point(
       data = mrd_terminal_pts,
       ggplot2::aes(
-        x = rel_term_dat + 5,
+        x = rel_term_dat,
         y = y,
         fill = mrd_category
       ),
@@ -285,7 +285,7 @@ draw_swimmerplot <- function(
       xmin = rel_mrd_dat,
       xmax = dplyr::coalesce(
         dplyr::lead(rel_mrd_dat),
-        dplyr::first(rel_term_dat) #+ 5
+        dplyr::first(rel_term_dat)
       )
     ) |>
     dplyr::ungroup() |>
