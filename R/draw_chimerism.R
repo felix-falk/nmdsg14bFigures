@@ -13,9 +13,13 @@ draw_chimerism_plot <- function(
   pat_id
 ) {
 
+  # Keep only CD33 and CD34 chimerism data
+  chimerism_data <- chimerism_data |>
+    dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
+
   plot <- ggplot2::ggplot() +
 
-    # Add chimerism lines, only for surface markers with more than 1 data poin
+    # Add chimerism lines, only for surface markers with more than 1 data point
     ggplot2::geom_line(
       data = chimerism_data |>
         dplyr::filter(!is.na(surface_marker)) |>
