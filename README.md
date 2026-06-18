@@ -34,15 +34,15 @@ packageVersion("nmdsg14bFigures")
 
 3. The excel data files require the following columns
 
-| excel_file | required_columns |
+| excel file | required columns |
 | ------- | ------- |
-| general_info |  patno, mdsdiagndat, mdsdiagnosis, ipssr, ipssm, cellularity, marrowblasts, karyotyp, transpldt, termindat, eosreason, relapsedat, deathdat |
-| mrd | mycophenolic acid |
-| dli | patno, dlidat, dlidostxt |
-| aza | budesonide |
-| immune | budesonide |
-| gvhd | budesonide |
-| ngs | Studienummer, Gen, cDNA förändring |
+| ```general_info.xlsx``` |  ```patno, transpldt, termindat, eosreason, relapsedat, deathdat``` |
+| ```mrd.xlsx``` |  ```patno, MRDdat, mutname, level``` |
+| ```dli.xlsx``` | ```patno, dlidat``` |
+| ```aza.xlsx``` | ```patno, azacitstdat``` |
+| ```immune.xlsx``` | ```patno, drugname, drugdt, drugstopped``` |
+| ```gvhd.xlsx``` | ```patno, gvhddate, agvhdstage, cgvhdstage, agvhdmaxstage, agvhdmaxdt, cgvhdmaxstage, cgvhdmaxdt``` |
+| ```ngs.xlsx``` | ```Studienummer, Gen, cDNA förändring``` |
 
 ## Run the package in R
 

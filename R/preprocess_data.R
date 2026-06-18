@@ -52,7 +52,9 @@ preprocess_data <- function(
   }
 
   if (is.null(aza_file) || !file.exists(aza_file)) {
-    aza_raw <- tibble::tibble(patno = double(), azacitstdat1 = as.Date(character()))
+    aza_raw <- tibble::tibble(
+      patno = double(), azacitstdat1 = as.Date(character())
+    )
   } else {
     aza_raw <- readxl::read_excel(aza_file)
   }
@@ -118,8 +120,6 @@ preprocess_data <- function(
       sep = ";"
     )
   }
-
-  ### FILTERING FOR SWIMMERPLOT
 
   # --- FILTERING ---
 
@@ -300,8 +300,6 @@ preprocess_data <- function(
     dplyr::left_join(
       end_date_df |> dplyr::select(patno, rel_term_dat), by = "patno"
     )
-
-  
 
   # NGS Data filtering
   gene_lists <-
