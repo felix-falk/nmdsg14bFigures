@@ -37,6 +37,7 @@ nmds_figures_main <- function(
   ngs_file = NULL,
   chimerism_file = NULL,
   immune_filter_file = NULL,
+  strata = NULL,
   output_folder,
   plot_type = c(
     "swimmerplot",
@@ -116,7 +117,8 @@ nmds_figures_main <- function(
     gvhd_file = gvhd_file,
     ngs_file = ngs_file,
     immune_filter_file = immune_filter_file,
-    chimerism_file = chimerism_file
+    chimerism_file = chimerism_file,
+    strata = strata
   )
 
   # ----------------------------------------------------------

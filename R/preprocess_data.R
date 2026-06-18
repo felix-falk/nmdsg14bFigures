@@ -29,7 +29,8 @@ preprocess_data <- function(
   gvhd_file,
   ngs_file,
   immune_filter_file,
-  chimerism_file
+  chimerism_file,
+  strata
 ) {
 
   # Only general_info_file and mrd_file are strictly required.
@@ -447,6 +448,18 @@ preprocess_data <- function(
       ))
     ) |>
     dplyr::filter(rel_chimerism_dat <= rel_term_dat)
+
+  # Add strata column to general_info (optional)
+
+  if (!is.null(strata)) {
+
+    # strata$data_frame # Which data frame the strata is in
+
+    # strata$data_frame$column # Which column is of interest in the data frame
+
+    # The strata should either be the name of a column, or a specific member of a column, eg. TP53
+
+  }
 
   return(
     list(
