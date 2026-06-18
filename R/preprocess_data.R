@@ -32,55 +32,92 @@ preprocess_data <- function(
   chimerism_file
 ) {
 
-  # Check that required files are present
-  required_files <- c(
-    general_info_file,
-    mrd_file,
-    dli_file,
-    aza_file,
-    immune_file,
-    gvhd_file,
-    ngs_file,
-    immune_filter_file
-  )
-
-  missing_files <- required_files[
-    !file.exists(required_files
-    )
-  ]
-
-  if (length(missing_files) > 0) {
-
-    stop(
-      paste(
-        "Missing input files:",
-        paste(missing_files,
-              collapse = ", ")
-      )
-    )
+  # Only general_info_file and mrd_file are strictly required.
+  if (is.null(general_info_file) || !file.exists(general_info_file)) {
+    stop("Missing required input file: general_info_file")
+  }
+  if (is.null(mrd_file) || !file.exists(mrd_file)) {
+    stop("Missing required input file: mrd_file")
   }
 
-  ### Read files
+  ### Read files (optional files are tolerated)
 
   general_info_raw <- readxl::read_excel(general_info_file)
   mrd_raw <- readxl::read_excel(mrd_file)
-  dli_raw <- readxl::read_excel(dli_file)
-  aza_raw <- readxl::read_excel(aza_file)
-  immune_raw <- readxl::read_excel(immune_file)
-  gvhd_raw <- readxl::read_excel(gvhd_file)
-  ngs_raw <- readxl::read_excel(ngs_file)
-  chimerism_raw <- readxl::read_excel(chimerism_file)
 
-  # Make column names ASCII-safe
+  if (is.null(dli_file) || !file.exists(dli_file)) {
+    dli_raw <- tibble::tibble(patno = double(), dlidat = as.Date(character()))
+  } else {
+    dli_raw <- readxl::read_excel(dli_file)
+  }
+
+  if (is.null(aza_file) || !file.exists(aza_file)) {
+    aza_raw <- tibble::tibble(patno = double(), azacitstdat1 = as.Date(character()))
+  } else {
+    aza_raw <- readxl::read_excel(aza_file)
+  }
+
+  if (is.null(immune_file) || !file.exists(immune_file)) {
+    immune_raw <- tibble::tibble(
+      patno = double(),
+      drugdt = as.Date(character()),
+      drugname = character(),
+      drugstopped = character()
+    )
+  } else {
+    immune_raw <- readxl::read_excel(immune_file)
+  }
+
+  if (is.null(gvhd_file) || !file.exists(gvhd_file)) {
+    gvhd_raw <- tibble::tibble(
+      patno = double(),
+      agvhdstage = character(),
+      gvhddate = as.Date(character()),
+      agvhdmaxstage = character(),
+      agvhdmaxdt = as.Date(character()),
+      cgvhdstage = character(),
+      cgvhdmaxstage = character(),
+      cgvhdmaxdt = as.Date(character())
+    )
+  } else {
+    gvhd_raw <- readxl::read_excel(gvhd_file)
+  }
+
+  if (is.null(ngs_file) || !file.exists(ngs_file)) {
+    ngs_raw <- tibble::tibble(Studienummer = double(), Gen = character())
+  } else {
+    ngs_raw <- readxl::read_excel(ngs_file)
+  }
+
+  if (is.null(chimerism_file) || !file.exists(chimerism_file)) {
+    chimerism_raw <- tibble::tibble(
+      patno = double(),
+      chimbmdt = as.Date(character()),
+      CD1 = numeric()
+    )
+  } else {
+    chimerism_raw <- readxl::read_excel(chimerism_file)
+  }
+
+  # Make column names ASCII-safe for NGS if present
   names(ngs_raw) <- iconv(
     names(ngs_raw), from = "UTF-8", to = "ASCII//TRANSLIT"
   )
   names(ngs_raw) <- gsub(" ", "_", names(ngs_raw), fixed = TRUE)
-  immune_suppression_filter <- read.csv(
-    immune_filter_file,
-    header = TRUE,
-    sep = ";"
-  )
+
+  if (is.null(immune_filter_file) || !file.exists(immune_filter_file)) {
+    immune_suppression_filter <- tibble::tibble(
+      pattern = character(),
+      standardized_name = character(),
+      exclude = logical()
+    )
+  } else {
+    immune_suppression_filter <- read.csv(
+      immune_filter_file,
+      header = TRUE,
+      sep = ";"
+    )
+  }
 
   ### FILTERING FOR SWIMMERPLOT
 

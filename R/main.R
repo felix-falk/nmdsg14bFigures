@@ -54,12 +54,6 @@ nmds_figures_main <- function(
   required_args <- list(
     general_info_file = general_info_file,
     mrd_file = mrd_file,
-    dli_file = dli_file,
-    aza_file = aza_file,
-    immune_file = immune_file,
-    gvhd_file = gvhd_file,
-    ngs_file = ngs_file,
-    immune_filter_file = immune_filter_file,
     output_folder = output_folder
   )
 
