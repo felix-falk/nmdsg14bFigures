@@ -2,7 +2,8 @@ draw_survival <- function(
     processed,
     patient_subset = NULL,
     output_folder,
-    output_format
+    output_format,
+    strata = NULL
 ) {
 
   if (!is.null(patient_subset)) {
