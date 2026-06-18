@@ -42,7 +42,12 @@ draw_survival <- function(
     data = processed$general_info
   )
 
-  survplot <- survminer::ggsurvplot(fit, data = processed$general_info)
+  survplot <- survminer::ggsurvplot(
+    fit,
+    data = processed$general_info,
+    pval = TRUE,
+    palette = "nejm"
+  )
 
   ggplot2::ggsave(
     filename = "survival.svg",
