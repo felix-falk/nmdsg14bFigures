@@ -44,14 +44,11 @@ draw_chimerism_plot <- function(
     # Set theme, adjust x and y labels, set color of chimerism lines and points
     ggplot2::theme_minimal() +
     ggplot2::xlab(NULL) +
-    ggplot2::ylab(NULL) +
+    ggplot2::ylab("Chimerism (%)") +
     ggplot2::scale_colour_brewer(palette = "Set2", na.translate = FALSE) +
 
     # Set x axis limits based on x_range
     ggplot2::scale_x_continuous(limits = x_range) +
-
-    # Add plot title
-    ggplot2::labs(title = "Chimerism") +
 
     # Define the legend position, title size and subtitle size
     ggplot2::theme(legend.position = "right",
