@@ -13,7 +13,7 @@ draw_chimerism_plot <- function(
   pat_id
 ) {
 
-  # Keep only CD33 and CD34 chimerism data
+  # Keep only CD33 and CD34 chimerism data, change to logarithmic scale
   chimerism_data <- chimerism_data |>
     dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
 
@@ -56,7 +56,10 @@ draw_chimerism_plot <- function(
     # Define the legend position, title size and subtitle size
     ggplot2::theme(legend.position = "right",
       plot.title = ggplot2::element_text(size = 12)
-    )
+    ) +
+
+    # Change y axis to log scale
+    ggplot2::scale_y_log10()
 
   return(plot)
 
