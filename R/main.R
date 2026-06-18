@@ -213,6 +213,29 @@ nmds_figures_main <- function(
       ))
     }
 
+  } else if (plot_type == "survival") {
+
+    message("Drawing survival plot...")
+
+    draw_survival(
+      processed = processed,
+      patient_subset = selected_patients,
+      output_folder = output_folder,
+      output_format = output_format
+    )
+
+    if (output_format == "svg") {
+      message(paste0(
+        "Survival plot saved to: ",
+        file.path(output_folder, "survival.svg")
+      ))
+    } else {
+      message(paste0(
+        "Survival plot saved to: ",
+        file.path(output_folder, "survival.pdf")
+      ))
+    }
+
   }
 
   invisible(
