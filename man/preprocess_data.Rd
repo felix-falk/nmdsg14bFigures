@@ -12,7 +12,8 @@ preprocess_data(
   immune_file,
   gvhd_file,
   ngs_file,
-  immune_filter_file
+  immune_filter_file,
+  chimerism_file
 )
 }
 \arguments{

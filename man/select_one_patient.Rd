@@ -4,7 +4,7 @@
 \alias{select_one_patient}
 \title{Called by the draw_clinical_course function to select one patient per graph.}
 \usage{
-select_one_patient(df)
+select_one_patient(df, pat_id = NULL)
 }
 \arguments{
 \item{df}{Data frame containing patient information with a "patno" column.}

@@ -8,7 +8,8 @@ draw_swimmerplot(
   processed,
   patient_subset = NULL,
   output_folder,
-  output_filename = "swimmerplot.png"
+  output_filename = "swimmerplot.svg",
+  output_format = c("svg", "pdf")
 )
 }
 \arguments{

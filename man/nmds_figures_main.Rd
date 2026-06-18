@@ -12,10 +12,13 @@ nmds_figures_main(
   immune_file,
   gvhd_file,
   ngs_file,
+  chimerism_file,
   immune_filter_file,
   output_folder,
-  plot_type = c("swimmerplot", "clinical_course"),
-  filters = NULL
+  plot_type = c("swimmerplot", "clinical_course", "clinical_course_chimerism",
+    "survival"),
+  filters = NULL,
+  output_format = c("svg", "pdf")
 )
 }
 \arguments{

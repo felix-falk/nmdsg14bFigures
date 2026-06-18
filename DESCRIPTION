@@ -3,7 +3,7 @@ Type: Package
 Title: nmdsg14bFigures
 Version: 0.1.0
 Depends: R (>= 4.1.0)
-Authors:
+Authors@R:
     person("Felix", "Falk",
            email = "felixemilfalk@gmail.com",
            role = c("aut", "cre"))
