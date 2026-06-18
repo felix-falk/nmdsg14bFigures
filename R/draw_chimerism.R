@@ -98,8 +98,15 @@ plot_chimerism_timeline <- function(processed, pat_id) {
     10^(log_min + (ch - ch_min) / (ch_max - ch_min) * (log_max - log_min))
   }
   mrd_to_ch <- function(m) {
-    ch_min + (log10(m) - log_min) / (log_max - log_min) * (ch_max - ch_min)
+    # handle non-finite or non-positive inputs safely
+    out <- rep(NA_real_, length(m))
+    ok <- is.finite(m) & m > 0
+    out[ok] <- ch_min + (log10(m[ok]) - log_min) / (log_max - log_min) * (ch_max - ch_min)
+    out
   }
+
+  # Precompute pretty breaks for the primary axis to avoid NA range issues
+  primary_breaks <- scales::breaks_pretty(n = 5)
 
   # Build combined plot: MRD (left, log10) and Chimerism (right, linear)
   combined_top <- ggplot2::ggplot() +
@@ -124,8 +131,21 @@ plot_chimerism_timeline <- function(processed, pat_id) {
     ggplot2::ylab("VAF (%)") +
     ggplot2::scale_colour_brewer(palette = "Set1", na.translate = FALSE) +
     ggplot2::scale_x_continuous(limits = x_range) +
-    ggplot2::scale_y_continuous(trans = "log10", limits = c(y_mrd_min, y_mrd_max),
-      sec.axis = ggplot2::sec_axis(~ mrd_to_ch(.), name = "Chimerism (%)")
+    ggplot2::scale_y_continuous(
+      trans = "log10",
+      limits = c(y_mrd_min, y_mrd_max),
+      breaks = primary_breaks,
+      labels = scales::label_number(),
+      sec.axis = ggplot2::sec_axis(
+        trans = ~ .,
+        name = "Chimerism (%)",
+        labels = function(b) {
+          vals <- mrd_to_ch(b)
+          vals[!is.finite(vals)] <- NA_real_
+          # format numeric labels, keep NA as blank
+          sapply(vals, function(x) if (is.na(x)) "" else format(round(x, 1), nsmall = 1))
+        }
+      )
     ) +
 
     # Add relapse/death vertical markers
