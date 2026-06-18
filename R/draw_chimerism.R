@@ -78,127 +78,30 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   y_upper <- y_limit_finder(d$mrd)
 
   # ----------------------------
-  # MRD + Chimerism overlaid plot (top)
+  # MRD plot (top)
   # ----------------------------
 
-  # Prepare ranges and transformation functions to map chimerism -> MRD scale
-  y_mrd_min <- 0.08
-  y_mrd_max <- y_upper
-  log_min <- log10(y_mrd_min)
-  log_max <- log10(y_mrd_max)
+  # Draw MRD plot
+  mrd_plot <- draw_mrd_plot(d$mrd, d$general_info, d$ngs, x_range, y_upper, pat_id)
 
-  ch_min <- 0
-  if (!is.null(d$chimerism) && nrow(d$chimerism) > 0) {
-    ch_max <- max(100, max(d$chimerism$chimerism, na.rm = TRUE))
-  } else {
-    ch_max <- 100
-  }
+  # Extract mrd legend
+  mrd_legend <- cowplot::get_legend(mrd_plot)
 
-  ch_to_mrd <- function(ch) {
-    10^(log_min + (ch - ch_min) / (ch_max - ch_min) * (log_max - log_min))
-  }
-  mrd_to_ch <- function(m) {
-    # handle non-finite or non-positive inputs safely
-    out <- rep(NA_real_, length(m))
-    ok <- is.finite(m) & m > 0
-    out[ok] <- ch_min + (log10(m[ok]) - log_min) / (log_max - log_min) * (ch_max - ch_min)
-    out
-  }
+  # Remove mrd legend from mrd_plot
+  mrd_plot_clean <- mrd_plot + ggplot2::theme(legend.position = "none")
 
-  # Precompute pretty breaks for the primary axis to avoid NA range issues
-  primary_breaks <- scales::breaks_pretty(n = 5)
+  # ----------------------------
+  # Chimerism plot (middle)
+  # ----------------------------
 
-  # Build combined plot: MRD (left, log10) and Chimerism (right, linear)
-  combined_top <- ggplot2::ggplot() +
+  # Draw chimerism plot (pass chimerism data first, then general info)
+  chimerism_plot <- draw_chimerism_plot(d$chimerism, d$general_info, x_range, pat_id)
 
-    # MRD background (negative band)
-    ggplot2::annotate("rect",
-      xmin = -Inf, xmax = Inf,
-      ymin = y_mrd_min, ymax = 0.1,
-      fill = "lightgrey", alpha = 0.4
-    ) +
+  # Extract chimerism legend
+  chimerism_legend <- cowplot::get_legend(chimerism_plot)
 
-    # MRD lines
-    ggplot2::geom_line(
-      data = d$mrd |> dplyr::filter(!is.na(Mutation)) |> dplyr::group_by(Mutation) |> dplyr::filter(dplyr::n() > 1) |> dplyr::ungroup(),
-      ggplot2::aes(x = rel_mrd_dat, y = level_no0s, colour = Mutation)
-    ) +
-    ggplot2::geom_point(data = d$mrd, ggplot2::aes(x = rel_mrd_dat, y = level_no0s, colour = Mutation)) +
-
-    # MRD theme and scales (primary axis)
-    ggplot2::theme_minimal() +
-    ggplot2::xlab(NULL) +
-    ggplot2::ylab("VAF (%)") +
-    ggplot2::scale_colour_brewer(palette = "Set1", na.translate = FALSE) +
-    ggplot2::scale_x_continuous(limits = x_range) +
-    ggplot2::scale_y_continuous(
-      trans = "log10",
-      limits = c(y_mrd_min, y_mrd_max),
-      breaks = primary_breaks,
-      labels = scales::label_number(),
-      sec.axis = ggplot2::sec_axis(
-        trans = ~ .,
-        name = "Chimerism (%)",
-        labels = function(b) {
-          vals <- mrd_to_ch(b)
-          vals[!is.finite(vals)] <- NA_real_
-          # format numeric labels, keep NA as blank
-          sapply(vals, function(x) if (is.na(x)) "" else format(round(x, 1), nsmall = 1))
-        }
-      )
-    ) +
-
-    # Add relapse/death vertical markers
-    geomtextpath::geom_textvline(
-      data = d$general_info |> dplyr::filter(outcome == "Relapse"),
-      ggplot2::aes(xintercept = rel_term_dat, label = "Relapse")
-    ) +
-    geomtextpath::geom_textvline(
-      data = d$general_info |> dplyr::filter(outcome == "Nonrelapse mortality"),
-      ggplot2::aes(xintercept = rel_term_dat, label = paste0("Death: ", deathcause))
-    ) +
-
-    # MRD threshold line
-    geomtextpath::geom_texthline(
-      yintercept = 0.1,
-      label = "MRD Threshold",
-      linetype = "dashed",
-      color = "darkgrey",
-      size = 3,
-      vjust = -0.2,
-      hjust = 1
-    ) +
-
-    ggplot2::theme(
-      legend.position = "right",
-      plot.title = ggplot2::element_text(size = 12),
-      plot.subtitle = ggplot2::element_text(size = 9)
-    )
-
-  # Add chimerism layers on a new colour scale and transformed y coordinates
-  if (!is.null(d$chimerism) && nrow(d$chimerism) > 0) {
-    combined_top <- combined_top +
-      ggnewscale::new_scale_color() +
-      ggplot2::geom_line(
-        data = d$chimerism |> dplyr::filter(!is.na(surface_marker)) |> dplyr::group_by(surface_marker) |> dplyr::filter(dplyr::n() > 1) |> dplyr::ungroup(),
-        ggplot2::aes(x = rel_chimerism_dat, y = ch_to_mrd(chimerism), colour = surface_marker)
-      ) +
-      ggplot2::geom_point(data = d$chimerism, ggplot2::aes(x = rel_chimerism_dat, y = ch_to_mrd(chimerism), colour = surface_marker)) +
-      ggplot2::scale_colour_brewer(palette = "Set2", na.translate = FALSE)
-  }
-
-  mrd_plot_clean <- combined_top + ggplot2::labs(title = paste0("Patient: ", pat_id), subtitle = paste0(
-    "Diagnosis: ", d$general_info$mdsdiagnosis[1],
-    "\nIPSS-M: ", d$general_info$ipssm_title[1],
-    "\nKaryotype: ", d$general_info$karyotyp[1],
-    "\nNGS: ", d$ngs$mutlist[1]
-  ))
-
-  # Extract combined legend (if any)
-  combined_legend <- cowplot::get_legend(mrd_plot_clean)
-
-  # Remove legends from plot for placement
-  mrd_plot_clean <- mrd_plot_clean + ggplot2::theme(legend.position = "none")
+  # Remove chimerism legend from chimerism_plot
+  chimerism_plot_clean <- chimerism_plot + ggplot2::theme(legend.position = "none")
 
   # ----------------------------
   # GVHD / IS events plot (bottom)
@@ -211,12 +114,13 @@ plot_chimerism_timeline <- function(processed, pat_id) {
     x_range
   )
 
-  # Combine top overlay plot and events plot vertically
+  # Combine MRD + Chimerism + events vertically
   combined_plots <- cowplot::plot_grid(
     mrd_plot_clean,
+    chimerism_plot_clean,
     events_plot,
     ncol = 1,
-    rel_heights = c(2, 1),
+    rel_heights = c(2, 1, 1),
     align = "v",
     axis = "tblr"
   )
@@ -239,13 +143,15 @@ plot_chimerism_timeline <- function(processed, pat_id) {
     names(cgvhd_colours), cgvhd_colours, "cGVHD Stage"
   )
 
-  # Combine all legends vertically (include combined plot legend if available)
-  legend_list <- list()
-  if (!is.null(combined_legend)) {
-    legend_list <- c(legend_list, list(combined_legend))
-  }
-  legend_list <- c(legend_list, list(agvhd_legend_grob, cgvhd_legend_grob))
-  combined_legends <- cowplot::plot_grid(plotlist = legend_list, ncol = 1, align = "v")
+  # Combine all legends vertically
+  combined_legends <- cowplot::plot_grid(
+    mrd_legend,
+    chimerism_legend,
+    agvhd_legend_grob,
+    cgvhd_legend_grob,
+    ncol = 1,
+    align = "v"
+  )
 
   # Final combined plot
   final_plot <- cowplot::plot_grid(
