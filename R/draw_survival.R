@@ -46,7 +46,8 @@ draw_survival <- function(
     fit,
     data = processed$general_info,
     pval = TRUE,
-    palette = "nejm"
+    palette = "nejm",
+    xlab = "Days after transplantation"
   )
 
   ggplot2::ggsave(
