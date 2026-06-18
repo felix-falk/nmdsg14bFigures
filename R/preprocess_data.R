@@ -363,22 +363,37 @@ preprocess_data <- function(
     dplyr::mutate(
       event_time = dplyr::case_when(
         !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
-        outcome %in% c("Nonrelapse mortality", "Relapse") ~ rel_term_dat,
-        outcome == "Other exclusion reason" ~ rel_term_dat,
-        outcome == "Remission" ~ 720,
-        is.na(outcome) ~ NA
+        eosreason %in% c(
+          "Death",
+          "Full hematological relapse",
+          "Other reason",
+          "Consent withdrawal",
+          "2 years post HCT"
+        ) ~ rel_term_dat,
+        is.na(eosreason) ~ NA
       ),
       event_status = dplyr::case_when(
         !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ 1,
-        outcome == "Nonrelapse mortality" ~ 1,
-        outcome == "Relapse" ~ 1,
-        outcome == "Other exclusion reason" ~ 0,
-        outcome == "Remission" ~ 0,
-        is.na(outcome) ~ NA
+        eosreason %in% c(
+          "Death",
+          "Full hematological relapse"
+        ) ~ 1,
+        eosreason %in% c(
+          "Other reason",
+          "Consent withdrawal",
+          "2 years post HCT"
+        ) ~ 0,
+        is.na(eosreason) ~ NA
       )
     )
 
-  print(general_info[, c("patno", "eosreason", "outcome", "event_time", "event_status")], n = Inf, widht = Inf)
+  print(general_info[, c(
+    "patno",
+    "eosreason",
+    "outcome",
+    "event_time",
+    "event_status"
+  )], n = Inf, widht = Inf)
 
   # Transpose chimerism data, calculate relative chimerism dates
   chimerism <- chimerism_raw |>
