@@ -44,7 +44,7 @@ draw_chimerism_plot <- function(
     # Set theme, adjust x and y labels, set color of chimerism lines and points
     ggplot2::theme_minimal() +
     ggplot2::xlab(NULL) +
-    ggplot2::ylab("Chimerism (%)") +
+    ggplot2::ylab(NULL) +
     ggplot2::scale_colour_brewer(palette = "Set2", na.translate = FALSE) +
 
     # Set x axis limits based on x_range
