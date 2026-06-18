@@ -37,12 +37,16 @@ draw_survival <- function(
 
   }
 
-    fit <- survfit(Surv(event_time, event_status) ~ ipssr, data = processed$general_info)
-    survplot <- ggsurvplot(fit, data = processed$general_info)
+  fit <- survfit(
+    Surv(event_time, event_status) ~ ipssr,
+    data = processed$general_info
+  )
 
-    ggplot2::ggsave(
+  survplot <- ggsurvplot(fit, data = processed$general_info)
+
+  ggplot2::ggsave(
     filename = "survival.svg",
-    plot = survplot,
+    plot = survplot$plot,
     device = "svg",
     width = 4,
     height = 3,
