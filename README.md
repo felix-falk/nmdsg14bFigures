@@ -59,6 +59,7 @@ nmds_figures_main(
   immune_file = "immune.xlsx",
   gvhd_file = "gvhd.xlsx",
   ngs_file = "ngs.xlsx",
+  chimerism_file = "chimerism.xlsx",
   immune_filter_file = "immune_suppression_filter.csv",
   output_folder = "~/nmdsg14bFigures_output",
   plot_type = "swimmerplot", 
