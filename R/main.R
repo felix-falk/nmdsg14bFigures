@@ -7,6 +7,7 @@
 #' @param immune_file Excel file with immune suppression treatment information
 #' @param gvhd_file Excel file with GVHD events information
 #' @param ngs_file Excel file with NGS information
+#' @param chimerism_file Excel file with chimerism information
 #' @param immune_filter_file CSV file with immune suppression filter
 #' @param output_folder Folder for generated figures
 #' @param plot_type Either "swimmerplot" or "clinical_course"
@@ -22,6 +23,7 @@
 #' immune_file = "~/immune.xlsx",
 #' gvhd_file = "~/gvhd.xlsx",
 #' ngs_file = "~/ngs.xlsx",
+#' chimerism_file = "~/chimerism.xlsx",
 #' immune_filter_file = "~/immune_filter.csv",
 #' output_folder = "~/output",
 #' plot_type = "clinical_course",

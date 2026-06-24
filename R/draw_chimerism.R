@@ -7,6 +7,7 @@
 #' @examples
 #' draw_mrd_plot(d$mrd)
 draw_chimerism_plot <- function(
+  mrd_data,
   chimerism_data,
   general_info_data,
   x_range,
@@ -17,27 +18,45 @@ draw_chimerism_plot <- function(
   chimerism_data <- chimerism_data |>
     dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
 
+  # Rename chimerism_data columns: surface marker -> Mutation, chimerism -> level
+  chimerism_data_2 <- chimerism_data |>
+    dplyr::rename(
+      Mutation = surface_marker,
+      level = chimerism,
+      rel_mrd_dat = rel_chimerism_dat
+    )
+
+  # To achieve a log10 y axis scale, convert the 0 values in level to 0.08
+  chimerism_data_2 <- chimerism_data_2 |>
+    dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
+
+  # Merge mrd_data and chimerism_data_2 into one data frame, using patno, Mutation and level
+  mrd_chimerism_data <- mrd_data |>
+    dplyr::left_join(chimerism_data_2, by = c("patno", "Mutation", "level_no0s", "rel_mrd_dat"))
+
+  print(mrd_chimerism_data)
+
   plot <- ggplot2::ggplot() +
 
     # Add chimerism lines, only for surface markers with more than 1 data point
     ggplot2::geom_line(
-      data = chimerism_data |>
-        dplyr::filter(!is.na(surface_marker)) |>
-        dplyr::group_by(surface_marker) |>
+      data = mrd_chimerism_data |>
+        dplyr::filter(!is.na(level_no0s)) |>
+        dplyr::group_by(level_no0s) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
       ggplot2::aes(
-        x = rel_chimerism_dat,
-        y = chimerism,
-        colour = surface_marker
+        x = rel_mrd_dat,
+        y = level_no0s,
+        colour = Mutation
       )
     ) +
 
     # Add chimerism points, including those with only one data point
-    ggplot2::geom_point(data = chimerism_data, ggplot2::aes(
-      x = rel_chimerism_dat,
-      y = chimerism,
-      colour = surface_marker
+    ggplot2::geom_point(data = mrd_chimerism_data, ggplot2::aes(
+      x = rel_mrd_dat,
+      y = level_no0s,
+      colour = Mutation
     )
     ) +
 
@@ -79,7 +98,8 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   x_range <- x_range_finder(d$general_info)
 
   # Find the MRD graph y-axis upper limit.
-  y_upper <- y_limit_finder(d$mrd)
+  # y_upper <- y_limit_finder(d$mrd)
+  y_upper <- 100
 
   # ----------------------------
   # MRD plot (top)
@@ -99,7 +119,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   # ----------------------------
 
   # Draw chimerism plot (pass chimerism data first, then general info)
-  chimerism_plot <- draw_chimerism_plot(d$chimerism, d$general_info, x_range, pat_id)
+  chimerism_plot <- draw_chimerism_plot(d$mrd, d$chimerism, d$general_info, x_range, pat_id)
 
   # Extract chimerism legend
   chimerism_legend <- cowplot::get_legend(chimerism_plot)

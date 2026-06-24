@@ -51,14 +51,14 @@ swimmerplot <- function(
 
     # Add MRD legend
     ggplot2::scale_fill_manual(
-      name = "MRD category",
+      name = "MRD category (VAF %)",
       values = c(
-        "Negative (< 0.1)" = "#FFFFFF",
-        "Low (0.1 - 0.5)" = "#FFD65C",
-        "Intermediate (0.5 - 1)" = "#FF9800",
-        "High (> 1)" = "#F21C0D"
+        "Negative (< 0.1)" = "#FFFFCC",
+        "Low (0.1 - 0.5)" = "#FED976",
+        "Intermediate (0.5 - 1)" = "#FD8D3C",
+        "High (> 1)" = "#BD0026"
       ),
-      na.value = "lightgrey",
+      na.value = "grey80",
       guide = ggplot2::guide_legend(order = 1)
     ) +
 
