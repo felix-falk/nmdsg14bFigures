@@ -423,14 +423,6 @@ preprocess_data <- function(
       )
     )
 
-  print(general_info[, c(
-    "patno",
-    "eosreason",
-    "outcome",
-    "event_time",
-    "event_status"
-  )], n = Inf, widht = Inf)
-
   # Transpose chimerism data, calculate relative chimerism dates
   chimerism <- chimerism_raw |>
     tidyr::pivot_longer(

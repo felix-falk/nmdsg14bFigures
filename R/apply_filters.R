@@ -120,19 +120,13 @@ apply_filters <- function(processed, filters) {
   # Final list of filtered patients
   filtered_patients <- sort(unique(patients))
 
-  # Message about the number of patients matching the criteria
-  cat(
-    "\nNumber of selected patients after filtering:",
-    length(filtered_patients),
-    "\n\n"
-  )
-
   # Message about the IDs of patients matching the criteria
-  cat(
-    "\nIDs of selected patients after filtering:",
-    filtered_patients,
-    "\n\n"
-  )
+  message(
+      sprintf(
+        "IDs of selected patients after filtering: ",
+        filtered_patients
+      )
+    )
 
   return(
     list(
