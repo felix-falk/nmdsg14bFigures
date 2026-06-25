@@ -86,7 +86,7 @@ draw_chimerism_plot <- function(
     ggplot2::scale_x_continuous(limits = x_range) +
     ggplot2::scale_y_log10(limits = c(
       0.08,
-      100 # Changed from y_upper
+      y_upper
     ), labels = scales::label_number()) +
 
     # Add clinical information title, based on general_info_data and ngs_data
@@ -165,8 +165,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   x_range <- x_range_finder(d$general_info)
 
   # Find the MRD graph y-axis upper limit.
-  # y_upper <- y_limit_finder(d$mrd)
-  # y_upper <- 100
+  y_upper <- y_limit_finder(d$mrd, d$chimerism)
 
   # ----------------------------
   # Chimerism plot (middle)

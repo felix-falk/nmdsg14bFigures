@@ -111,25 +111,32 @@ class_finder <- function(x) {
 }
 
 #' Called by the draw_clinical_course function to
-#' find the upper limit of the MRD y-axis.
+#' find the upper limit of the MRD and/or chimerism y-axis.
 #'
 #' @param mrd_data A data frame containing MRD data.
 #' @returns A numeric value indicating the upper y-axis limit.
 #' @examples
 #' y_limit_finder(d$mrd)
-y_limit_finder <- function(mrd_data) {
+y_limit_finder <- function(mrd_data, chimerism_data) {
 
-  # Determine the upper y-axis limit for the MRD figure
-  # If there's no data or the column doesn't exist, fall back to 10
-  if (is.null(mrd_data) || nrow(mrd_data) == 0 ||
-      !"level_no0s" %in% names(mrd_data) ||
-      all(is.na(mrd_data$level_no0s))) {
+  # Helper to get max from a data frame/column safely
+  safe_max <- function(df, col) {
+    if (is.null(df) || nrow(df) == 0 || !(col %in% names(df)) || all(is.na(df[[col]]))) {
+      return(NA_real_)
+    }
+    return(max(df[[col]], na.rm = TRUE))
+  }
+
+  max_mrd <- safe_max(mrd_data, "level_no0s")
+  max_chim <- safe_max(chimerism_data, "chimerism")
+
+  # Determine the upper y-axis limit: at least 10, or the ceiling of the highest observed value
+  observed_max <- max(c(max_mrd, max_chim), na.rm = TRUE)
+
+  if (is.infinite(observed_max) || is.na(observed_max)) {
     y_upper <- 10
   } else {
-    y_upper <- max(
-      10,
-      ceiling(max(mrd_data$level_no0s, na.rm = TRUE))
-    )
+    y_upper <- max(10, ceiling(observed_max))
   }
 
   return(y_upper)
