@@ -237,20 +237,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
 
   # Find the MRD graph y-axis upper limit.
   # y_upper <- y_limit_finder(d$mrd)
-  y_upper <- 100
-
-  # ----------------------------
-  # MRD plot (top)
-  # ----------------------------
-
-  # Draw MRD plot
-  mrd_plot <- draw_mrd_plot(d$mrd, d$general_info, d$ngs, x_range, y_upper, pat_id)
-
-  # Extract mrd legend
-  mrd_legend <- cowplot::get_legend(mrd_plot)
-
-  # Remove mrd legend from mrd_plot
-  mrd_plot_clean <- mrd_plot + ggplot2::theme(legend.position = "none")
+  # y_upper <- 100
 
   # ----------------------------
   # Chimerism plot (middle)
@@ -286,7 +273,6 @@ plot_chimerism_timeline <- function(processed, pat_id) {
 
   # Combine MRD + Chimerism + events vertically
   combined_plots <- cowplot::plot_grid(
-    mrd_plot_clean,
     chimerism_plot_clean,
     events_plot,
     ncol = 1,
