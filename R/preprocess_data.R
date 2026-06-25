@@ -432,7 +432,7 @@ preprocess_data <- function(
       )
     )
 
-  # Transpose chimerism data, calculate relative chimerism dates
+  # Transpose chimerism data, calculate relative chimerism dates, keep only CD33, CD34
   chimerism <- chimerism_raw |>
     tidyr::pivot_longer(
       dplyr::starts_with("CD"),
@@ -448,7 +448,8 @@ preprocess_data <- function(
         units = "days"
       ))
     ) |>
-    dplyr::filter(rel_chimerism_dat <= rel_term_dat)
+    dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
+    dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
 
   # Add strata column to general_info (optional)
 

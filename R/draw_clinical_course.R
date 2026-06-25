@@ -138,118 +138,170 @@ draw_events_plot <- function(
   x_range
 ) {
 
-  events_plot <- ggplot2::ggplot() +
+  # Determine which event categories have data for this patient
+  has_agvhd <- FALSE
+  has_cgvhd <- FALSE
+  if (!is.null(gvhd_data) && nrow(gvhd_data) > 0) {
+    has_agvhd <- nrow(gvhd_data |> dplyr::filter(gvhd == "Acute GVHD" & !is.na(agvhdstage))) > 0
+    has_cgvhd <- nrow(gvhd_data |> dplyr::filter(gvhd == "Chronic GVHD" & !is.na(cgvhdstage))) > 0
+  }
 
-    # Draw acute GVHD points
-    ggplot2::geom_point(
-      data = gvhd_data |> dplyr::filter(
-        gvhd == "Acute GVHD" & !is.na(agvhdstage)
-      ),
-      ggplot2::aes(
-        x = rel_gvhd_dat,
-        y = 1,
-        colour = agvhdstage
-      ),
-      size = 3
-    ) +
+  has_immune <- !is.null(immune_intervals_data) && nrow(immune_intervals_data) > 0
+  has_aza <- FALSE
+  has_dli <- FALSE
+  if (!is.null(treatment_data) && nrow(treatment_data) > 0) {
+    has_aza <- nrow(treatment_data |> dplyr::filter(treatment == "Azacitidine")) > 0
+    has_dli <- nrow(treatment_data |> dplyr::filter(treatment == "DLI")) > 0
+  }
 
-    # Set a manual acute GVHD color scale
-    ggplot2::scale_colour_manual(
-      values = c(
-        "0" = "#EBEBEB",
-        "1" = "#EDC0C0",
-        "2" = "#FF7878",
-        "3" = "#D42626",
-        "4" = "#800000"
-      ),
-      guide = "none"
-    ) +
+  # Assign y positions dynamically in the desired order
+  y_map <- list()
+  current_y <- 1
+  if (has_agvhd) {
+    y_map$agvhd <- current_y
+    current_y <- current_y + 1
+  }
+  if (has_cgvhd) {
+    y_map$cgvhd <- current_y
+    current_y <- current_y + 1
+  }
+  if (has_immune) {
+    y_map$immune <- current_y
+    current_y <- current_y + 1
+  }
+  if (has_aza) {
+    y_map$aza <- current_y
+    current_y <- current_y + 1
+  }
+  if (has_dli) {
+    y_map$dli <- current_y
+    current_y <- current_y + 1
+  }
 
-    # Reset color scale
-    ggnewscale::new_scale_colour() +
+  # Build y-axis breaks and labels in the same order
+  if (current_y == 1) {
+    # No events present: provide a single empty y-axis level
+    breaks <- c(1)
+    labels <- c("")
+    limits <- c(0.5, 1.5)
+  } else {
+    breaks <- seq_len(current_y - 1)
+    labels <- c()
+    if (has_agvhd) labels <- c(labels, "aGVHD")
+    if (has_cgvhd) labels <- c(labels, "cGVHD")
+    if (has_immune) labels <- c(labels, "Immune suppression")
+    if (has_aza) labels <- c(labels, "Azacitidine")
+    if (has_dli) labels <- c(labels, "DLI")
+    limits <- c(0.5, (current_y - 1) + 0.5)
+  }
 
-    # Draw chronic GVHD points.
-    ggplot2::geom_point(
-      data = gvhd_data |> dplyr::filter(
-        gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
-      ),
-      ggplot2::aes(
-        x = rel_gvhd_dat,
-        y = 2,
-        colour = cgvhdstage
-      ),
-      size = 3
-    ) +
+  events_plot <- ggplot2::ggplot()
 
-    # Set a manual chronic GVHD color scale
-    ggplot2::scale_colour_manual(
-      values = c(
-        "None" = "#EBEBEB",
-        "Mild" = "#AA88BB",
-        "Moderate" = "#622BD6",
-        "Severe" = "#290088"
-      ),
-      guide = "none"
-    ) +
+  # Add acute GVHD points and color scale if present
+  if (has_agvhd) {
+    events_plot <- events_plot +
+      ggplot2::geom_point(
+        data = gvhd_data |> dplyr::filter(gvhd == "Acute GVHD" & !is.na(agvhdstage)),
+        ggplot2::aes(
+          x = rel_gvhd_dat,
+          y = y_map$agvhd,
+          colour = agvhdstage
+        ),
+        size = 3
+      ) +
+      ggplot2::scale_colour_manual(
+        values = c(
+          "0" = "#EBEBEB",
+          "1" = "#EDC0C0",
+          "2" = "#FF7878",
+          "3" = "#D42626",
+          "4" = "#800000"
+        ),
+        guide = "none"
+      )
+  }
 
-    # Draw immune suppression intervals as horizontal segments
-    ggplot2::geom_segment(
-      data = immune_intervals_data,
-      ggplot2::aes(
-        x = interval_start,
-        xend = interval_end,
-        y = 3,
-        yend = 3
-      ),
-      linewidth = 2,
-      colour = "black"
-    ) +
+  # Add chronic GVHD points and its color scale if present
+  if (has_cgvhd) {
+    events_plot <- events_plot +
+      ggnewscale::new_scale_colour() +
+      ggplot2::geom_point(
+        data = gvhd_data |> dplyr::filter(gvhd == "Chronic GVHD" & !is.na(cgvhdstage)),
+        ggplot2::aes(
+          x = rel_gvhd_dat,
+          y = y_map$cgvhd,
+          colour = cgvhdstage
+        ),
+        size = 3
+      ) +
+      ggplot2::scale_colour_manual(
+        values = c(
+          "None" = "#EBEBEB",
+          "Mild" = "#AA88BB",
+          "Moderate" = "#622BD6",
+          "Severe" = "#290088"
+        ),
+        guide = "none"
+      )
+  }
 
+  # Immune suppression intervals
+  if (has_immune) {
+    events_plot <- events_plot +
+      ggplot2::geom_segment(
+        data = immune_intervals_data,
+        ggplot2::aes(
+          x = interval_start,
+          xend = interval_end,
+          y = y_map$immune,
+          yend = y_map$immune
+        ),
+        linewidth = 2,
+        colour = "black"
+      )
+  }
 
-    # Draw azacitidine treatment points
-    ggplot2::geom_point(
-      data = treatment_data |> dplyr::filter(
-        treatment == "Azacitidine"
-      ),
-      ggplot2::aes(
-        x = rel_treatment_dat,
-        y = 4
-      ),
-      colour = "black",
-      size = 3
-    ) +
+  # Azacitidine
+  if (has_aza) {
+    events_plot <- events_plot +
+      ggplot2::geom_point(
+        data = treatment_data |> dplyr::filter(treatment == "Azacitidine"),
+        ggplot2::aes(
+          x = rel_treatment_dat,
+          y = y_map$aza
+        ),
+        colour = "black",
+        size = 3
+      )
+  }
 
-    # Draw DLI treatment points
-    ggplot2::geom_point(
-      data = treatment_data |> dplyr::filter(treatment == "DLI"),
-      ggplot2::aes(
-        x = rel_treatment_dat,
-        y = 5
-      ),
-      colour = "black",
-      size = 3
-    ) +
+  # DLI
+  if (has_dli) {
+    events_plot <- events_plot +
+      ggplot2::geom_point(
+        data = treatment_data |> dplyr::filter(treatment == "DLI"),
+        ggplot2::aes(
+          x = rel_treatment_dat,
+          y = y_map$dli
+        ),
+        colour = "black",
+        size = 3
+      )
+  }
 
-    # Set custom x-axis label, graph theme and y-axis label size
+  # Common labels, theme and axis settings
+  events_plot <- events_plot +
     ggplot2::labs(x = "Days after transplantation", y = NULL) +
     ggplot2::theme_minimal() +
     ggplot2::theme(
       legend.position = "none",
       axis.text.y = ggplot2::element_text(size = 10)
     ) +
-
-    # Set custom x-axis range and y-axis breaks and labels
     ggplot2::scale_x_continuous(limits = x_range) +
     ggplot2::scale_y_continuous(
-      breaks = c(1, 2, 3, 4, 5),
-      labels = c(
-        "aGVHD",
-        "cGVHD",
-        "Immune suppression",
-        "Azacitidine",
-        "DLI"
-      ),
-      limits = c(0.5, 5.5)
+      breaks = breaks,
+      labels = labels,
+      limits = limits
     )
 
   return(events_plot)

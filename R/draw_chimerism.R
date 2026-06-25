@@ -1,4 +1,16 @@
-draw_chimerism_plot_based_on_mrd_plot <- function(
+#' Generate MRD + chimerism plot for a given patient.
+#'
+#' @param mrd_data A data frame containing longitudinal MRD data.
+#' @param general_info_data A data frame containing general patient info data.
+#' @param ngs_data A data frame containing ngs data.
+#' @param chimerism_data A data frame containing chimerism data.
+#' @param x_range The range of the x-axis.
+#' @param y_upper The upper limit of the y-axis.
+#' @param pat_id The patient id of the patient you want to plot.
+#' @returns A ggplot object representing the MRD plot for the patient.
+#' @examples
+#' draw_chimerism_plot(d$mrd, d$general_info, d$ngs_data, d$chimerism_data, x_range, y_upper, pat_id)
+draw_chimerism_plot <- function(
   mrd_data,
   general_info_data,
   ngs_data,
@@ -136,89 +148,6 @@ draw_chimerism_plot_based_on_mrd_plot <- function(
 
 }
 
-#' Generate chimerism plot for a given patient
-#'
-#' @param data A data frame containing longitudinal MRD data
-#' @param x_range The range of the x-axis.
-#' @param y_upper The upper limit of the y-axis.
-#' @returns A ggplot object representing the MRD plot for the patient.
-#' @examples
-#' draw_mrd_plot(d$mrd)
-draw_chimerism_plot <- function(
-  mrd_data,
-  chimerism_data,
-  general_info_data,
-  x_range,
-  pat_id
-) {
-
-  # Keep only CD33 and CD34 chimerism data, change to logarithmic scale
-  chimerism_data <- chimerism_data |>
-    dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
-
-  # Rename chimerism_data columns: surface marker -> Mutation, chimerism -> level
-  chimerism_data_2 <- chimerism_data |>
-    dplyr::rename(
-      Mutation = surface_marker,
-      level = chimerism,
-      rel_mrd_dat = rel_chimerism_dat
-    )
-
-  # To achieve a log10 y axis scale, convert the 0 values in level to 0.08
-  chimerism_data_2 <- chimerism_data_2 |>
-    dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
-
-  # Merge mrd_data and chimerism_data_2 into one data frame, using patno, Mutation and level
-  mrd_chimerism_data <- mrd_data |>
-    dplyr::left_join(chimerism_data_2, by = c("patno", "Mutation", "level_no0s", "rel_mrd_dat"))
-
-  print(mrd_chimerism_data)
-
-  plot <- ggplot2::ggplot() +
-
-    # Add chimerism lines, only for surface markers with more than 1 data point
-    ggplot2::geom_line(
-      data = mrd_chimerism_data |>
-        dplyr::filter(!is.na(level_no0s)) |>
-        dplyr::group_by(level_no0s) |>
-        dplyr::filter(dplyr::n() > 1) |>
-        dplyr::ungroup(),
-      ggplot2::aes(
-        x = rel_mrd_dat,
-        y = level_no0s,
-        colour = Mutation
-      )
-    ) +
-
-    # Add chimerism points, including those with only one data point
-    ggplot2::geom_point(data = mrd_chimerism_data, ggplot2::aes(
-      x = rel_mrd_dat,
-      y = level_no0s,
-      colour = Mutation
-    )
-    ) +
-
-    # Set theme, adjust x and y labels, set color of chimerism lines and points
-    ggplot2::theme_minimal() +
-    ggplot2::xlab(NULL) +
-    ggplot2::ylab("Chimerism (%)") +
-    ggplot2::scale_colour_brewer(palette = "Set2", na.translate = FALSE) +
-
-    # Set x axis limits based on x_range
-    ggplot2::scale_x_continuous(limits = x_range) +
-
-    # Define the legend position, title size and subtitle size
-    ggplot2::theme(legend.position = "right",
-      plot.title = ggplot2::element_text(size = 12)
-    ) +
-
-    # Change y axis to log scale
-    ggplot2::scale_y_log10()
-
-  return(plot)
-
-}
-
 #' Generate MRD + Chimerism + GVHD timeline for a given patient
 #'
 #' @param processed A list of data frames containing the processed data
@@ -244,7 +173,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   # ----------------------------
 
   # Draw chimerism plot (pass chimerism data first, then general info)
-  chimerism_plot <- draw_chimerism_plot_based_on_mrd_plot(
+  chimerism_plot <- draw_chimerism_plot(
     d$mrd,
     d$general_info,
     d$ngs,
@@ -380,7 +309,7 @@ draw_clinical_course_chimerism <- function(
 
   }
 
-  # To achieve a log10 y axis scale, convert the 0 values in level to 0.09
+  # To achieve a log10 y axis scale, convert the 0 values in level to 0.08
   processed$mrd <- processed$mrd |>
     dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
 
