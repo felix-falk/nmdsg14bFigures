@@ -25,7 +25,8 @@ Imports:
     tibble (>= 3.3.1),
     rlang (>= 1.2.0),
     survminer (>= 0.5.2),
-    survival (>= 3.8-6)
+    survival (>= 3.8-6),
+    svglite (>= 2.2.0)
 Suggests:
     roxygen2 (>= 8.0.0),
     optparse (>= 1.8.2),

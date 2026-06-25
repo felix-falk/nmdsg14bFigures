@@ -226,8 +226,7 @@ swimmerplot <- function(
     ggplot2::labs(
       x = "Days from transplantation",
       y = "Patient",
-      title = "NMDS14B Part 2",
-      subtitle = title_string
+      title = title_string
     ) +
 
     # Start the x-axis at 0, equivalent to the date of transplantation
