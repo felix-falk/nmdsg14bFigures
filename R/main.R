@@ -146,6 +146,13 @@ nmds_figures_main <- function(
         filter_results$n_patients
       )
     )
+
+    message(
+      sprintf(
+        "Patient IDs matching filter criteria: %s",
+        paste(filter_results$patient_ids, collapse = ", ")
+      )
+    )
   }
 
   # ----------------------------------------------------------
