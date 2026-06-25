@@ -257,7 +257,15 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   # ----------------------------
 
   # Draw chimerism plot (pass chimerism data first, then general info)
-  chimerism_plot <- draw_chimerism_plot_based_on_mrd_plot(d$mrd, d$chimerism, d$general_info, x_range, pat_id)
+  chimerism_plot <- draw_chimerism_plot_based_on_mrd_plot(
+    d$mrd,
+    d$general_info,
+    d$ngs,
+    d$chimerism,
+    x_range,
+    y_upper,
+    pat_id
+  )
 
   # Extract chimerism legend
   chimerism_legend <- cowplot::get_legend(chimerism_plot)
