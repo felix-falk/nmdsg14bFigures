@@ -108,6 +108,7 @@ preprocess_data <- function(
   )
   names(ngs_raw) <- gsub(" ", "_", names(ngs_raw), fixed = TRUE)
 
+  # Read immune suppresion filter file
   if (is.null(immune_filter_file) || !file.exists(immune_filter_file)) {
     immune_suppression_filter <- tibble::tibble(
       pattern = character(),
@@ -451,7 +452,21 @@ preprocess_data <- function(
 
   # Add strata column to general_info (optional)
 
-  if (!is.null(strata)) {
+ # if (!is.null(strata)) {
+
+  #  strata_filename <- strata$strata_file
+
+    #strata_colname <- strata$strata_column
+
+    #if (!strata_filename == general_info_file) {
+
+      # Create a list of patno for which the given strata_colname matches the 
+
+   # }
+#
+#  }
+
+
 
     # strata$data_frame # Which data frame the strata is in
 
@@ -459,7 +474,7 @@ preprocess_data <- function(
 
     # The strata should either be the name of a column, or a specific member of a column, eg. TP53
 
-  }
+
 
   return(
     list(

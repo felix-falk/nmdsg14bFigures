@@ -13,15 +13,7 @@ apply_filters <- function(processed, filters) {
   immune <- processed$immune
   ngs_processed <- processed$ngs
 
-  # Allow `filters` to be a list, a named vector, or a JSON filepath.
-  if (!is.null(filters) && !is.list(filters)) {
-    if (is.character(filters) && length(filters) == 1 && file.exists(filters)) {
-      filters <- jsonlite::fromJSON(filters)
-    } else {
-      filters <- as.list(filters)
-    }
-  }
-
+  # Allow `filters` to be a list
   filter_settings <- list(
     genes = NULL,
     outcomes = NULL,

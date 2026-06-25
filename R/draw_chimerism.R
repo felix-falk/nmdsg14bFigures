@@ -1,3 +1,141 @@
+draw_chimerism_plot_based_on_mrd_plot <- function(
+  mrd_data,
+  general_info_data,
+  ngs_data,
+  chimerism_data,
+  x_range,
+  y_upper,
+  pat_id
+) {
+
+  plot <- ggplot2::ggplot() +
+
+    # Add a shaded rectangle to indicate the MRD negative range (below 0.1 %)
+    ggplot2::annotate("rect",
+      xmin = -Inf,
+      xmax = Inf,
+      ymin = 0.08,
+      ymax = 0.1,
+      fill = "lightgrey",
+      alpha = 0.4
+    ) +
+
+    # Add MRD lines, only for mutations with more than 1 data point.
+    ggplot2::geom_line(
+      data = mrd_data |>
+        dplyr::filter(!is.na(Mutation)) |>
+        dplyr::group_by(Mutation) |>
+        dplyr::filter(dplyr::n() > 1) |>
+        dplyr::ungroup(),
+      ggplot2::aes(
+        x = rel_mrd_dat,
+        y = level_no0s,
+        colour = Mutation
+      )
+    ) +
+
+    # Add MRD points, including those with only one data point.
+    ggplot2::geom_point(data = mrd_data, ggplot2::aes(
+      x = rel_mrd_dat,
+      y = level_no0s,
+      colour = Mutation
+    )
+    ) +
+
+    # Add CHIMERISM lines, only for those with more than 1 data point.
+    ggplot2::geom_line(
+      data = chimerism_data |>
+        dplyr::filter(!is.na(surface_marker)) |>
+        dplyr::group_by(surface_marker) |>
+        dplyr::filter(dplyr::n() > 1) |>
+        dplyr::ungroup(),
+      ggplot2::aes(
+        x = rel_chimerism_dat,
+        y = chimerism,
+        colour = surface_marker
+      )
+    ) +
+
+    # Add CHIMERISM points, including those with only one data point.
+    ggplot2::geom_point(data = chimerism_data, ggplot2::aes(
+      x = rel_chimerism_dat,
+      y = chimerism,
+      colour = surface_marker
+    )
+    ) +
+
+    # Set theme, adjust x and y labels, set color of MRD lines and points
+    ggplot2::theme_minimal() +
+    ggplot2::xlab(NULL) +
+    ggplot2::ylab("VAF (%)") +
+    ggplot2::scale_colour_brewer(palette = "Set1", na.translate = FALSE) +
+
+    # Set x and y axis limits based on x_range and y_upper parameters
+    ggplot2::scale_x_continuous(limits = x_range) +
+    ggplot2::scale_y_log10(limits = c(
+      0.08,
+      100 # Changed from y_upper
+    ), labels = scales::label_number()) +
+
+    # Add clinical information title, based on general_info_data and ngs_data
+    ggplot2::labs(title = paste0(
+      "Patient: ",
+      pat_id
+    ),
+    subtitle = paste0(
+      "Diagnosis: ",
+      general_info_data$mdsdiagnosis[1],
+      "\nIPSS-M: ",
+      general_info_data$ipssm_title[1],
+      "\nKaryotype: ",
+      general_info_data$karyotyp[1],
+      "\nNGS: ",
+      ngs_data$mutlist[1]
+    )
+    ) +
+
+    # Add vertical line at the time of relapse
+    geomtextpath::geom_textvline(
+      data = general_info_data |>
+        dplyr::filter(outcome == "Relapse"),
+      ggplot2::aes(
+        xintercept = rel_term_dat,
+        label = "Relapse"
+      )
+    ) +
+
+    # Add vertical line at the time of nonrelapse mortality
+    geomtextpath::geom_textvline(
+      data = general_info_data |> dplyr::filter(
+        outcome == "Nonrelapse mortality"
+      ),
+      ggplot2::aes(
+        xintercept = rel_term_dat,
+        label = paste0("Death: ", deathcause)
+      )
+    ) +
+
+    # Add horisontal line at the MRD positive threshold of 0.1
+    geomtextpath::geom_texthline(
+      yintercept = 0.1,
+      label = "MRD Threshold",
+      linetype = "dashed",
+      color = "darkgrey",
+      size = 3,
+      vjust = -0.2,
+      hjust = 1
+    ) +
+
+    # Define the legend position, title size and subtitle size
+    ggplot2::theme(legend.position = "right",
+      plot.title = ggplot2::element_text(size = 12),
+      plot.subtitle = ggplot2::element_text(size = 9)
+    )
+
+  return(plot)
+
+}
+
 #' Generate chimerism plot for a given patient
 #'
 #' @param data A data frame containing longitudinal MRD data
@@ -119,7 +257,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   # ----------------------------
 
   # Draw chimerism plot (pass chimerism data first, then general info)
-  chimerism_plot <- draw_chimerism_plot(d$mrd, d$chimerism, d$general_info, x_range, pat_id)
+  chimerism_plot <- draw_chimerism_plot_based_on_mrd_plot(d$mrd, d$chimerism, d$general_info, x_range, pat_id)
 
   # Extract chimerism legend
   chimerism_legend <- cowplot::get_legend(chimerism_plot)

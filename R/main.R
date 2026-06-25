@@ -11,7 +11,7 @@
 #' @param immune_filter_file CSV file with immune suppression filter
 #' @param output_folder Folder for generated figures
 #' @param plot_type Either "swimmerplot" or "clinical_course"
-#' @param filters Optional filter list or path to JSON file
+#' @param filters Optional filter list
 #'
 #' @export
 #' @examples
@@ -39,7 +39,17 @@ nmds_figures_main <- function(
   ngs_file = NULL,
   chimerism_file = NULL,
   immune_filter_file = NULL,
-  strata = NULL,
+  strata = c(strata_file = c(
+    "general_info",
+    "mrd",
+    "dli",
+    "aza",
+    "immune",
+    "gvhd",
+    "ngs"
+  ),
+  strata_column = NULL
+  ),
   output_folder,
   plot_type = c(
     "swimmerplot",
@@ -82,26 +92,17 @@ nmds_figures_main <- function(
 
   if (!is.null(filters)) {
 
-    # If a single character string that points to an existing file,
-    # treat it as a JSON filepath. Otherwise, accept an R list or
-    # named/vector form and normalize to a list.
-    if (is.character(filters) && length(filters) == 1 && file.exists(filters)) {
-      user_filters <- jsonlite::fromJSON(filters)
+    # If filters is not empty, control that it is formatted as a list. 
 
-      message(
-        sprintf(
-          "Loaded filter file: %s",
-          filters
-        )
+    if (!is.list(filters)) {
+      stop(
+        "filters must be supplied as a list.",
+        call. = FALSE
       )
-
-    } else {
-      if (is.character(filters) && !is.list(filters)) {
-        user_filters <- as.list(filters)
-      } else {
-        user_filters <- filters
-      }
     }
+
+    user_filters <- filters
+
   }
 
   # ----------------------------------------------------------

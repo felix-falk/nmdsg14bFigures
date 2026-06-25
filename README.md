@@ -92,43 +92,31 @@ Only immune suppression treatments relevant to the study are kept using a ";"-se
 
 ### Optional filtering
 
-Pass either (1) a .json filepath or (2) an R-compatible list to the filters option, containing your filters of interest. Either work, but using an R list is probably the more user-friendly option. 
-
-#### (1) .json filtering
-
-Below is the test_filters.json file that is included in the package and found in the filters directory. It selects patients with the TP53 mutation as per the NGS data set, and the Relapse outcome as per the general information and MRD data sets. 
-
-```json
-{
-  "genes": ["TP53"],
-  "outcomes": ["Relapse"],
-  "treatments": [],
-  "mrd_positive": null,
-  "immune_suppression": null
-}
-```
-
-#### (2) R list filtering 
-
-The possible options for ```outcomes``` are ```"Remission"```, ```"Relapse"``` and ```"Nonrelapse mortality"```.
-The possible options for ```treatments``` are ```"Azacitidine"``` and ```"Donor lymphocyte infusion"```.
-The possible options for ```mrd_positive``` and ```immune_suppression``` are ```true```, ```false``` and ```null```.
+Pass a list to the filters option, containing your filters of interest. Exclude filters from the list if you do not wish to include them as criteria.
 
 ```r
+# Select patients with TP53 and ASXL1 mutations, who either went to relapse or nonrelapse mortality, and were treated with Azacitidine: 
 filters = list(
   genes = c(
     "TP53", 
     "ASXL1"
     ), 
   outcomes = c(
-    "Remission", 
     "Relapse", 
     "Nonrelapse mortality"
     ), 
   treatments = c(
     "Azacitidine"
-    ), 
-  mrd_positive = null, 
-  immune_suppresison = null
+    )
+)
+
+# Select patients treated with DLI and never were MRD positive: 
+filters = list(
+  treatments = "DLI", 
+  mrd_positive = false
 )
 ```
+
+The possible options for ```outcomes``` are ```"Remission"```, ```"Relapse"``` and ```"Nonrelapse mortality"```.
+The possible options for ```treatments``` are ```"Azacitidine"``` and ```"Donor lymphocyte infusion"```.
+The possible options for ```mrd_positive``` and ```immune_suppression``` are ```true```, ```false``` and ```null```.
