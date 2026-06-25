@@ -1,5 +1,5 @@
 #' Preprocess data ahead of manual filtering and plotting and.
-#' 
+#'
 #' @param general_info_file Path to the general info Excel file.
 #' @param mrd_file Path to the MRD Excel file.
 #' @param dli_file Path to the DLI Excel file.
@@ -379,7 +379,11 @@ preprocess_data <- function(
     dplyr::mutate(event_type = "cGVHD moderate (overlaps immune)")
 
   # Combine and pick earliest event per patient
-  gvhd_events <- dplyr::bind_rows(agvhd_events, cgvhd_severe_events, cgvhd_moderate_events) |>
+  gvhd_events <- dplyr::bind_rows(
+    agvhd_events,
+    cgvhd_severe_events,
+    cgvhd_moderate_events
+  ) |>
     dplyr::arrange(patno, rel_gvhd_dat) |>
     dplyr::group_by(patno) |>
     dplyr::slice_head(n = 1) |>
@@ -393,7 +397,11 @@ preprocess_data <- function(
   general_info <- general_info |>
     dplyr::left_join(
       gvhd_events |>
-        dplyr::select(patno, gvhd_event_time = rel_gvhd_dat, gvhd_event_type = event_type),
+        dplyr::select(
+          patno,
+          gvhd_event_time = rel_gvhd_dat,
+          gvhd_event_type = event_type
+        ),
       by = "patno"
     ) |>
     dplyr::mutate(
