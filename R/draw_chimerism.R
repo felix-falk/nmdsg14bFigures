@@ -301,7 +301,6 @@ plot_chimerism_timeline <- function(processed, pat_id) {
 
   # Combine all legends vertically
   combined_legends <- cowplot::plot_grid(
-    mrd_legend,
     chimerism_legend,
     agvhd_legend_grob,
     cgvhd_legend_grob,
