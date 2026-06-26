@@ -159,3 +159,28 @@ x_range_finder <- function(general_info_data){
   return(x_range)
 
 }
+
+#' Called by preprocess_data to check that all
+#' required columns are present in the provided file.
+#'
+#' @param df Data frame with columns you want to check.
+#' @param required_columns List of required columns.
+#' @returns
+#' Stops the function and raises a message if columns are missing, else passes.
+#' @examples
+#' column_check(dli_raw, c("patno", "dlidat"))
+column_check <- function(df, required_columns) {
+  missing_cols <- setdiff(required_columns, names(df))
+
+  if (length(missing_cols) > 0) {
+    stop(
+      paste(
+        "Missing required column(s):",
+        paste(missing_cols, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}

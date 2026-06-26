@@ -1,4 +1,4 @@
-#' Run analysis using the nmdsFiguresMain function
+#' Run analysis using the nmds_figures_main function.
 #'
 #' @param general_info_file Excel file with general patient clinical information
 #' @param mrd_file Excel file with MRD measurements
@@ -16,18 +16,21 @@
 #' @export
 #' @examples
 #' nmds_figures_main(
-#' general_info_file = "~/general.xlsx",
-#' mrd_file = "~/mrd.xlsx",
-#' dli_file = "~/dli.xlsx",
-#' aza_file = "~/aza.xlsx",
-#' immune_file = "~/immune.xlsx",
-#' gvhd_file = "~/gvhd.xlsx",
-#' ngs_file = "~/ngs.xlsx",
-#' chimerism_file = "~/chimerism.xlsx",
-#' immune_filter_file = "~/immune_filter.csv",
-#' output_folder = "~/output",
-#' plot_type = "clinical_course",
-#' filters = NULL
+#'  general_info_file = "general.xlsx",
+#'  mrd_file = "mrd.xlsx",
+#'  dli_file = "dli.xlsx",
+#'  aza_file = "aza.xlsx",
+#'  immune_file = "immune.xlsx",
+#'  gvhd_file = "gvhd.xlsx",
+#'  ngs_file = "ngs.xlsx",
+#'  chimerism_file = "chimerism.xlsx",
+#'  immune_filter_file = "immune_filter.csv",
+#'  output_folder = "output",
+#'  plot_type = "clinical_course",
+#'  filters = list(
+#'    genes = "TP53",
+#'    outcomes = "Relapse"
+#'  )
 #' )
 nmds_figures_main <- function(
   general_info_file,

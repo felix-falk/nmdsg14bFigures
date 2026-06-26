@@ -43,13 +43,33 @@ preprocess_data <- function(
 
   ### Read files (optional files are tolerated)
 
+  # Read the mandatory excel files
   general_info_raw <- readxl::read_excel(general_info_file)
   mrd_raw <- readxl::read_excel(mrd_file)
+
+  # Check that required columns are present
+  column_check(general_info_raw, c(
+    "patno",
+    "transpldt",
+    "termindat",
+    "eosreason",
+    "ipssm",
+    "mdsdiagnosis",
+    "karyotyp",
+    "deathcause"
+  ))
+  column_check(mrd_raw, c(
+    "patno",
+    "MRDdat",
+    "mutname",
+    "level"
+  ))
 
   if (is.null(dli_file) || !file.exists(dli_file)) {
     dli_raw <- tibble::tibble(patno = double(), dlidat = as.Date(character()))
   } else {
     dli_raw <- readxl::read_excel(dli_file)
+    column_check(dli_raw, c("patno", "dlidat"))
   }
 
   if (is.null(aza_file) || !file.exists(aza_file)) {
@@ -58,6 +78,7 @@ preprocess_data <- function(
     )
   } else {
     aza_raw <- readxl::read_excel(aza_file)
+    column_check(aza_raw, c("patno", "azacitstdat"))
   }
 
   if (is.null(immune_file) || !file.exists(immune_file)) {
@@ -69,6 +90,7 @@ preprocess_data <- function(
     )
   } else {
     immune_raw <- readxl::read_excel(immune_file)
+    column_check(immune_raw, c("patno", "drugname", "drugdt", "drugstopped"))
   }
 
   if (is.null(gvhd_file) || !file.exists(gvhd_file)) {
@@ -84,12 +106,23 @@ preprocess_data <- function(
     )
   } else {
     gvhd_raw <- readxl::read_excel(gvhd_file)
+    column_check(gvhd_raw, c(
+      "patno",
+      "gvhddate",
+      "agvhdstage",
+      "cgvhdstage",
+      "agvhdmaxstage",
+      "agvhdmaxdt",
+      "cgvhdmaxstage",
+      "cgvhdmaxdt"
+    ))
   }
 
   if (is.null(ngs_file) || !file.exists(ngs_file)) {
     ngs_raw <- tibble::tibble(Studienummer = double(), Gen = character())
   } else {
     ngs_raw <- readxl::read_excel(ngs_file)
+    column_check(ngs_raw, c("Studienummer", "Gen"))
   }
 
   if (is.null(chimerism_file) || !file.exists(chimerism_file)) {
@@ -100,6 +133,7 @@ preprocess_data <- function(
     )
   } else {
     chimerism_raw <- readxl::read_excel(chimerism_file)
+    column_check(chimerism_raw, c("patno", "chimbmdt", "CD33BM", "CD34BM"))
   }
 
   # Make column names ASCII-safe for NGS if present
@@ -121,6 +155,11 @@ preprocess_data <- function(
       header = TRUE,
       sep = ";"
     )
+    column_check(immune_suppression_filter, c(
+      "pattern",
+      "standardized_name",
+      "exclude"
+    ))
   }
 
   # --- FILTERING ---
