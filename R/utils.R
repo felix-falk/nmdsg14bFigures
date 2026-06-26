@@ -112,8 +112,8 @@ class_finder <- function(x) {
 
 #' Called by the draw_clinical_course function to
 #' find the upper limit of the MRD and/or chimerism y-axis.
-#'
 #' @param mrd_data A data frame containing MRD data.
+#' @param chimerism_data A data frame containing chimerism data.
 #' @returns A numeric value indicating the upper y-axis limit.
 #' @examples
 #' y_limit_finder(d$mrd)
