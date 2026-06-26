@@ -36,13 +36,14 @@ packageVersion("nmdsg14bFigures")
 
 | Excel file | Required columns |
 | ------- | ------- |
-| ```general_info.xlsx``` |  ```patno, transpldt, termindat, eosreason, relapsedat, deathdat``` |
+| ```general_info.xlsx``` |  ```patno, transpldt, termindat, eosreason, ipssm, mdsdiagnosis, karyotyp, deathcause``` |
 | ```mrd.xlsx``` |  ```patno, MRDdat, mutname, level``` |
 | ```dli.xlsx``` | ```patno, dlidat``` |
 | ```aza.xlsx``` | ```patno, azacitstdat``` |
 | ```immune.xlsx``` | ```patno, drugname, drugdt, drugstopped``` |
 | ```gvhd.xlsx``` | ```patno, gvhddate, agvhdstage, cgvhdstage, agvhdmaxstage, agvhdmaxdt, cgvhdmaxstage, cgvhdmaxdt``` |
 | ```ngs.xlsx``` | ```Studienummer, Gen, cDNA förändring``` |
+| ```chimerism.xlsx``` | ```patno, chimbmdt, CD33BM, CD34BM``` |
 
 ## Run the package in R
 
@@ -70,7 +71,7 @@ nmds_figures_main(
 
 ## Output format
 
-Set ```output_format``` to ```"pdf"``` (default) or ```"svg"```.
+Set ```output_format``` to ```"pdf"``` or ```"svg"```.
 
 ## Plot type
 

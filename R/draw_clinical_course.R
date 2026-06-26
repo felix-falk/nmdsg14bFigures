@@ -142,16 +142,32 @@ draw_events_plot <- function(
   has_agvhd <- FALSE
   has_cgvhd <- FALSE
   if (!is.null(gvhd_data) && nrow(gvhd_data) > 0) {
-    has_agvhd <- nrow(gvhd_data |> dplyr::filter(gvhd == "Acute GVHD" & !is.na(agvhdstage))) > 0
-    has_cgvhd <- nrow(gvhd_data |> dplyr::filter(gvhd == "Chronic GVHD" & !is.na(cgvhdstage))) > 0
+    has_agvhd <- nrow(
+      gvhd_data |> dplyr::filter(
+        gvhd == "Acute GVHD" & !is.na(agvhdstage)
+      )
+    ) > 0
+    has_cgvhd <- nrow(
+      gvhd_data |> dplyr::filter(
+        gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
+      )
+    ) > 0
   }
 
-  has_immune <- !is.null(immune_intervals_data) && nrow(immune_intervals_data) > 0
+  has_immune <- !is.null(
+    immune_intervals_data
+  ) && nrow(
+    immune_intervals_data
+  ) > 0
   has_aza <- FALSE
   has_dli <- FALSE
   if (!is.null(treatment_data) && nrow(treatment_data) > 0) {
-    has_aza <- nrow(treatment_data |> dplyr::filter(treatment == "Azacitidine")) > 0
-    has_dli <- nrow(treatment_data |> dplyr::filter(treatment == "DLI")) > 0
+    has_aza <- nrow(
+      treatment_data |> dplyr::filter(treatment == "Azacitidine")
+    ) > 0
+    has_dli <- nrow(
+      treatment_data |> dplyr::filter(treatment == "DLI")
+    ) > 0
   }
 
   # Assign y positions dynamically in the desired order
@@ -201,7 +217,9 @@ draw_events_plot <- function(
   if (has_agvhd) {
     events_plot <- events_plot +
       ggplot2::geom_point(
-        data = gvhd_data |> dplyr::filter(gvhd == "Acute GVHD" & !is.na(agvhdstage)),
+        data = gvhd_data |> dplyr::filter(
+          gvhd == "Acute GVHD" & !is.na(agvhdstage)
+        ),
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$agvhd,
@@ -226,7 +244,9 @@ draw_events_plot <- function(
     events_plot <- events_plot +
       ggnewscale::new_scale_colour() +
       ggplot2::geom_point(
-        data = gvhd_data |> dplyr::filter(gvhd == "Chronic GVHD" & !is.na(cgvhdstage)),
+        data = gvhd_data |> dplyr::filter(
+          gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
+        ),
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$cgvhd,
@@ -333,7 +353,14 @@ plot_patient_timeline <- function(processed, pat_id) {
   # ----------------------------
 
   # Draw MRD plot
-  mrd_plot <- draw_mrd_plot(d$mrd, d$general_info, d$ngs, x_range, y_upper, pat_id)
+  mrd_plot <- draw_mrd_plot(
+    d$mrd,
+    d$general_info,
+    d$ngs,
+    x_range,
+    y_upper,
+    pat_id
+  )
 
   # Extract mrd legend
   mrd_legend <- cowplot::get_legend(mrd_plot)
@@ -477,12 +504,12 @@ draw_clinical_course <- function(
   patient_ids <- unique(processed$general_info$patno)
 
   if (output_format == "svg") {
-    if (!requireNamespace("svglite", quietly = TRUE)) {
-      stop("The 'svglite' package is required to export per-patient SVGs.\nPlease run: install.packages('svglite') and try again.")
-    }
     base_name <- tools::file_path_sans_ext(output_filename)
     for (p in patient_ids) {
-      svg_filename <- file.path(output_folder, paste0(base_name, "_", p, ".svg"))
+      svg_filename <- file.path(
+        output_folder,
+        paste0(base_name, "_", p, ".svg")
+      )
       svglite::svglite(file = svg_filename, width = 10, height = 6)
       print(plot_patient_timeline(processed, p))
       grDevices::dev.off()

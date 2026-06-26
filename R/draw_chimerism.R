@@ -9,7 +9,15 @@
 #' @param pat_id The patient id of the patient you want to plot.
 #' @returns A ggplot object representing the MRD plot for the patient.
 #' @examples
-#' draw_chimerism_plot(d$mrd, d$general_info, d$ngs_data, d$chimerism_data, x_range, y_upper, pat_id)
+#' draw_chimerism_plot(
+#'   d$mrd,
+#'   d$general_info,
+#'   d$ngs_data,
+#'   d$chimerism_data,
+#'   x_range,
+#'   y_upper,
+#'   pat_id
+#' )
 draw_chimerism_plot <- function(
   mrd_data,
   general_info_data,

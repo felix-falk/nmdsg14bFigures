@@ -1,40 +1,40 @@
 draw_survival <- function(
-    processed,
-    patient_subset = NULL,
-    output_folder,
-    output_format,
-    strata = NULL
+  processed,
+  patient_subset = NULL,
+  output_folder,
+  output_format,
+  strata = NULL
 ) {
 
   if (!is.null(patient_subset)) {
 
     processed$general_info <-
-    processed$general_info |>
-    dplyr::filter(patno %in% patient_subset)
+      processed$general_info |>
+      dplyr::filter(patno %in% patient_subset)
 
     processed$treatment <-
-    processed$treatment |>
-    dplyr::filter(patno %in% patient_subset)
+      processed$treatment |>
+      dplyr::filter(patno %in% patient_subset)
 
     processed$mrd <-
-    processed$mrd |>
-    dplyr::filter(patno %in% patient_subset)
+      processed$mrd |>
+      dplyr::filter(patno %in% patient_subset)
 
     processed$gvhd <-
-    processed$gvhd |>
-    dplyr::filter(patno %in% patient_subset)
+      processed$gvhd |>
+      dplyr::filter(patno %in% patient_subset)
 
     processed$immune_intervals <-
-    processed$immune_intervals |>
-    dplyr::filter(patno %in% patient_subset)
+      processed$immune_intervals |>
+      dplyr::filter(patno %in% patient_subset)
 
     processed$ngs <-
-    processed$ngs |>
-    dplyr::filter(patno %in% patient_subset)
+      processed$ngs |>
+      dplyr::filter(patno %in% patient_subset)
 
     processed$chimerism <-
-    processed$chimerism |>
-    dplyr::filter(patno %in% patient_subset)
+      processed$chimerism |>
+      dplyr::filter(patno %in% patient_subset)
 
   }
 

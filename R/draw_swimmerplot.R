@@ -28,12 +28,48 @@ swimmerplot <- function(
 ) {
   # Build an annotation grob for outcome symbols legend
   outcome_legend_grob <- grid::grobTree(
-    grid::textGrob("R", x = grid::unit(0, "npc"), y = grid::unit(1, "npc"), just = c("left", "top"), gp = grid::gpar(fontsize = 10)),
-    grid::textGrob("\u2020", x = grid::unit(0, "npc"), y = grid::unit(0.5, "npc"), just = c("left", "centre"), gp = grid::gpar(fontsize = 10)),
-    grid::textGrob("*", x = grid::unit(0, "npc"), y = grid::unit(0, "npc"), just = c("left", "bottom"), gp = grid::gpar(fontsize = 10)),
-    grid::textGrob("Relapse", x = grid::unit(0.18, "npc"), y = grid::unit(1, "npc"), just = c("left", "top"), gp = grid::gpar(fontsize = 10)),
-    grid::textGrob("Nonrelapse mortality", x = grid::unit(0.18, "npc"), y = grid::unit(0.5, "npc"), just = c("left", "centre"), gp = grid::gpar(fontsize = 10)),
-    grid::textGrob("Other exclusion reason", x = grid::unit(0.18, "npc"), y = grid::unit(0, "npc"), just = c("left", "bottom"), gp = grid::gpar(fontsize = 10))
+    grid::textGrob(
+      "R",
+      x = grid::unit(0, "npc"),
+      y = grid::unit(1, "npc"),
+      just = c("left", "top"),
+      gp = grid::gpar(fontsize = 10)
+    ),
+    grid::textGrob(
+      "\u2020",
+      x = grid::unit(0, "npc"),
+      y = grid::unit(0.5, "npc"),
+      just = c("left", "centre"),
+      gp = grid::gpar(fontsize = 10)
+    ),
+    grid::textGrob(
+      "*",
+      x = grid::unit(0, "npc"),
+      y = grid::unit(0, "npc"),
+      just = c("left", "bottom"),
+      gp = grid::gpar(fontsize = 10)
+    ),
+    grid::textGrob(
+      "Relapse",
+      x = grid::unit(0.18, "npc"),
+      y = grid::unit(1, "npc"),
+      just = c("left", "top"),
+      gp = grid::gpar(fontsize = 10)
+    ),
+    grid::textGrob(
+      "Nonrelapse mortality",
+      x = grid::unit(0.18, "npc"),
+      y = grid::unit(0.5, "npc"),
+      just = c("left", "centre"),
+      gp = grid::gpar(fontsize = 10)
+    ),
+    grid::textGrob(
+      "Other exclusion reason",
+      x = grid::unit(0.18, "npc"),
+      y = grid::unit(0, "npc"),
+      just = c("left", "bottom"),
+      gp = grid::gpar(fontsize = 10)
+    )
   )
 
   swimmer_plot <- ggplot2::ggplot(plot_data) +

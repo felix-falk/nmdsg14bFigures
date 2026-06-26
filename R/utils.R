@@ -45,8 +45,10 @@ interval_finder <- function(df) {
 #' standardize_drug("Drug A", immune_suppression_filter)
 standardize_drug <- function(drug, mapping_df) {
   match_idx <- which(
-    purrr::map_lgl(mapping_df$pattern,
-        ~ stringr::str_detect(drug, stringr::regex(.x, ignore_case = TRUE)))
+    purrr::map_lgl(
+      mapping_df$pattern,
+      ~ stringr::str_detect(drug, stringr::regex(.x, ignore_case = TRUE))
+    )
   )
   if (length(match_idx) > 0) {
     return(mapping_df$standardized_name[match_idx[1]])
@@ -121,7 +123,12 @@ y_limit_finder <- function(mrd_data, chimerism_data) {
 
   # Helper to get max from a data frame/column safely
   safe_max <- function(df, col) {
-    if (is.null(df) || nrow(df) == 0 || !(col %in% names(df)) || all(is.na(df[[col]]))) {
+    if (
+      is.null(df) ||
+        nrow(df) == 0 ||
+        !(col %in% names(df)) ||
+        all(is.na(df[[col]]))
+    ) {
       return(NA_real_)
     }
     return(max(df[[col]], na.rm = TRUE))
@@ -130,7 +137,7 @@ y_limit_finder <- function(mrd_data, chimerism_data) {
   max_mrd <- safe_max(mrd_data, "level_no0s")
   max_chim <- safe_max(chimerism_data, "chimerism")
 
-  # Determine the upper y-axis limit: at least 10, or the ceiling of the highest observed value
+  # Determine the upper y-axis limit: at least 10, or the highest value
   observed_max <- max(c(max_mrd, max_chim), na.rm = TRUE)
 
   if (is.infinite(observed_max) || is.na(observed_max)) {

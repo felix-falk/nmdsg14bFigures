@@ -92,7 +92,7 @@ nmds_figures_main <- function(
 
   if (!is.null(filters)) {
 
-    # If filters is not empty, control that it is formatted as a list. 
+    # If filters is not empty, control that it is formatted as a list.
 
     if (!is.list(filters)) {
       stop(

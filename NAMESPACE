@@ -4,7 +4,6 @@ export(draw_clinical_course)
 export(preprocess_data)
 export(apply_filters)
 
-importFrom(jsonlite, fromJSON)
 importFrom(readxl, read_excel)
 importFrom(dplyr, select, filter, arrange, group_by, ungroup, mutate, left_join, distinct, pull, summarise, count, slice, slice_tail, case_when, coalesce, if_else, row_number, n)
 importFrom(tidyr, pivot_longer, starts_with)
