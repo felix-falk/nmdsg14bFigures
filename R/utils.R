@@ -98,21 +98,6 @@ select_one_patient <- function(df, pat_id = NULL) {
 }
 
 #' Called by the draw_clinical_course function to
-#' list the class of each element in the processed data list.
-#'
-#' @param x An object whose class needs to be identified.
-#' @returns A string indicating the class of the object.
-#' @examples
-#' class_finder(processed)
-class_finder <- function(x) {
-  if (is.null(x)) {
-    "NULL"
-  } else {
-    paste(class(x), collapse = ", ")
-  }
-}
-
-#' Called by the draw_clinical_course function to
 #' find the upper limit of the MRD and/or chimerism y-axis.
 #' @param mrd_data A data frame containing MRD data.
 #' @param chimerism_data A data frame containing chimerism data.

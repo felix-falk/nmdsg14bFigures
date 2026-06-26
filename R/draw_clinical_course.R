@@ -488,15 +488,6 @@ draw_clinical_course <- function(
   processed$mrd <- processed$mrd |>
     dplyr::mutate(level_no0s = ifelse(level == 0, 0.08, level))
 
-  cat("\nProcessed objects:\n")
-
-  print(
-    sapply(
-      processed,
-      class_finder
-    )
-  )
-
   if (!dir.exists(output_folder)) {
     dir.create(output_folder, recursive = TRUE)
   }
