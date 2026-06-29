@@ -108,7 +108,7 @@ draw_mrd_plot <- function(
       color = "darkgrey",
       size = 3,
       vjust = -0.2,
-      hjust = 0 # At the left-hand side
+      hjust = 0
     ) +
 
     # Define the legend position, title size and subtitle size
