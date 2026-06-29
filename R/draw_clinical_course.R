@@ -501,14 +501,14 @@ draw_clinical_course <- function(
         output_folder,
         paste0(base_name, "_", p, ".svg")
       )
-      svglite::svglite(file = svg_filename, width = 10, height = 6)
+      svglite::svglite(file = svg_filename, width = 7.5, height = 4.5)
       print(plot_patient_timeline(processed, p))
       grDevices::dev.off()
     }
   } else {
     # Collect all patient plots into a single PDF
     pdf_filename <- file.path(output_folder, output_filename)
-    grDevices::pdf(file = pdf_filename, width = 10, height = 6)
+    grDevices::pdf(file = pdf_filename, width = 7.5, height = 4.5)
     for (p in patient_ids) {
       print(plot_patient_timeline(processed, p))
     }
