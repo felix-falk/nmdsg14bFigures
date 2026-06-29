@@ -100,7 +100,7 @@ draw_chimerism_plot <- function(
     labels = scales::label_number()
     ) +
 
-    #ggplot2::scale_y_continuous(labels = label_number()) + # Avoid exponents in ggplot
+    ggplot2::scale_y_continuous(labels = label_number()) + # Avoid exponents in ggplot
 
     # Add clinical information title, based on general_info_data and ngs_data
     ggplot2::labs(title = paste0(
