@@ -42,7 +42,7 @@ draw_survival <- function(
     survival::Surv(
       event_time,
       event_status
-    ) ~ 1, data = processed$general_info
+    ) ~ ipssr, data = processed$general_info
   )
 
   survplot <- survminer::ggsurvplot(
