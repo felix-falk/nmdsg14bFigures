@@ -39,9 +39,11 @@ draw_survival <- function(
   }
 
   fit <- survival::survfit(
-    survival::Surv(event_time, event_status), #  ~ ipssr OPTIONAL STRATA
-    data = processed$general_info
-  )
+    survival::Surv(
+      processed$general_info$event_time,
+      processed$general_info$event_status
+    )
+  ) #  ~ ipssr OPTIONAL STRATA
 
   survplot <- survminer::ggsurvplot(
     fit,

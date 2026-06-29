@@ -461,6 +461,8 @@ preprocess_data <- function(
       )
     )
 
+  print(general_info$event_time)
+
   # Transpose chimerism data, calculate relative chimerism dates, keep only CD33, CD34
   chimerism <- chimerism_raw |>
     tidyr::pivot_longer(
