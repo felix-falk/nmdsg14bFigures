@@ -74,11 +74,11 @@ preprocess_data <- function(
 
   if (is.null(aza_file) || !file.exists(aza_file)) {
     aza_raw <- tibble::tibble(
-      patno = double(), azacitstdat1 = as.Date(character())
+      patno = double(), azacitstart = as.Date(character())
     )
   } else {
     aza_raw <- readxl::read_excel(aza_file)
-    column_check(aza_raw, c("patno", "azacitstdat"))
+    column_check(aza_raw, c("patno", "azacitstart"))
   }
 
   if (is.null(immune_file) || !file.exists(immune_file)) {
@@ -181,22 +181,12 @@ preprocess_data <- function(
     ) |>
     dplyr::transmute(patno, transpldt, rel_term_dat)
 
-  # Transpose aza data frame,
-  # calculate relative aza dates,
-  # remove aza after rel_term_dat
+  # Calculate relative aza dates, remove dli after rel_term_dat
   aza <- aza_raw |>
-    tidyr::pivot_longer(
-      dplyr::starts_with("azacitstdat"),
-      names_to = "timepoint",
-      values_to = "azacitstartdat"
-    ) |>
-    dplyr::select(patno, azacitstartdat) |>
-    dplyr::filter(!is.na(azacitstartdat)) |>
-    dplyr::distinct() |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_aza_dat = as.numeric(difftime(
-        as.Date(azacitstartdat),
+        as.Date(azacitstart),
         as.Date(transpldt),
         units = "days"
       ))

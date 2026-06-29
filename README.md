@@ -39,7 +39,7 @@ packageVersion("nmdsg14bFigures")
 | ```general_info.xlsx``` |  ```patno, transpldt, termindat, eosreason, ipssm, mdsdiagnosis, karyotyp, deathcause``` |
 | ```mrd.xlsx``` |  ```patno, MRDdat, mutname, level``` |
 | ```dli.xlsx``` | ```patno, dlidat``` |
-| ```aza.xlsx``` | ```patno, azacitstdat``` |
+| ```aza.xlsx``` | ```patno, azacitstart``` |
 | ```immune.xlsx``` | ```patno, drugname, drugdt, drugstopped``` |
 | ```gvhd.xlsx``` | ```patno, gvhddate, agvhdstage, cgvhdstage, agvhdmaxstage, agvhdmaxdt, cgvhdmaxstage, cgvhdmaxdt``` |
 | ```ngs.xlsx``` | ```Studienummer, Gen, cDNA förändring``` |
