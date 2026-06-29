@@ -30,7 +30,7 @@ preprocess_data <- function(
   ngs_file,
   immune_filter_file,
   chimerism_file,
-  strata = c(
+  strata = list(
     strata_filename = NULL,
     strata_colname = NULL,
     strata_itemname = NULL
