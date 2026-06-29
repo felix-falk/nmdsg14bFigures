@@ -99,7 +99,7 @@ draw_chimerism_plot <- function(
     breaks = c(0.1, 1, 10, 100),
     sec.axis = ggplot2::sec_axis(
       trans = ~. * 10, 
-      breaks = derive(), 
+      breaks = ggplot2::derive(), 
       name = "Chimerism (%)"
     ), # Multiply the second axis by 10.
     labels = scales::label_number()
