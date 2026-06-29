@@ -71,7 +71,7 @@ draw_chimerism_plot <- function(
         dplyr::ungroup(),
       ggplot2::aes(
         x = rel_chimerism_dat,
-        y = chimerism,
+        y = chimerism / 10, # Divide chimerism by 10.
         colour = surface_marker
       )
     ) +
@@ -79,7 +79,7 @@ draw_chimerism_plot <- function(
     # Add CHIMERISM points, including those with only one data point.
     ggplot2::geom_point(data = chimerism_data, ggplot2::aes(
       x = rel_chimerism_dat,
-      y = chimerism,
+      y = chimerism / 10, # Divide chimerism by 10.
       colour = surface_marker
     )
     ) +
@@ -95,7 +95,9 @@ draw_chimerism_plot <- function(
     ggplot2::scale_y_log10(limits = c(
       0.08,
       y_upper
-    ), labels = scales::label_number()) +
+    ), labels = scales::label_number(),
+    sec.axis = ggplot2::sec_axis(trans = ~. * 10, name = "Chimerism (%)") # Multiply the second axis by 10.
+    ) +
 
     # Add clinical information title, based on general_info_data and ngs_data
     ggplot2::labs(title = paste0(
