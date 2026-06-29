@@ -31,7 +31,12 @@ preprocess_data <- function(
   immune_filter_file,
   chimerism_file,
   strata = list(
-    strata_filename = NULL,
+    strata_filename = list(
+      "general_info",
+      "aza",
+      "dli",
+      "ngs"
+    ),
     strata_colname = NULL,
     strata_itemname = NULL
   )
@@ -487,6 +492,10 @@ preprocess_data <- function(
   # Add dli, aza or ngs strata column to general_info (optional)
 
   if (!is.null(strata)) {
+
+    strata_filename <- strata$strata_filename
+    strata_colname  <- strata$strata_colname
+    strata_itemname <- strata$strata_itemname
 
     if (strata_filename == "aza") {
 
