@@ -42,16 +42,15 @@ nmds_figures_main <- function(
   ngs_file = NULL,
   chimerism_file = NULL,
   immune_filter_file = NULL,
-  strata = c(strata_file = c(
-    "general_info",
-    "mrd",
-    "dli",
-    "aza",
-    "immune",
-    "gvhd",
-    "ngs"
-  ),
-  strata_column = NULL
+  strata = c(
+    strata_filename = c(
+      "general_info",
+      "aza",
+      "dli",
+      "ngs"
+    ),
+    strata_colname = NULL,
+    strata_itemname = NULL
   ),
   output_folder,
   plot_type = c(
@@ -236,7 +235,7 @@ nmds_figures_main <- function(
       patient_subset = selected_patients,
       output_folder = output_folder,
       output_format = output_format,
-      strata = NULL
+      strata = strata
     )
 
     if (output_format == "svg") {

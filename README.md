@@ -67,6 +67,21 @@ nmds_figures_main(
   output_format = "pdf",
   filters = list(genes = "TP53", outcomes = "Remission")
 )
+
+# Create a survival figure
+nmds_figures_main(
+  general_info_file = "general_info.xlsx",
+  mrd_file = "mrd.xlsx",
+  ngs_file = "ngs.xlsx",
+  output_folder = "~/nmdsg14bFigures_output",
+  plot_type = "survival", 
+  output_format = "svg",
+  strata = c(
+    strata_filename = "ngs",
+    strata_colname = "Gen",
+    strata_itemname = "TP53"
+  )
+)
 ```
 
 ## Output format

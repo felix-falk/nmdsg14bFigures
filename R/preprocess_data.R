@@ -30,7 +30,11 @@ preprocess_data <- function(
   ngs_file,
   immune_filter_file,
   chimerism_file,
-  strata
+  strata = c(
+    strata_filename = NULL,
+    strata_colname = NULL,
+    strata_itemname = NULL
+  )
 ) {
 
   # Only general_info_file and mrd_file are strictly required.
@@ -480,31 +484,44 @@ preprocess_data <- function(
     dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
     dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
 
-  # Add strata column to general_info (optional)
+  # Add dli, aza or ngs strata column to general_info (optional)
 
- # if (!is.null(strata)) {
+  if (!is.null(strata)) {
+    strata_filename <- strata$strata_filename
+    strata_colname <- strata$strata_colname
+    strata_itemname <- strata$strata_itemname
 
-  #  strata_filename <- strata$strata_file
+    if (strata_filename == "aza") {
 
-    #strata_colname <- strata$strata_column
+      # Find patno values with the desired item
+      matching_patno <- aza$patno
 
-    #if (!strata_filename == general_info_file) {
+      # Create a new column named after the item
+      general_info[["Azacitidine"]] <- general_info$patno %in% matching_patno
 
-      # Create a list of patno for which the given strata_colname matches the 
+    } else if (strata_filename == "dli") {
 
-   # }
-#
-#  }
+      # Find patno values with the desired item
+      matching_patno <- dli$patno
 
+      # Create a new column named after the item
+      general_info[["Donor lymphocyte infusion"]] <- general_info$patno %in% matching_patno
 
+    } else if (strata_filename == "ngs") {
 
-    # strata$data_frame # Which data frame the strata is in
+      # Select patients where the specified column contains the specified item
+      matching_patno <- ngs_processed$patno[
+        ngs_processed[[strata_colname]] == strata_itemname
+      ]
 
-    # strata$data_frame$column # Which column is of interest in the data frame
-
-    # The strata should either be the name of a column, or a specific member of a column, eg. TP53
-
-
+      # Create a column named after the item
+      general_info[[strata_itemname]] <- ifelse(
+        general_info$patno %in% matching_patno,
+        "MT",
+        "WT"
+      )
+    }
+  }
 
   return(
     list(
