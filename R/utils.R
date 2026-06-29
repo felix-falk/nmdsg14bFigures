@@ -104,7 +104,10 @@ select_one_patient <- function(df, pat_id = NULL) {
 #' @returns A numeric value indicating the upper y-axis limit.
 #' @examples
 #' y_limit_finder(d$mrd)
-y_limit_finder <- function(mrd_data, chimerism_data) {
+y_limit_finder <- function(
+  mrd_data,
+  chimerism_data = NULL
+) {
 
   # Helper to get max from a data frame/column safely
   safe_max <- function(df, col) {
@@ -119,11 +122,17 @@ y_limit_finder <- function(mrd_data, chimerism_data) {
     return(max(df[[col]], na.rm = TRUE))
   }
 
-  max_mrd <- safe_max(mrd_data, "level_no0s")
-  max_chim <- safe_max(chimerism_data, "chimerism")
+  if (!is.null(chimerism_data)) {
+    max_mrd <- safe_max(mrd_data, "level_no0s")
+    max_chim <- safe_max(chimerism_data, "chimerism")
 
-  # Determine the upper y-axis limit: at least 10, or the highest value
-  observed_max <- max(c(max_mrd, max_chim), na.rm = TRUE)
+    # Determine the upper y-axis limit: at least 10, or the highest value
+    observed_max <- max(c(max_mrd, max_chim), na.rm = TRUE)
+  } else {
+    max_mrd <- safe_max(mrd_data, "level_no0s")
+    # Determine the upper y-axis limit: at least 10, or the highest value
+    observed_max <- max(max_mrd, na.rm = TRUE)
+  }
 
   if (is.infinite(observed_max) || is.na(observed_max)) {
     y_upper <- 10
