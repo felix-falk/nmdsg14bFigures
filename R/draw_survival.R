@@ -40,9 +40,9 @@ draw_survival <- function(
 
   fit <- survival::survfit(
     survival::Surv(
-      processed$general_info$event_time,
-      processed$general_info$event_status
-    ) ~ processed$general_info$ipssr
+      event_time,
+      event_status
+    ) ~ 1, data = processed$general_info
   )
 
   survplot <- survminer::ggsurvplot(

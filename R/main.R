@@ -235,7 +235,8 @@ nmds_figures_main <- function(
       processed = processed,
       patient_subset = selected_patients,
       output_folder = output_folder,
-      output_format = output_format
+      output_format = output_format,
+      strata = NULL
     )
 
     if (output_format == "svg") {
