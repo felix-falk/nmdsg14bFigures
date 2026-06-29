@@ -348,7 +348,7 @@ draw_clinical_course_chimerism <- function(
   } else {
     # Collect all patient plots into a single PDF
     pdf_filename <- file.path(output_folder, output_filename)
-    grDevices::pdf(file = pdf_filename, width = 5, height = 3) # Changed from 10x6
+    grDevices::pdf(file = pdf_filename, width = 7.5, height = 4.5) # Changed from 10x6
     for (p in patient_ids) {
       print(plot_chimerism_timeline(processed, p))
     }
