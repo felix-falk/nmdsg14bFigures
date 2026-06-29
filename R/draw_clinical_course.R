@@ -1,3 +1,42 @@
+create_ciklo_rectangles <- function(immune_data) {
+  # --- CIKLOSPORIN RECTANGLES ---
+
+  ciklosporin_base <- immune_data |>
+    dplyr::filter(
+      drugname_standardized == "ciclosporin"
+    ) |>
+    dplyr::arrange(patno, rel_immune_dat) |>
+    dplyr::select(
+      patno,
+      rel_immune_dat,
+      drugdose,
+      drugstopped
+    )
+
+  ciklosporin_rectangles <- ciklosporin_base |>
+    dplyr::group_by(patno) |>
+    dplyr::mutate(
+      xmin = rel_immune_dat,
+      xmax = dplyr::lead(rel_immune_dat),
+      xmax = dplyr::coalesce(
+        xmax,
+        dplyr::if_else(
+          drugstopped == "Yes",
+          rel_immune_dat,
+          as.Date(NA)
+        )
+      )
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::filter(!is.na(xmax), xmin != xmax) |>
+    dplyr::transmute(
+      patno,
+      xmin,
+      xmax,
+      drugdose
+    )
+}
+
 #' Generate MRD plot for a given patient
 #'
 #' @param data A data frame containing longitudinal MRD data
@@ -501,14 +540,14 @@ draw_clinical_course <- function(
         output_folder,
         paste0(base_name, "_", p, ".svg")
       )
-      svglite::svglite(file = svg_filename, width = 7.5, height = 4.5)
+      svglite::svglite(file = svg_filename, width = 10, height = 6)
       print(plot_patient_timeline(processed, p))
       grDevices::dev.off()
     }
   } else {
     # Collect all patient plots into a single PDF
     pdf_filename <- file.path(output_folder, output_filename)
-    grDevices::pdf(file = pdf_filename, width = 7.5, height = 4.5)
+    grDevices::pdf(file = pdf_filename, width = 10, height = 6)
     for (p in patient_ids) {
       print(plot_patient_timeline(processed, p))
     }

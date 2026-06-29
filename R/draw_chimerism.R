@@ -341,14 +341,14 @@ draw_clinical_course_chimerism <- function(
     base_name <- tools::file_path_sans_ext(output_filename)
     for (p in patient_ids) {
       svg_filename <- file.path(output_folder, paste0(base_name, "_", p, ".svg"))
-      svglite::svglite(file = svg_filename, width = 8, height = 6) # Changed from 10x6
+      svglite::svglite(file = svg_filename, width = 10, height = 6)
       print(plot_chimerism_timeline(processed, p))
       grDevices::dev.off()
     }
   } else {
     # Collect all patient plots into a single PDF
     pdf_filename <- file.path(output_folder, output_filename)
-    grDevices::pdf(file = pdf_filename, width = 8, height = 6) # Changed from 10x6
+    grDevices::pdf(file = pdf_filename, width = 10, height = 6)
     for (p in patient_ids) {
       print(plot_chimerism_timeline(processed, p))
     }

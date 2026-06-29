@@ -39,7 +39,7 @@ draw_survival <- function(
   }
 
   fit <- survival::survfit(
-    survival::Surv(event_time, event_status) ~ ipssr,
+    survival::Surv(event_time, event_status), #  ~ ipssr OPTIONAL STRATA
     data = processed$general_info
   )
 
