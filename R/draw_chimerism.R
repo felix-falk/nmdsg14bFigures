@@ -95,7 +95,7 @@ draw_chimerism_plot <- function(
     ggplot2::scale_y_log10(limits = c(
       0.08,
       y_upper
-    ), labels = scales::label_number(),
+    ), labels = scales::label_number(scientific = FALSE),
     sec.axis = ggplot2::sec_axis(trans = ~. * 10, name = "Chimerism (%)") # Multiply the second axis by 10.
     ) +
 
