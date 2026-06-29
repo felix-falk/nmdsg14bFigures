@@ -50,7 +50,9 @@ draw_survival <- function(
     data = processed$general_info,
     pval = TRUE,
     palette = "nejm",
-    xlab = "Days after transplantation"
+    xlab = "Days after transplantation",
+    risk.table = TRUE,
+    risk.table.col = "strata"
   )
 
   ggplot2::ggsave(
