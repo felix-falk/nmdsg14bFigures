@@ -98,8 +98,8 @@ draw_chimerism_plot <- function(
     ),
     breaks = c(0.1, 1, 10, 100),
     sec.axis = ggplot2::sec_axis(
-      trans = ~. * 10, 
-      breaks = ggplot2::derive(), 
+      trans = ~. * 10,
+      breaks = ggplot2::derive(),
       name = "Chimerism (%)"
     ), # Multiply the second axis by 10.
     labels = scales::label_number()
@@ -348,7 +348,7 @@ draw_clinical_course_chimerism <- function(
   } else {
     # Collect all patient plots into a single PDF
     pdf_filename <- file.path(output_folder, output_filename)
-    grDevices::pdf(file = pdf_filename, width = 10, height = 6)
+    grDevices::pdf(file = pdf_filename, width = 5, height = 3) # Changed from 10x6
     for (p in patient_ids) {
       print(plot_chimerism_timeline(processed, p))
     }
