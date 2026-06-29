@@ -96,11 +96,14 @@ draw_chimerism_plot <- function(
       0.08,
       y_upper
     ),
-    sec.axis = ggplot2::sec_axis(trans = ~. * 10, name = "Chimerism (%)"), # Multiply the second axis by 10.
+    breaks = c(0.1, 1, 10, 100),
+    sec.axis = ggplot2::sec_axis(
+      trans = ~. * 10, 
+      breaks = derive(), 
+      name = "Chimerism (%)"
+    ), # Multiply the second axis by 10.
     labels = scales::label_number()
     ) +
-
-    ggplot2::scale_y_continuous(labels = label_number()) + # Avoid exponents in ggplot
 
     # Add clinical information title, based on general_info_data and ngs_data
     ggplot2::labs(title = paste0(
