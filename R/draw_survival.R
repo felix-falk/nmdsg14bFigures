@@ -79,8 +79,13 @@ draw_survival <- function(
     if (survival_baseline == "transplant") "transplantation" else survival_baseline
   )
 
-  # Draw figure (event-free survival)
+  # Write y-axis label
+  ylab_text <-
+    if (survival_metric == "os") "Overall survival"
+    else if (survival_metric == "rfs") "Relapse free survival"
+    else if (survival_metric == "efs") "Event free survival"
 
+  # Draw figure
   survplot <- survminer::ggsurvplot(
     fit,
     data = survival_data,
@@ -88,6 +93,7 @@ draw_survival <- function(
     conf.int = TRUE,
     palette = "nejm",
     xlab = xlab_text,
+    ylab = ylab_text,
     risk.table = TRUE,
     risk.table.col = strata_name
   )
