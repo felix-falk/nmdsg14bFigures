@@ -39,16 +39,17 @@ draw_survival <- function(
   time_col <- metric_map[[survival_metric]]$time
   status_col <- metric_map[[survival_metric]]$status
 
-  # Get correct strata column name
-  strata_name <- NULL
-  if (is.null(strata_colname) && is.null(strata_itemname)) {
-    strata_name <- strata_filename
-  } else if (is.null(strata_itemname)) {
-    strata_name <- strata_colname
+  strata_var <- if (!is.null(strata_colname)) {
+    strata_colname
   } else {
-    strata_name <- strata_itemname
+    strata_filename
   }
-  stopifnot(!is.null(strata_name))
+
+  # optional filtering ONLY
+  if (!is.null(strata_itemname)) {
+    survival_data <- survival_data |>
+      dplyr::filter(.data[[strata_var]] == strata_itemname)
+  }
 
   # Match the requested baseline
   survival_baseline <- match.arg(survival_baseline)
@@ -68,7 +69,7 @@ draw_survival <- function(
 
   # Fit survival model
   form <- stats::as.formula(
-    sprintf("Surv(%s, %s) ~ `%s`", time_col, status_col, strata_name)
+    sprintf("Surv(%s, %s) ~ `%s`", time_col, status_col, strata_var)
   )
   fit <- survival::survfit(form, data = survival_data)
   fit$call$formula <- form # Solves ggsurvplot bug
@@ -95,7 +96,7 @@ draw_survival <- function(
     xlab = xlab_text,
     ylab = ylab_text,
     risk.table = TRUE,
-    risk.table.col = strata_name
+    risk.table.col = "strata"
   )
 
   # Save figure to svg or pdf
