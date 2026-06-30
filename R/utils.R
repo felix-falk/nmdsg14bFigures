@@ -370,47 +370,37 @@ add_strata <- function(
   strata_itemname = NULL
 ) {
 
-  if (is.null(strata_filename)) {
-    return(general_info)
-  }
+  if (is.null(strata_filename)) return(general_info)
 
-  # Get the data frame by name from the parent environment
   strata_df <- get(strata_filename, envir = parent.frame())
 
-  # Determine the name of the new column
-  new_colname <- if (is.null(strata_colname) && is.null(strata_itemname)) {
-    strata_filename
-  } else if (!is.null(strata_colname) && is.null(strata_itemname)) {
-    strata_colname
-  } else {
-    strata_itemname
-  }
+  # column name MUST be stable
+  new_colname <- if (!is.null(strata_colname)) strata_colname else strata_filename
 
-  # Do not overwrite an existing column
   if (new_colname %in% names(general_info)) {
     message("No new strata column added.")
     return(general_info)
   }
 
-  if (is.null(strata_colname) && is.null(strata_itemname)) {
-    # Strata is whether the patient appears in the file
+  if (is.null(strata_colname)) {
 
+    # presence/absence
     strata_patnos <- unique(strata_df$patno)
 
     general_info[[new_colname]] <-
       general_info$patno %in% strata_patnos
 
-  } else if (!is.null(strata_colname) && is.null(strata_itemname)) {
-    # Strata is the value of a column
+  } else if (is.null(strata_itemname)) {
 
+    # direct mapping
     general_info[[new_colname]] <-
       strata_df[[strata_colname]][
         match(general_info$patno, strata_df$patno)
       ]
 
   } else {
-    # Strata is whether the patient has a specific item in the column
 
+    # filtered presence
     strata_patnos <- unique(
       strata_df$patno[strata_df[[strata_colname]] == strata_itemname]
     )
