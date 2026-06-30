@@ -377,8 +377,8 @@ add_strata <- function(
     return(general_info)
   }
 
-  # Get the data frame by name
-  strata_df <- get(strata_filename)
+  # Get the data frame by name from the parent environment
+  strata_df <- get(strata_filename, envir = parent.frame())
 
   # Determine the name of the new column
   new_colname <- if (is.null(strata_colname) && is.null(strata_itemname)) {
