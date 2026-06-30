@@ -6,6 +6,12 @@ draw_survival <- function(
   strata_filename,
   strata_colname = NULL,
   strata_itemname = NULL,
+  survival_baseline = c(
+    "transplant",
+    "rel_pos_mrd_dat_0.1",
+    "rel_pos_mrd_dat_0.5",
+    "rel_pos_mrd_dat_1.0"
+  ), # Set the baseline timepoint for survival analysis
   survival_filename
 ) {
 
@@ -28,31 +34,44 @@ draw_survival <- function(
   }
   stopifnot(!is.null(strata_name))
 
-  # Check that the strata column exists
-  strata_name %in% names(processed$general_info)
-  processed$general_info[[strata_name]]
-  print(names(processed$general_info))
-  print(strata_name)
+  # Match the requested baseline
+  survival_baseline <- match.arg(survival_baseline)
+
+  # Rename the survival data set
+  survival_data <- processed$general_info
+
+  # Re-calculate event time relative to first positive MRD
+  if (survival_baseline != "transplant") {
+
+    survival_data <- survival_data |>
+      dplyr::filter(!is.na(.data[[survival_baseline]])) |>
+      dplyr::mutate(
+        event_time = event_time - .data[[survival_baseline]]
+      ) |>
+      dplyr::filter(event_time >= 0)
+  }
 
   # Fit survival model
-  fit <- eval(bquote(
-    survival::survfit(
-      .(stats::as.formula(
-        sprintf("Surv(event_time, event_status) ~ `%s`", strata_name)
-      )),
-      data = processed$general_info
-    )
-  ))
+  form <- stats::as.formula(
+    sprintf("Surv(event_time, event_status) ~ `%s`", strata_name)
+  )
+  fit <- survival::survfit(form, data = survival_data)
+  # Prevent survminer bug
+  fit$call$formula <- form
 
   # Draw figure (event-free survival)
 
   survplot <- survminer::ggsurvplot(
     fit,
-    data = processed$general_info,
+    data = survival_data,
     pval = TRUE,
     conf.int = TRUE,
     palette = "nejm",
-    xlab = "Days after transplantation",
+    xlab = if (survival_baseline == "transplant") {
+      "Days after transplantation"
+    } else {
+      sprintf("Days after %s positivity", survival_baseline)
+    },
     risk.table = TRUE,
     risk.table.col = strata_name
   )

@@ -184,12 +184,13 @@ preprocess_data <- function(
   gvhd_processed <- create_gvhd_df(gvhd_raw, end_date_df)
 
   # Add mrd_category column to mrd_raw, calculate rel_mrd_dat
+  # Calculate first dates with positive MRD at three levels
   mrd_all <- mrd_raw |>
     dplyr::mutate(mrd_category = dplyr::case_when(
-      level <  0.1 ~ "Negative (< 0.1)",
-      level <  0.5 ~ "Low (0.1 - 0.5)",
-      level <  1   ~ "Intermediate (0.5 - 1)",
-      level >= 1   ~ "High (> 1)"
+      level < 0.1 ~ "Negative (< 0.1)",
+      level < 0.5 ~ "Low (0.1 - 0.5)",
+      level < 1.0 ~ "Intermediate (0.5 - 1)",
+      TRUE        ~ "High (> 1)"
     )) |>
     dplyr::group_by(patno, MRDdat) |>
     dplyr::slice_max(order_by = level, n = 1, with_ties = FALSE) |>
@@ -197,10 +198,17 @@ preprocess_data <- function(
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_mrd_dat = as.numeric(
-          difftime(as.Date(MRDdat), as.Date(transpldt), units = "days")
+        difftime(as.Date(MRDdat), as.Date(transpldt), units = "days")
       )
     ) |>
-    dplyr::filter(rel_mrd_dat >= 0)
+    dplyr::filter(rel_mrd_dat >= 0) |>
+    dplyr::group_by(patno) |>
+    dplyr::mutate(
+      `rel_pos_mrd_dat_0.1` = if (any(level >= 0.1)) min(rel_mrd_dat[level >= 0.1]) else NA_real_,
+      `rel_pos_mrd_dat_0.5` = if (any(level >= 0.5)) min(rel_mrd_dat[level >= 0.5]) else NA_real_,
+      `rel_pos_mrd_dat_1.0` = if (any(level >= 1.0)) min(rel_mrd_dat[level >= 1.0]) else NA_real_
+    ) |>
+    dplyr::ungroup()
 
   # Create a list of patno which have level >= 10 at the last measurement, these
   # also count as relapses.
@@ -243,6 +251,15 @@ preprocess_data <- function(
     ) |>
     dplyr::distinct()
 
+  # Create mrd_pos_dates data frame for adding to general_info
+  mrd_pos_dates <- mrd_all |>
+    dplyr::distinct(
+      patno,
+      `rel_pos_mrd_dat_0.1`,
+      `rel_pos_mrd_dat_0.5`,
+      `rel_pos_mrd_dat_1.0`
+    )
+
   # Calulate outcomes based on general_info and mrd_relapse_cases
   general_info <- general_info_raw |>
     dplyr::mutate(outcome = dplyr::case_when(
@@ -262,7 +279,13 @@ preprocess_data <- function(
       ipssm >= 1.5 ~ "Very High"
     )) |>
     dplyr::left_join(
-      end_date_df |> dplyr::select(patno, rel_term_dat), by = "patno"
+      end_date_df |>
+        dplyr::select(patno, rel_term_dat),
+      by = "patno"
+    ) |>
+    dplyr::left_join(
+      mrd_pos_dates,
+      by = "patno"
     )
 
   # NGS Data filtering
@@ -309,7 +332,7 @@ preprocess_data <- function(
   # - cGVHD moderate (only if the cGVHD moderate event falls inside an
   #   overlapping immune suppression interval)
 
-  # Acute GVHD grade III-IV
+  # Acute GVHD grade 3-4
   agvhd_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Acute GVHD") |>
     dplyr::mutate(
@@ -322,7 +345,7 @@ preprocess_data <- function(
     ) |>
     dplyr::select(patno, rel_gvhd_dat) |>
     dplyr::mutate(event_type = "aGVHD 3-4")
-  
+
   # Chronic GVHD severe
   cgvhd_severe_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Chronic GVHD") |>

@@ -45,6 +45,7 @@ nmds_figures_main <- function(
   strata_filename = NULL,
   strata_colname = NULL,
   strata_itemname = NULL,
+  survival_baseline = NULL, # Pick one from "transplant", "rel_pos_mrd_dat_0.1", "rel_pos_mrd_dat_0.5", "rel_pos_mrd_dat_1.0"
   output_folder,
   plot_type = c(
     "swimmerplot",
@@ -232,7 +233,8 @@ nmds_figures_main <- function(
       output_format = output_format,
       strata_filename = strata_filename,
       strata_colname = strata_colname,
-      strata_itemname = strata_itemname
+      strata_itemname = strata_itemname,
+      survival_baseline = survival_baseline
     )
 
     if (output_format == "svg") {
