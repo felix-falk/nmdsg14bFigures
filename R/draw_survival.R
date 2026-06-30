@@ -37,14 +37,14 @@ draw_survival <- function(
   survival_data <- processed$general_info
 
   # Fit survival model
-  form <- stats::as.formula(
-    sprintf("survival::Surv(event_time, event_status) ~ `%s`", strata_name)
-  )
-  print(form)
-  fit <- survival::survfit(
-    form,
-    data = survival_data
-  )
+  fit <- eval(bquote(
+    survival::survfit(
+      .(stats::as.formula(
+        sprintf("Surv(event_time, event_status) ~ `%s`", strata_name)
+      )),
+      data = processed$general_info
+    )
+  ))
 
   # Draw figure
 
