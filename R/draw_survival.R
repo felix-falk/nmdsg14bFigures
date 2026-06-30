@@ -55,12 +55,16 @@ draw_survival <- function(
   # Check that the strata column exists
   strata_name %in% names(processed$general_info)
   processed$general_info[[strata_name]]
+  print(names(processed$general_info))
+  print(strata_name)
 
   # Fit survival model
+  form <- reformulate(
+    termlabels = strata_name,
+    response = "survival::Surv(event_time, event_status)"
+  )
   fit <- survival::survfit(
-    stats::as.formula(
-      paste("survival::Surv(event_time, event_status) ~", strata_name)
-    ),
+    form,
     data = processed$general_info
   )
 
