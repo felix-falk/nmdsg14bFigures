@@ -59,10 +59,10 @@ draw_survival <- function(
   print(strata_name)
 
   # Fit survival model
-  form <- reformulate(
-    termlabels = strata_name,
-    response = "survival::Surv(event_time, event_status)"
+  form <- stats::as.formula(
+    sprintf("survival::Surv(event_time, event_status) ~ `%s`", strata_name)
   )
+  print(form)
   fit <- survival::survfit(
     form,
     data = processed$general_info
