@@ -3,7 +3,9 @@ draw_survival <- function(
   patient_subset = NULL,
   output_folder,
   output_format,
-  strata = NULL,
+  strata_filename,
+  strata_colname = NULL,
+  strata_itemname = NULL,
   survival_filename
 ) {
 
@@ -39,14 +41,31 @@ draw_survival <- function(
 
   }
 
+  # Get correct strata column name
+
+  if (is.null(strata_colname) && is.null(strata_itemname)) {
+
+    strata_name <- strata_filename
+
+  } else if (!is.null(strata_colname) && is.null(strata_itemname)) {
+
+    strata_name <- strata_colname
+
+  } else {
+
+    strata_name <- strata_itemname
+
+  }
+
+
   # Check that the strata column exists
-  strata %in% names(processed$general_info)
-  processed$general_info[[strata]]
+  strata_name %in% names(processed$general_info)
+  processed$general_info[[strata_name]]
 
   # Fit survival model
   fit <- survival::survfit(
     stats::as.formula(
-      paste("survival::Surv(event_time, event_status) ~", strata)
+      paste("survival::Surv(event_time, event_status) ~", strata_name)
     ),
     data = processed$general_info
   )
