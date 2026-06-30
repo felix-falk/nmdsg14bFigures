@@ -73,14 +73,16 @@ nmds_figures_main(
   general_info_file = "general_info.xlsx",
   mrd_file = "mrd.xlsx",
   ngs_file = "ngs.xlsx",
+  immune_file = "immune.xlsx",
+  immune_filter_file = "immune_suppression_filter.csv",
   output_folder = "~/nmdsg14bFigures_output",
   plot_type = "survival", 
   output_format = "svg",
-  strata = c(
-    strata_filename = "ngs",
-    strata_colname = "Gen",
-    strata_itemname = "TP53"
-  )
+  strata_filename = "ngs",
+  strata_colname = "Gen",
+  strata_itemname = "TP53",
+  survival_baseline = "transplant",
+  survival_metric = "rfs"
 )
 ```
 
