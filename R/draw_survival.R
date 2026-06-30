@@ -61,7 +61,7 @@ draw_survival <- function(
   if (output_format == "svg") {
     ggplot2::ggsave(
       filename = "survival.svg",
-      plot = survplot$plot,
+      plot = survplot,
       device = "svg",
       width = 8,
       height = 8,
@@ -72,7 +72,7 @@ draw_survival <- function(
   } else {
     ggplot2::ggsave(
       filename = "survival.pdf",
-      plot = survplot$plot,
+      plot = survplot,
       device = "svg",
       width = 8,
       height = 8,
