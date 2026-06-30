@@ -235,9 +235,7 @@ nmds_figures_main <- function(
       patient_subset = selected_patients,
       output_folder = output_folder,
       output_format = output_format,
-      strata_filename = strata_filename,
-      strata_colname = strata_colname,
-      strata_itemname = strata_itemname
+      strata = strata_filename
     )
 
     if (output_format == "svg") {
