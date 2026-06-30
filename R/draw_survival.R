@@ -53,7 +53,7 @@ draw_survival <- function(
     palette = "nejm",
     xlab = "Days after transplantation",
     risk.table = TRUE,
-    risk.table.col = "strata"
+    risk.table.col = strata_name
   )
 
   # Save figure to svg or pdf
