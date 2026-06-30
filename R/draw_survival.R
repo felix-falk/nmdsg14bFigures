@@ -42,21 +42,15 @@ draw_survival <- function(
   }
 
   # Get correct strata column name
-
+  strata_name <- NULL
   if (is.null(strata_colname) && is.null(strata_itemname)) {
-
     strata_name <- strata_filename
-
-  } else if (!is.null(strata_colname) && is.null(strata_itemname)) {
-
+  } else if (is.null(strata_itemname)) {
     strata_name <- strata_colname
-
   } else {
-
     strata_name <- strata_itemname
-
   }
-
+  stopifnot(!is.null(strata_name))
 
   # Check that the strata column exists
   strata_name %in% names(processed$general_info)
