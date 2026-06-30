@@ -59,26 +59,12 @@ draw_survival <- function(
   # Save figure to svg or pdf
 
   if (output_format == "svg") {
-    ggplot2::ggsave(
-      filename = "survival.svg",
-      plot = survplot,
-      device = "svg",
-      width = 8,
-      height = 8,
-      units = "in",
-      dpi = 300,
-      bg = "white"
-    )
+    svg("survival.svg", width = 8, height = 8)
+    print(survplot)
+    dev.off()
   } else {
-    ggplot2::ggsave(
-      filename = "survival.pdf",
-      plot = survplot,
-      device = "svg",
-      width = 8,
-      height = 8,
-      units = "in",
-      dpi = 300,
-      bg = "white"
-    )
+    pdf("survival.pdf", width = 8, height = 8)
+    print(survplot)
+    dev.off()
   }
 }
