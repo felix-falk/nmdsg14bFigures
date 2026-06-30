@@ -178,7 +178,10 @@ x_range_finder <- function(general_info_data){
 #' Stops the function and raises a message if columns are missing, else passes.
 #' @examples
 #' column_check(dli_raw, c("patno", "dlidat"))
-column_check <- function(df, required_columns) {
+column_check <- function(
+  df = NULL,
+  required_columns = NULL
+) {
   missing_cols <- setdiff(required_columns, names(df))
 
   if (length(missing_cols) > 0) {
@@ -192,4 +195,217 @@ column_check <- function(df, required_columns) {
   }
 
   invisible(TRUE)
+}
+
+#' Creates treatment data frame based on dli and aza data frames.
+#' @param aza_raw Data frame containing patno,
+#' azacitstart and transpldt columns.
+#' @param dli_raw Data frame containing patno, dlidat and transpldt columns.
+#' @param end_date_df Data frame containing patno, transpldt
+#' and rel_term_dat columns.
+#' @returns Data frame containing azacitidine and dli treatment timepoints.
+#' @examples create_treatment_df(aza_raw, dli_raw, end_date_df)
+create_treatment_df <- function(
+  aza_raw = NULL,
+  dli_raw = NULL,
+  end_date_df = NULL
+) {
+  # Calculate relative aza dates, remove dli after rel_term_dat
+  aza <- aza_raw |>
+    dplyr::left_join(end_date_df, by = "patno") |>
+    dplyr::mutate(
+      rel_aza_dat = as.numeric(difftime(
+        as.Date(azacitstart),
+        as.Date(transpldt),
+        units = "days"
+      ))
+    ) |>
+    dplyr::filter(rel_aza_dat <= rel_term_dat)
+
+  # Calculate relative dli dates, remove dli after rel_term_dat
+  dli <- dli_raw |>
+    dplyr::left_join(end_date_df, by = "patno") |>
+    dplyr::mutate(
+      rel_dli_dat = as.numeric(difftime(
+        as.Date(dlidat),
+        as.Date(transpldt),
+        units = "days"
+      ))
+    ) |>
+    dplyr::filter(rel_dli_dat <= rel_term_dat)
+
+  # Merge dli and aza data frames
+  treatment <- dplyr::bind_rows(
+    dli |>
+      dplyr::select(patno, rel_treatment_dat = rel_dli_dat) |>
+      dplyr::mutate(treatment = "DLI"),
+    aza |>
+      dplyr::select(patno, rel_treatment_dat = rel_aza_dat) |>
+      dplyr::mutate(treatment = "Azacitidine")
+  )
+
+  return(treatment)
+
+}
+
+#' Creates a gvhd data frame based on gvhd_raw and end_date_df, that contains
+#' gvhd events occuring at and in between regular checkups.
+#' @param gvhd_raw Data frame containing patno, agvhdstage, gvhddate,
+#' agvhdmaxstage, agvhdmaxdt, cgvhdstage, cgvhdmaxstage, cgvhdmaxdt columns.
+#' @ param end_date_df Data frame containing patno, transpldt
+#' and rel_term dat columns.
+#' @returns Data frame containing patno, gvhd, rel_gvhd_dat,
+#' agvhdstage, cgvhdstage columns.
+#' @example create_gvhd_df(gvhd_raw, end_date_df)
+create_gvhd_df <- function(
+  gvhd_raw = NULL,
+  end_date_df = NULL
+) {
+  # Calculate agvhd_raw_merged and cgvhd_raw_merged
+  agvhd_raw_merged <- dplyr::bind_rows(
+    gvhd_raw |>
+      dplyr::select(patno, agvhdstage, gvhddate),
+    gvhd_raw |>
+      dplyr::select(patno, agvhdstage = agvhdmaxstage, gvhddate = agvhdmaxdt)
+  ) |>
+    dplyr::filter(!is.na(agvhdstage), !is.na(gvhddate)) |>
+    dplyr::distinct() |>
+    dplyr::mutate(gvhd = "Acute GVHD")
+
+  cgvhd_raw_merged <- dplyr::bind_rows(
+    gvhd_raw |>
+      dplyr::select(patno, cgvhdstage, gvhddate),
+    gvhd_raw |>
+      dplyr::select(patno, cgvhdstage = cgvhdmaxstage, gvhddate = cgvhdmaxdt)
+  ) |>
+    dplyr::filter(!is.na(cgvhdstage), !is.na(gvhddate)) |>
+    dplyr::distinct() |>
+    dplyr::mutate(gvhd = "Chronic GVHD")
+
+  # Calculate gvhd_raw_merged
+  gvhd_processed <- dplyr::bind_rows(cgvhd_raw_merged, agvhd_raw_merged) |>
+    dplyr::left_join(end_date_df, by = "patno") |>
+    dplyr::mutate(rel_gvhd_dat = as.numeric(difftime(
+      as.Date(gvhddate), 
+      as.Date(transpldt), units = "days"
+    ))) |>
+    dplyr::filter(rel_gvhd_dat <= rel_term_dat) |>
+    dplyr::mutate(cgvhdstage = dplyr::if_else(
+      cgvhdstage %in% c("N/A", "N/K", ".", "N/D"),
+      NA,
+      cgvhdstage
+    ))
+
+  return(gvhd_processed)
+}
+
+#' Creates ngs data frame based on ngs_raw.
+#' @param
+create_ngs_df <- function(ngs_raw){
+  # NGS Data filtering
+  gene_lists <-
+    ngs_raw |>
+    dplyr::filter(!is.na(Studienummer)) |>
+    dplyr::summarise(
+      mutlist = paste(unique(Gen), collapse = ", "),
+      .by = Studienummer
+    )
+
+  ngs <-
+    ngs_raw |>
+    dplyr::left_join(gene_lists, by = "Studienummer") |>
+    dplyr::mutate(
+      mutname = paste0(Gen, "_", "cDNA förändring"),
+      patno = as.double(Studienummer)
+    ) |>
+    dplyr::select(-Studienummer)
+
+  return(ngs)
+}
+
+#' Creates a gvhd data frame based on general_info_raw and mrd_raw,
+#' that contains patno, transpldt and rel_term_dat
+#' @param general_info_raw Data frame containing patno,
+#' termindat and transpldt columns.
+#' @ param mrd_raw Data frame containing patno and MRDdat columns.
+#' @returns Data frame containing patno, transpldt
+#' and rel_term dat columns.
+#' @example create_end_date_df(general_info_raw, mrd_raw)
+create_end_date_df <- function(
+  general_info_raw = NULL,
+  mrd_raw = NULL
+) {
+  # Create end_date_df based on general_info_raw and mrd_raw
+  end_date_df <- general_info_raw |>
+    dplyr::select(patno, termindat, transpldt) |>
+    dplyr::left_join(
+      mrd_raw |>
+        dplyr::group_by(patno) |>
+        dplyr::summarise(MRDdat = max(MRDdat, na.rm = TRUE), .groups = "drop"),
+      by = "patno"
+    ) |>
+    dplyr::mutate(
+      end_date = dplyr::coalesce(termindat, MRDdat),
+      rel_term_dat = as.numeric(
+        difftime(as.Date(end_date), as.Date(transpldt), units = "days")
+      )
+    ) |>
+    dplyr::transmute(patno, transpldt, rel_term_dat)
+
+  return(end_date_df)
+}
+
+
+
+
+#' Adds strata for survival analysis to the general_info data frame.
+#' @param general_info Data frame with patno column.
+#' @strata_filename Name of data frame with strata of interest.
+#' @strata_colname Name of column with strata of interest.
+#' @strata_itemname Name of item with strata of interest.
+#' @returns general_info data frame with an additional strata column.
+#' @example add_strata(general_info, strata_filename = "ngs",
+#' strata_colname = "Gen", strata_itemname = "TP53")
+add_strata <- function(
+  general_info,
+  strata_filename = NULL,
+  strata_colname = NULL,
+  strata_itemname = NULL
+) {
+
+  if (is.null(strata_filename)) {
+    return(general_info)
+  }
+
+  # Get the data frame by name
+  strata_df <- get(strata_filename)
+
+  if (is.null(strata_colname) && is.null(strata_itemname)) {
+    # Strata is whether the patient appears in the file
+
+    strata_patnos <- unique(strata_df$patno)
+
+    general_info[[strata_filename]] <-
+      general_info$patno %in% strata_patnos
+
+  } else if (!is.null(strata_colname) && is.null(strata_itemname)) {
+    # Strata is the value of a column
+
+    general_info[[strata_colname]] <-
+      strata_df[[strata_colname]][
+        match(general_info$patno, strata_df$patno)
+      ]
+
+  } else if (!is.null(strata_colname) && !is.null(strata_itemname)) {
+    # Strata is whether the patient has a specific item in the column
+
+    strata_patnos <- unique(
+      strata_df$patno[strata_df[[strata_colname]] == strata_itemname]
+    )
+
+    general_info[[strata_itemname]] <-
+      general_info$patno %in% strata_patnos
+  }
+
+  return(general_info)
 }

@@ -30,16 +30,17 @@ preprocess_data <- function(
   ngs_file,
   immune_filter_file,
   chimerism_file,
-  strata = list(
-    strata_filename = list(
-      "general_info",
-      "aza",
-      "dli",
-      "ngs"
-    ),
-    strata_colname = NULL,
-    strata_itemname = NULL
-  )
+  strata_filename = list(
+    "general_info",
+    "aza",
+    "dli",
+    "ngs",
+    "chimerism",
+    "mrd",
+    "immune"
+  ),
+  strata_colname = NULL,
+  strata_itemname = NULL
 ) {
 
   # Only general_info_file and mrd_file are strictly required.
@@ -174,90 +175,13 @@ preprocess_data <- function(
   # --- FILTERING ---
 
   # Create end_date_df based on general_info_raw and mrd_raw
-  end_date_df <- general_info_raw |>
-    dplyr::select(patno, termindat, transpldt) |>
-    dplyr::left_join(
-      mrd_raw |>
-        dplyr::group_by(patno) |>
-        dplyr::summarise(MRDdat = max(MRDdat, na.rm = TRUE), .groups = "drop"),
-      by = "patno"
-    ) |>
-    dplyr::mutate(
-      end_date = dplyr::coalesce(termindat, MRDdat),
-      rel_term_dat = as.numeric(
-        difftime(as.Date(end_date), as.Date(transpldt), units = "days")
-      )
-    ) |>
-    dplyr::transmute(patno, transpldt, rel_term_dat)
+  end_date_df <- create_end_date_df(general_info_raw, mrd_raw)
 
-  # Calculate relative aza dates, remove dli after rel_term_dat
-  aza <- aza_raw |>
-    dplyr::left_join(end_date_df, by = "patno") |>
-    dplyr::mutate(
-      rel_aza_dat = as.numeric(difftime(
-        as.Date(azacitstart),
-        as.Date(transpldt),
-        units = "days"
-      ))
-    ) |>
-    dplyr::filter(rel_aza_dat <= rel_term_dat)
+  # Create treatment data frame based on aza_raw, dli_raw and end_date_df
+  treatment <- create_treatment_df(aza_raw, dli_raw, end_date_df)
 
-  # Calculate relative dli dates, remove dli after rel_term_dat
-  dli <- dli_raw |>
-    dplyr::left_join(end_date_df, by = "patno") |>
-    dplyr::mutate(
-      rel_dli_dat = as.numeric(difftime(
-        as.Date(dlidat),
-        as.Date(transpldt),
-        units = "days"
-      ))
-    ) |>
-    dplyr::filter(rel_dli_dat <= rel_term_dat)
-
-  # Merge dli and aza data frames
-  treatment <- dplyr::bind_rows(
-    dli |>
-      dplyr::select(patno, rel_treatment_dat = rel_dli_dat) |>
-      dplyr::mutate(treatment = "DLI"),
-    aza |>
-      dplyr::select(patno, rel_treatment_dat = rel_aza_dat) |>
-      dplyr::mutate(treatment = "Azacitidine")
-  )
-
-  # Calculate agvhd_raw_merged and cgvhd_raw_merged
-  agvhd_raw_merged <- dplyr::bind_rows(
-    gvhd_raw |>
-      dplyr::select(patno, agvhdstage, gvhddate),
-    gvhd_raw |>
-      dplyr::select(patno, agvhdstage = agvhdmaxstage, gvhddate = agvhdmaxdt)
-  ) |>
-    dplyr::filter(!is.na(agvhdstage), !is.na(gvhddate)) |>
-    dplyr::distinct() |>
-    dplyr::mutate(gvhd = "Acute GVHD")
-
-  cgvhd_raw_merged <- dplyr::bind_rows(
-    gvhd_raw |>
-      dplyr::select(patno, cgvhdstage, gvhddate),
-    gvhd_raw |>
-      dplyr::select(patno, cgvhdstage = cgvhdmaxstage, gvhddate = cgvhdmaxdt)
-  ) |>
-    dplyr::filter(!is.na(cgvhdstage), !is.na(gvhddate)) |>
-    dplyr::distinct() |>
-    dplyr::mutate(gvhd = "Chronic GVHD")
-
-  # Calculate gvhd_raw_merged
-  gvhd_processed <- dplyr::bind_rows(cgvhd_raw_merged, agvhd_raw_merged) |>
-    dplyr::left_join(end_date_df, by = "patno") |>
-    dplyr::mutate(rel_gvhd_dat = as.numeric(difftime(
-      as.Date(gvhddate), 
-      as.Date(transpldt), units = "days"
-    ))) |>
-    dplyr::filter(rel_gvhd_dat <= rel_term_dat) |>
-    dplyr::mutate(cgvhdstage = dplyr::if_else(
-      cgvhdstage %in% c("N/A", "N/K", ".", "N/D"),
-      NA,
-      cgvhdstage
-    ))
+  # Create processed gvhd data frame based on ghvd_raw and end_date_df
+  gvhd_processed <- create_gvhd_df(gvhd_raw, end_date_df)
 
   # Add mrd_category column to mrd_raw, calculate rel_mrd_dat
   mrd_all <- mrd_raw |>
@@ -287,8 +211,8 @@ preprocess_data <- function(
     dplyr::filter(level >= 10) |>
     dplyr::pull(patno)
 
-  # Change name of mutname column in p2_mrd from mutname to Mutation
-  mrd_all <- mrd_all |> dplyr::rename(Mutation = mutname)
+  # Change name of mutname column in mrd_all from mutname to Mutation
+  mrd <- mrd_all |> dplyr::rename(Mutation = mutname)
 
   immune <- immune_raw |>
     dplyr::left_join(end_date_df, by = "patno") |>
@@ -350,7 +274,7 @@ preprocess_data <- function(
       .by = Studienummer
     )
 
-  ngs_processed <-
+  ngs <-
     ngs_raw |>
     dplyr::left_join(gene_lists, by = "Studienummer") |>
     dplyr::mutate(
@@ -367,7 +291,7 @@ preprocess_data <- function(
     dplyr::mutate(
       running_max_end = cummax(interval_end),
       new_group = interval_start > dplyr::lag(
-        running_max_end, 
+        running_max_end,
         default = dplyr::first(interval_end)
       ),
       overlap_group = cumsum(new_group) + 1
@@ -393,17 +317,17 @@ preprocess_data <- function(
       stage_num = suppressWarnings(as.numeric(stage_norm))
     ) |>
     dplyr::filter(
-      stage_norm %in% c("III", "IV") |
+      stage_norm %in% c(3, 4) |
         (!is.na(stage_num) & stage_num >= 3)
     ) |>
     dplyr::select(patno, rel_gvhd_dat) |>
-    dplyr::mutate(event_type = "aGVHD III-IV")
-
+    dplyr::mutate(event_type = "aGVHD 3-4")
+  
   # Chronic GVHD severe
   cgvhd_severe_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Chronic GVHD") |>
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
-    dplyr::filter(grepl("severe", stage_norm)) |>
+    dplyr::filter(grepl("Severe", stage_norm)) |>
     dplyr::select(patno, rel_gvhd_dat) |>
     dplyr::mutate(event_type = "cGVHD severe")
 
@@ -411,11 +335,11 @@ preprocess_data <- function(
   cgvhd_moderate_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Chronic GVHD") |>
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
-    dplyr::filter(grepl("moderate", stage_norm)) |>
+    dplyr::filter(grepl("Moderate", stage_norm)) |>
     dplyr::left_join(overlapping_interval_df, by = "patno") |>
     dplyr::filter(!is.na(interval_start) & rel_gvhd_dat >= interval_start & rel_gvhd_dat <= interval_end) |>
     dplyr::select(patno, rel_gvhd_dat) |>
-    dplyr::mutate(event_type = "cGVHD moderate (overlaps immune)")
+    dplyr::mutate(event_type = "cGVHD Moderate (overlaps immune)")
 
   # Combine and pick earliest event per patient
   gvhd_events <- dplyr::bind_rows(
@@ -491,52 +415,24 @@ preprocess_data <- function(
 
   # Add dli, aza or ngs strata column to general_info (optional)
 
-  if (!is.null(strata)) {
+  # Add optional strata column to general_info
+  general_info <- add_strata(
+    general_info,
+    strata_filename,
+    strata_colname,
+    strata_itemname
+  )
 
-    strata_filename <- strata$strata_filename
-    strata_colname  <- strata$strata_colname
-    strata_itemname <- strata$strata_itemname
-
-    if (strata_filename == "aza") {
-
-      # Find patno values with the desired item
-      matching_patno <- aza$patno
-
-      # Create a new column named after the item
-      general_info[["Azacitidine"]] <- general_info$patno %in% matching_patno
-
-    } else if (strata_filename == "dli") {
-
-      # Find patno values with the desired item
-      matching_patno <- dli$patno
-
-      # Create a new column named after the item
-      general_info[["Donor lymphocyte infusion"]] <- general_info$patno %in% matching_patno
-
-    } else if (strata_filename == "ngs") {
-
-      # Select patients where the specified column contains the specified item
-      matching_patno <- ngs_processed$patno[
-        ngs_processed[[strata_colname]] == strata_itemname
-      ]
-
-      # Create a column named after the item
-      general_info[[strata_itemname]] <- ifelse(
-        general_info$patno %in% matching_patno,
-        "MT",
-        "WT"
-      )
-    }
-  }
+  print(general_info)
 
   return(
     list(
       general_info = general_info,
       treatment = treatment,
-      mrd = mrd_all,
+      mrd = mrd,
       gvhd = gvhd_processed,
       gvhd_events = gvhd_events,
-      ngs = ngs_processed,
+      ngs = ngs,
       immune_events = immune,
       immune_intervals = overlapping_interval_df,
       chimerism = chimerism

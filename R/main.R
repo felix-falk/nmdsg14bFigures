@@ -42,16 +42,14 @@ nmds_figures_main <- function(
   ngs_file = NULL,
   chimerism_file = NULL,
   immune_filter_file = NULL,
-  strata = list(
-    strata_filename = list(
-      "general_info",
-      "aza",
-      "dli",
-      "ngs"
-    ),
-    strata_colname = NULL,
-    strata_itemname = NULL
+  strata_filename = list(
+    "general_info",
+    "aza",
+    "dli",
+    "ngs"
   ),
+  strata_colname = NULL,
+  strata_itemname = NULL,
   output_folder,
   plot_type = c(
     "swimmerplot",
@@ -123,7 +121,9 @@ nmds_figures_main <- function(
     ngs_file = ngs_file,
     immune_filter_file = immune_filter_file,
     chimerism_file = chimerism_file,
-    strata = strata
+    strata_filename = strata_filename,
+    strata_colname = strata_colname,
+    strata_itemname = strata_itemname
   )
 
   # ----------------------------------------------------------
@@ -235,7 +235,9 @@ nmds_figures_main <- function(
       patient_subset = selected_patients,
       output_folder = output_folder,
       output_format = output_format,
-      strata = strata
+      strata_filename = strata_filename,
+      strata_colname = strata_colname,
+      strata_itemname = strata_itemname
     )
 
     if (output_format == "svg") {
