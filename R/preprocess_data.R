@@ -289,23 +289,9 @@ preprocess_data <- function(
     )
 
   # NGS Data filtering
-  gene_lists <-
-    ngs_raw |>
-    dplyr::filter(!is.na(Studienummer)) |>
-    dplyr::summarise(
-      mutlist = paste(unique(Gen), collapse = ", "),
-      .by = Studienummer
-    )
+  ngs <- create_ngs_df(ngs_raw)
 
-  ngs <-
-    ngs_raw |>
-    dplyr::left_join(gene_lists, by = "Studienummer") |>
-    dplyr::mutate(
-      mutname = paste0(Gen, "_", "cDNA förändring"),
-      patno = as.double(Studienummer)
-    ) |>
-    dplyr::select(-Studienummer)
-
+  # Create immune intervals data frame
   interval_df <- interval_finder(immune)
 
   overlapping_interval_df <- interval_df |>
@@ -360,7 +346,11 @@ preprocess_data <- function(
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
     dplyr::filter(grepl("Moderate", stage_norm)) |>
     dplyr::left_join(overlapping_interval_df, by = "patno") |>
-    dplyr::filter(!is.na(interval_start) & rel_gvhd_dat >= interval_start & rel_gvhd_dat <= interval_end) |>
+    dplyr::filter(
+      !is.na(interval_start) &
+        rel_gvhd_dat >= interval_start &
+        rel_gvhd_dat <= interval_end
+    ) |>
     dplyr::select(patno, rel_gvhd_dat) |>
     dplyr::mutate(event_type = "cGVHD Moderate (overlaps immune)")
 
@@ -380,6 +370,8 @@ preprocess_data <- function(
   # censoring/termination time (`rel_term_dat`), register that as the
   # event (time and status = 1). Otherwise fall back to the previous
   # rules based on `outcome` (death/relapse/other).
+
+  # Also, add OS and RFS events.
   general_info <- general_info |>
     dplyr::left_join(
       gvhd_events |>
@@ -391,8 +383,11 @@ preprocess_data <- function(
       by = "patno"
     ) |>
     dplyr::mutate(
+
+      # Composite GVHD endpoint
       event_time = dplyr::case_when(
-        !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
+        !is.na(gvhd_event_time) &
+          gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
         eosreason %in% c(
           "Death",
           "Full hematological relapse",
@@ -400,10 +395,12 @@ preprocess_data <- function(
           "Consent withdrawal",
           "2 years post HCT"
         ) ~ rel_term_dat,
-        is.na(eosreason) ~ NA
+        TRUE ~ NA_real_
       ),
+
       event_status = dplyr::case_when(
-        !is.na(gvhd_event_time) & gvhd_event_time <= rel_term_dat ~ 1,
+        !is.na(gvhd_event_time) &
+          gvhd_event_time <= rel_term_dat ~ 1,
         eosreason %in% c(
           "Death",
           "Full hematological relapse"
@@ -413,28 +410,41 @@ preprocess_data <- function(
           "Consent withdrawal",
           "2 years post HCT"
         ) ~ 0,
-        is.na(eosreason) ~ NA
+        TRUE ~ NA_real_
+      ),
+
+      # Overall survival (death only)
+      os_time = rel_term_dat,
+      os_status = dplyr::case_when(
+        eosreason == "Death" ~ 1,
+        eosreason %in% c(
+          "Full hematological relapse",
+          "Other reason",
+          "Consent withdrawal",
+          "2 years post HCT"
+        ) ~ 0,
+        TRUE ~ NA_real_
+      ),
+
+      # Relapse-free survival (relapse or death)
+      rfs_time = rel_term_dat,
+      rfs_status = dplyr::case_when(
+        eosreason %in% c(
+          "Death",
+          "Full hematological relapse"
+        ) ~ 1,
+        eosreason %in% c(
+          "Other reason",
+          "Consent withdrawal",
+          "2 years post HCT"
+        ) ~ 0,
+        TRUE ~ NA_real_
       )
     )
 
-  # Transpose chimerism data, calculate relative chimerism dates, keep only CD33, CD34
-  chimerism <- chimerism_raw |>
-    tidyr::pivot_longer(
-      dplyr::starts_with("CD"),
-      names_to = "surface_marker",
-      values_to = "chimerism"
-    ) |>
-    dplyr::filter(!is.na(chimerism)) |>
-    dplyr::left_join(end_date_df, by = "patno") |>
-    dplyr::mutate(
-      rel_chimerism_dat = as.numeric(difftime(
-        as.Date(chimbmdt),
-        as.Date(transpldt),
-        units = "days"
-      ))
-    ) |>
-    dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
-    dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
+  # Transpose chimerism data, calculate relative chimerism dates
+  # keep only CD33, CD34.
+  chimerism <- create_chimerism_df(chimerism_raw, end_date_df)
 
   # Add dli, aza or ngs strata column to general_info (optional)
 

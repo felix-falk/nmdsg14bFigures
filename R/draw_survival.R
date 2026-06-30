@@ -12,6 +12,11 @@ draw_survival <- function(
     "rel_pos_mrd_dat_0.5",
     "rel_pos_mrd_dat_1.0"
   ), # Set the baseline timepoint for survival analysis
+  survival_metric = c(
+    "os",
+    "rfs",
+    "efs"
+  ), # Set metric for survival analysis
   survival_filename
 ) {
 
@@ -22,6 +27,17 @@ draw_survival <- function(
       dplyr::filter(patno %in% patient_subset)
 
   }
+
+  # Survival metric mapping
+  survival_metric <- match.arg(survival_metric)
+  survival_data <- processed$general_info
+  metric_map <- list(
+    os  = list(time = "os_time",  status = "os_status"),
+    rfs = list(time = "rfs_time", status = "rfs_status"),
+    efs = list(time = "event_time", status = "event_status")
+  )
+  time_col <- metric_map[[survival_metric]]$time
+  status_col <- metric_map[[survival_metric]]$status
 
   # Get correct strata column name
   strata_name <- NULL
@@ -42,22 +58,26 @@ draw_survival <- function(
 
   # Re-calculate event time relative to first positive MRD
   if (survival_baseline != "transplant") {
-
     survival_data <- survival_data |>
       dplyr::filter(!is.na(.data[[survival_baseline]])) |>
       dplyr::mutate(
-        event_time = event_time - .data[[survival_baseline]]
+        "{time_col}" := .data[[time_col]] - .data[[survival_baseline]]
       ) |>
-      dplyr::filter(event_time >= 0)
+      dplyr::filter(.data[[time_col]] >= 0)
   }
 
   # Fit survival model
   form <- stats::as.formula(
-    sprintf("Surv(event_time, event_status) ~ `%s`", strata_name)
+    sprintf("Surv(%s, %s) ~ `%s`", time_col, status_col, strata_name)
   )
   fit <- survival::survfit(form, data = survival_data)
-  # Prevent survminer bug
-  fit$call$formula <- form
+  fit$call$formula <- form # Solves ggsurvplot bug
+
+  # Write x-axis label
+  xlab_text <- paste(
+    "Days after",
+    if (survival_baseline == "transplant") "transplantation" else survival_baseline
+  )
 
   # Draw figure (event-free survival)
 
@@ -67,11 +87,7 @@ draw_survival <- function(
     pval = TRUE,
     conf.int = TRUE,
     palette = "nejm",
-    xlab = if (survival_baseline == "transplant") {
-      "Days after transplantation"
-    } else {
-      sprintf("Days after %s positivity", survival_baseline)
-    },
+    xlab = xlab_text,
     risk.table = TRUE,
     risk.table.col = strata_name
   )

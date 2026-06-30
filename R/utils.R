@@ -355,9 +355,6 @@ create_end_date_df <- function(
   return(end_date_df)
 }
 
-
-
-
 #' Adds strata for survival analysis to the general_info data frame.
 #' @param general_info Data frame with patno column.
 #' @strata_filename Name of data frame with strata of interest.
@@ -423,4 +420,39 @@ add_strata <- function(
   }
 
   return(general_info)
+}
+
+#' Creates a chimerism data frame based on chimerism_raw and end_date_df,
+#' that contains patno, chimerism, rel_chimerism_dat and surface_marker columns.
+#' @param chimerism_raw Data frame containing patno, chimerism, chimbmdt and
+#' columns starting with CD that contain chimerims values
+#' for each surface marker.
+#' @ param end_date_df Data frame containing patno, transpldt and
+#' rel_term_dat columns.
+#' @returns Data frame containing patno, surface_marker, chimerism, and
+#' rel_chimerism_dat columns.
+#' @example create_chimerism_df(chimerism_raw, end_date_df)
+create_chimerism_df <- function(
+  chimerism_raw,
+  end_date_df
+) {
+  chimerism <- chimerism_raw |>
+    tidyr::pivot_longer(
+      dplyr::starts_with("CD"),
+      names_to = "surface_marker",
+      values_to = "chimerism"
+    ) |>
+    dplyr::filter(!is.na(chimerism)) |>
+    dplyr::left_join(end_date_df, by = "patno") |>
+    dplyr::mutate(
+      rel_chimerism_dat = as.numeric(difftime(
+        as.Date(chimbmdt),
+        as.Date(transpldt),
+        units = "days"
+      ))
+    ) |>
+    dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
+    dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
+
+  return(chimerism)
 }
