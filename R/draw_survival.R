@@ -15,30 +15,6 @@ draw_survival <- function(
       processed$general_info |>
       dplyr::filter(patno %in% patient_subset)
 
-    processed$treatment <-
-      processed$treatment |>
-      dplyr::filter(patno %in% patient_subset)
-
-    processed$mrd <-
-      processed$mrd |>
-      dplyr::filter(patno %in% patient_subset)
-
-    processed$gvhd <-
-      processed$gvhd |>
-      dplyr::filter(patno %in% patient_subset)
-
-    processed$immune_intervals <-
-      processed$immune_intervals |>
-      dplyr::filter(patno %in% patient_subset)
-
-    processed$ngs <-
-      processed$ngs |>
-      dplyr::filter(patno %in% patient_subset)
-
-    processed$chimerism <-
-      processed$chimerism |>
-      dplyr::filter(patno %in% patient_subset)
-
   }
 
   # Get correct strata column name
@@ -58,6 +34,8 @@ draw_survival <- function(
   print(names(processed$general_info))
   print(strata_name)
 
+  survival_data <- processed$general_info
+
   # Fit survival model
   form <- stats::as.formula(
     sprintf("survival::Surv(event_time, event_status) ~ `%s`", strata_name)
@@ -65,14 +43,14 @@ draw_survival <- function(
   print(form)
   fit <- survival::survfit(
     form,
-    data = processed$general_info
+    data = survival_data
   )
 
   # Draw figure
 
   survplot <- survminer::ggsurvplot(
     fit,
-    data = processed$general_info,
+    data = survival_data,
     pval = TRUE,
     palette = "nejm",
     xlab = "Days after transplantation",
