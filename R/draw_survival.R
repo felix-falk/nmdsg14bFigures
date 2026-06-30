@@ -44,12 +44,13 @@ draw_survival <- function(
     )
   ))
 
-  # Draw figure
+  # Draw figure (event-free survival)
 
   survplot <- survminer::ggsurvplot(
     fit,
     data = processed$general_info,
     pval = TRUE,
+    conf.int = TRUE,
     palette = "nejm",
     xlab = "Days after transplantation",
     risk.table = TRUE,
@@ -57,7 +58,6 @@ draw_survival <- function(
   )
 
   # Save figure to svg or pdf
-
   if (output_format == "svg") {
     svg("survival.svg", width = 8, height = 8)
     print(survplot)
