@@ -34,8 +34,6 @@ draw_survival <- function(
   print(names(processed$general_info))
   print(strata_name)
 
-  survival_data <- processed$general_info
-
   # Fit survival model
   fit <- eval(bquote(
     survival::survfit(
@@ -50,7 +48,7 @@ draw_survival <- function(
 
   survplot <- survminer::ggsurvplot(
     fit,
-    data = survival_data,
+    data = processed$general_info,
     pval = TRUE,
     palette = "nejm",
     xlab = "Days after transplantation",
