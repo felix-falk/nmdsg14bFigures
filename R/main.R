@@ -42,12 +42,7 @@ nmds_figures_main <- function(
   ngs_file = NULL,
   chimerism_file = NULL,
   immune_filter_file = NULL,
-  strata_filename = list(
-    "general_info",
-    "aza",
-    "dli",
-    "ngs"
-  ),
+  strata_filename = NULL,
   strata_colname = NULL,
   strata_itemname = NULL,
   output_folder,

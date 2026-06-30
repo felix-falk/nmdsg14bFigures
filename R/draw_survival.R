@@ -39,13 +39,16 @@ draw_survival <- function(
 
   }
 
-  # Fit survival model
+  # Check that the strata column exists
+  strata %in% names(processed$general_info)
+  processed$general_info[[strata]]
 
+  # Fit survival model
   fit <- survival::survfit(
-    survival::Surv(
-      event_time,
-      event_status
-    ) ~ strata, data = processed$general_info
+    stats::as.formula(
+      paste("survival::Surv(event_time, event_status) ~", strata)
+    ),
+    data = processed$general_info
   )
 
   # Draw figure

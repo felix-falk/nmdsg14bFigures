@@ -423,7 +423,7 @@ preprocess_data <- function(
     strata_itemname
   )
 
-  print(general_info)
+  print(general_info, width = Inf)
 
   return(
     list(
