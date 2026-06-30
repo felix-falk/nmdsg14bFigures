@@ -380,30 +380,45 @@ add_strata <- function(
   # Get the data frame by name
   strata_df <- get(strata_filename)
 
+  # Determine the name of the new column
+  new_colname <- if (is.null(strata_colname) && is.null(strata_itemname)) {
+    strata_filename
+  } else if (!is.null(strata_colname) && is.null(strata_itemname)) {
+    strata_colname
+  } else {
+    strata_itemname
+  }
+
+  # Do not overwrite an existing column
+  if (new_colname %in% names(general_info)) {
+    message("No new strata column added.")
+    return(general_info)
+  }
+
   if (is.null(strata_colname) && is.null(strata_itemname)) {
     # Strata is whether the patient appears in the file
 
     strata_patnos <- unique(strata_df$patno)
 
-    general_info[[strata_filename]] <-
+    general_info[[new_colname]] <-
       general_info$patno %in% strata_patnos
 
   } else if (!is.null(strata_colname) && is.null(strata_itemname)) {
     # Strata is the value of a column
 
-    general_info[[strata_colname]] <-
+    general_info[[new_colname]] <-
       strata_df[[strata_colname]][
         match(general_info$patno, strata_df$patno)
       ]
 
-  } else if (!is.null(strata_colname) && !is.null(strata_itemname)) {
+  } else {
     # Strata is whether the patient has a specific item in the column
 
     strata_patnos <- unique(
       strata_df$patno[strata_df[[strata_colname]] == strata_itemname]
     )
 
-    general_info[[strata_itemname]] <-
+    general_info[[new_colname]] <-
       general_info$patno %in% strata_patnos
   }
 
