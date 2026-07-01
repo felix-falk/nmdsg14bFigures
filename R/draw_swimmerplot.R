@@ -41,7 +41,7 @@ swimmerplot <- function(
       fill = plot_data$mrd_category
     ),
     color = "black",
-    key_glyph = "rect"
+    show.legend = FALSE
     ) +
 
     # Add MRD legend
@@ -67,8 +67,7 @@ swimmerplot <- function(
       ),
       shape = 22,
       size = 1,
-      color = "black",
-      key_glyph = "point"
+      color = "black"
     ) +
 
     ggnewscale::new_scale_fill() +
@@ -84,7 +83,8 @@ swimmerplot <- function(
         linetype = "Immune suppression"
       ),
       linewidth = 1.5,
-      color = "brown"
+      color = "brown",
+      show.legend = FALSE
     ) +
 
     # Add immune suppression legend
@@ -113,8 +113,7 @@ swimmerplot <- function(
       colour = "Relapse"
     ),
     hjust = -0.2,
-    show.legend = TRUE,
-    key_glyph = "text"
+    show.legend = TRUE
     ) +
 
     # Add nonrelapse mortality annotation
@@ -128,8 +127,7 @@ swimmerplot <- function(
       colour = "Nonrelapse mortality"
     ),
     hjust = -0.2,
-    show.legend = TRUE,
-    key_glyph = "text"
+    show.legend = TRUE
     ) +
 
     # Add Other exclusion reason annotation
@@ -143,8 +141,7 @@ swimmerplot <- function(
       colour = "Other exclusion reason"
     ),
     hjust = -0.2,
-    show.legend = TRUE,
-    key_glyph = "text"
+    show.legend = TRUE
     ) +
 
     ggplot2::scale_colour_manual(
@@ -180,7 +177,7 @@ swimmerplot <- function(
       ),
       color = "black",
       shape = 24,
-      key_glyph = "point"
+      show.legend = FALSE
     ) +
 
     # Add treatment legend
@@ -208,7 +205,7 @@ swimmerplot <- function(
       ),
       color = "black",
       shape = 23,
-      key_glyph = "point"
+      show.legend = FALSE
     ) +
 
     # Add acute GVHD legend
@@ -236,9 +233,10 @@ swimmerplot <- function(
       ),
       color = "black",
       shape = 23,
-      key_glyph = "point"
+      show.legend = FALSE
     ) +
 
+    # Add chronic GVHD legend
     ggplot2::scale_fill_manual(
       name = "Chronic GVHD",
       values = c(
