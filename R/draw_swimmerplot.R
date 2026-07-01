@@ -187,7 +187,8 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "R"
+      label = "R",
+      group = "Relapse"
     ),
     hjust = -0.2,
     show.legend = TRUE
@@ -200,7 +201,8 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "†"
+      label = "†",
+      group = "Nonrelapse mortality"
     ),
     hjust = -0.2,
     show.legend = TRUE
@@ -213,25 +215,16 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "*"
+      label = "*",
+      group = "Other exclusion reason"
     ),
     hjust = -0.2,
     show.legend = TRUE
     ) +
 
-    ggplot2::scale_colour_manual(
-      name = "Outcome",
-      values = c(
-        "Relapse" = "black",
-        "Nonrelapse mortality" = "black",
-        "Other exclusion reason" = "black"
-      ),
-      labels = c(
-        "Relapse (R)",
-        "Nonrelapse mortality (†)",
-        "Other exclusion reason (*)"
-      ),
-      guide = ggplot2::guide_legend(
+    ggplot2::guides(
+      group = ggplot2::guide_legend(
+        title = "Outcome",
         order = 6,
         override.aes = list(
           label = c("R", "†", "*"),
