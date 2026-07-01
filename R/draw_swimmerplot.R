@@ -118,7 +118,7 @@ swimmerplot <- function(
         label = label
       ),
       hjust = -0.2,
-      show.legend = TRUE
+      show.legend = FALSE
     ) +
 
     ggnewscale::new_scale_fill() +
