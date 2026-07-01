@@ -83,8 +83,7 @@ swimmerplot <- function(
         linetype = "Immune suppression"
       ),
       linewidth = 1.5,
-      color = "brown",
-      show.legend = FALSE
+      color = "brown"
     ) +
 
     # Add immune suppression legend
@@ -111,8 +110,7 @@ swimmerplot <- function(
         fill = treatment
       ),
       color = "black",
-      shape = 24,
-      show.legend = FALSE
+      shape = 24
     ) +
 
     # Add treatment legend
@@ -139,8 +137,7 @@ swimmerplot <- function(
         fill = agvhdstage
       ),
       color = "black",
-      shape = 23,
-      show.legend = FALSE
+      shape = 23
     ) +
 
     # Add acute GVHD legend
@@ -190,8 +187,7 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "R",
-      colour = "Relapse"
+      label = "R"
     ),
     hjust = -0.2,
     show.legend = TRUE
@@ -204,8 +200,7 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "†",
-      colour = "Nonrelapse mortality"
+      label = "†"
     ),
     hjust = -0.2,
     show.legend = TRUE
@@ -218,8 +213,7 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "*",
-      colour = "Other exclusion reason"
+      label = "*"
     ),
     hjust = -0.2,
     show.legend = TRUE
