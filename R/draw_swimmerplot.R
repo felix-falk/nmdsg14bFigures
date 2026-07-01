@@ -40,8 +40,7 @@ swimmerplot <- function(
       ymax = plot_data$ymax + 0.2,
       fill = plot_data$mrd_category
     ),
-    color = "black",
-    show.legend = FALSE
+    color = "black"
     ) +
 
     # Add MRD legend
@@ -97,6 +96,47 @@ swimmerplot <- function(
           color = "brown"
         )
       )
+    ) +
+
+    ggnewscale::new_scale_fill() +
+
+    # Add relapse annotation
+    ggplot2::geom_text(data = dplyr::filter(
+      outcome_pts,
+      outcome == "Relapse"
+    ), ggplot2::aes(
+      x = rel_term_dat + 5,
+      y = y,
+      label = "R"
+    ),
+    hjust = -0.2,
+    show.legend = FALSE
+    ) +
+
+    # Add nonrelapse mortality annotation
+    ggplot2::geom_text(data = dplyr::filter(
+      outcome_pts,
+      outcome == "Nonrelapse mortality"
+    ), ggplot2::aes(
+      x = rel_term_dat + 5,
+      y = y,
+      label = "\u2020"
+    ),
+    hjust = -0.2,
+    show.legend = FALSE
+    ) +
+
+    # Add Other exclusion reason annotation
+    ggplot2::geom_text(data = dplyr::filter(
+      outcome_pts,
+      outcome == "Other exclusion reason"
+    ), ggplot2::aes(
+      x = rel_term_dat + 5,
+      y = y,
+      label = "*"
+    ),
+    hjust = -0.2,
+    show.legend = FALSE
     ) +
 
     ggnewscale::new_scale_fill() +
@@ -164,11 +204,9 @@ swimmerplot <- function(
         fill = cgvhdstage
       ),
       color = "black",
-      shape = 23,
-      show.legend = FALSE
+      shape = 23
     ) +
 
-    # Add chronic GVHD legend
     ggplot2::scale_fill_manual(
       name = "Chronic GVHD",
       values = c(
@@ -176,61 +214,6 @@ swimmerplot <- function(
         "Severe"   = "#5B27F5"
       ),
       guide = ggplot2::guide_legend(order = 4)
-    ) +
-
-    ggnewscale::new_scale_fill() +
-
-    # Add relapse annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Relapse"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "R",
-      group = "Relapse"
-    ),
-    hjust = -0.2,
-    show.legend = TRUE
-    ) +
-
-    # Add nonrelapse mortality annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Nonrelapse mortality"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "†",
-      group = "Nonrelapse mortality"
-    ),
-    hjust = -0.2,
-    show.legend = TRUE
-    ) +
-
-    # Add Other exclusion reason annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Other exclusion reason"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "*",
-      group = "Other exclusion reason"
-    ),
-    hjust = -0.2,
-    show.legend = TRUE
-    ) +
-
-    ggplot2::guides(
-      group = ggplot2::guide_legend(
-        title = "Outcome",
-        order = 6,
-        override.aes = list(
-          label = c("R", "†", "*"),
-          size = 4
-        )
-      )
     ) +
 
     # Add graph title and axis labels
@@ -253,6 +236,7 @@ swimmerplot <- function(
 
   return(swimmer_plot)
 }
+
 
 #' Draw swimmer plot and export to PNG.
 #'
