@@ -205,7 +205,8 @@ plot_chimerism_timeline <- function(processed, pat_id) {
   chimerism_legend <- cowplot::get_legend(chimerism_plot)
 
   # Remove chimerism legend from chimerism_plot
-  chimerism_plot_clean <- chimerism_plot + ggplot2::theme(legend.position = "none")
+  chimerism_plot_clean <- chimerism_plot +
+    ggplot2::theme(legend.position = "none")
 
   # ----------------------------
   # GVHD / IS events plot (bottom)
@@ -340,12 +341,12 @@ draw_clinical_course_chimerism <- function(
   patient_ids <- unique(processed$general_info$patno)
 
   if (output_format == "svg") {
-    if (!requireNamespace("svglite", quietly = TRUE)) {
-      stop("The 'svglite' package is required to export per-patient SVGs.\nPlease run: install.packages('svglite') and try again.")
-    }
     base_name <- tools::file_path_sans_ext(output_filename)
     for (p in patient_ids) {
-      svg_filename <- file.path(output_folder, paste0(base_name, "_", p, ".svg"))
+      svg_filename <- file.path(
+        output_folder,
+        paste0(base_name, "_", p, ".svg")
+      )
       svglite::svglite(file = svg_filename, width = 10, height = 6)
       print(plot_chimerism_timeline(processed, p))
       grDevices::dev.off()

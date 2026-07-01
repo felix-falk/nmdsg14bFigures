@@ -202,9 +202,18 @@ preprocess_data <- function(
     dplyr::filter(rel_mrd_dat >= 0) |>
     dplyr::group_by(patno) |>
     dplyr::mutate(
-      `rel_pos_mrd_dat_0.1` = if (any(level >= 0.1)) min(rel_mrd_dat[level >= 0.1]) else NA_real_,
-      `rel_pos_mrd_dat_0.5` = if (any(level >= 0.5)) min(rel_mrd_dat[level >= 0.5]) else NA_real_,
-      `rel_pos_mrd_dat_1.0` = if (any(level >= 1.0)) min(rel_mrd_dat[level >= 1.0]) else NA_real_
+      `rel_pos_mrd_dat_0.1` = if (any(level >= 0.1))
+        min(rel_mrd_dat[level >= 0.1])
+      else
+        NA_real_,
+      `rel_pos_mrd_dat_0.5` = if (any(level >= 0.5))
+        min(rel_mrd_dat[level >= 0.5])
+      else
+        NA_real_,
+      `rel_pos_mrd_dat_1.0` = if (any(level >= 1.0))
+        min(rel_mrd_dat[level >= 1.0])
+      else
+        NA_real_
     ) |>
     dplyr::ungroup()
 

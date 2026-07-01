@@ -62,7 +62,8 @@ draw_survival <- function(
     survival_data <- survival_data |>
       dplyr::filter(!is.na(.data[[survival_baseline]]))
 
-    survival_data[[time_col]] <- survival_data[[time_col]] - survival_data[[survival_baseline]]
+    survival_data[[time_col]] <-
+      survival_data[[time_col]] - survival_data[[survival_baseline]]
     survival_data <- survival_data[
       !is.na(survival_data[[time_col]]) & survival_data[[time_col]] >= 0,
       ,
@@ -80,7 +81,8 @@ draw_survival <- function(
   # Write x-axis label
   xlab_text <- paste(
     "Days after",
-    if (survival_baseline == "transplant") "transplantation" else survival_baseline
+    if (survival_baseline == "transplant")
+      "transplantation" else survival_baseline
   )
 
   # Write y-axis label

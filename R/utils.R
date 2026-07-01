@@ -402,7 +402,10 @@ add_strata <- function(
   strata_df <- get(strata_filename, envir = parent.frame())
 
   # column name MUST be stable
-  new_colname <- if (!is.null(strata_colname)) strata_colname else strata_filename
+  new_colname <- if (!is.null(strata_colname))
+    strata_colname
+  else
+    strata_filename
 
   if (new_colname %in% names(general_info)) {
     message("No new strata column added.")
@@ -411,7 +414,6 @@ add_strata <- function(
 
   if (is.null(strata_colname)) {
 
-    # presence/absence
     strata_patnos <- unique(strata_df$patno)
 
     general_info[[new_colname]] <-
@@ -419,7 +421,6 @@ add_strata <- function(
 
   } else if (is.null(strata_itemname)) {
 
-    # direct mapping
     general_info[[new_colname]] <-
       strata_df[[strata_colname]][
         match(general_info$patno, strata_df$patno)

@@ -296,14 +296,33 @@ swimmerplot <- function(
 #' @examples
 #' \dontrun{
 #' processed <- list(
-#'   general_info = data.frame(patno = 1, rel_term_dat = 100, outcome = "Remission"),
-#'   treatment = data.frame(patno = 1, treatment = "Azacitidine", rel_treatment_dat = 20),
-#'   mrd = data.frame(patno = 1, rel_mrd_dat = 0, mrd_category = "Negative (< 0.1)", rel_term_dat = 100),
+#'   general_info = data.frame(
+#'     patno = 1,
+#'     rel_term_dat = 100,
+#'     outcome = "Remission"
+#'   ),
+#'   treatment = data.frame(
+#'     patno = 1,
+#'     treatment = "Azacitidine",
+#'     rel_treatment_dat = 20
+#'   ),
+#'   mrd = data.frame(
+#'     patno = 1,
+#'     rel_mrd_dat = 0,
+#'     mrd_category = "Negative (< 0.1)",
+#'     rel_term_dat = 100
+#'   ),
 #'   gvhd = data.frame(patno = 1),
 #'   immune_intervals = data.frame(patno = 1),
 #'   ngs = data.frame(patno = 1)
 #' )
-#' draw_swimmerplot(processed, patient_subset = c(1), output_folder = tempdir(), output_filename = "swimmerplot", output_format = "svg")
+#' draw_swimmerplot(
+#' processed,
+#' patient_subset = c(1),
+#' output_folder = tempdir(),
+#' output_filename = "swimmerplot",
+#' output_format = "svg"
+#' )
 #' }
 draw_swimmerplot <- function(
   processed,
