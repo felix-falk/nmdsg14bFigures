@@ -26,6 +26,26 @@ draw_survival <- function(
       processed$general_info |>
       dplyr::filter(patno %in% patient_subset)
 
+    processed$treatment <-
+      processed$treatment |>
+      dplyr::filter(patno %in% patient_subset)
+
+    processed$mrd <-
+      processed$mrd |>
+      dplyr::filter(patno %in% patient_subset)
+
+    processed$gvhd <-
+      processed$gvhd |>
+      dplyr::filter(patno %in% patient_subset)
+
+    processed$immune_intervals <-
+      processed$immune_intervals |>
+      dplyr::filter(patno %in% patient_subset)
+
+    processed$ngs <-
+      processed$ngs |>
+      dplyr::filter(patno %in% patient_subset)
+
   }
 
   # Survival metric mapping

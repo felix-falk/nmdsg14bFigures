@@ -30,52 +30,6 @@ swimmerplot <- function(
   mrd_terminal_pts,
   title_string
 ) {
-  # Build an annotation grob for outcome symbols legend
-  outcome_legend_grob <- grid::grobTree(
-    grid::textGrob(
-      "R",
-      x = grid::unit(0, "npc"),
-      y = grid::unit(1, "npc"),
-      just = c("left", "top"),
-      gp = grid::gpar(fontsize = 10)
-    ),
-    grid::textGrob(
-      "\u2020",
-      x = grid::unit(0, "npc"),
-      y = grid::unit(0.5, "npc"),
-      just = c("left", "centre"),
-      gp = grid::gpar(fontsize = 10)
-    ),
-    grid::textGrob(
-      "*",
-      x = grid::unit(0, "npc"),
-      y = grid::unit(0, "npc"),
-      just = c("left", "bottom"),
-      gp = grid::gpar(fontsize = 10)
-    ),
-    grid::textGrob(
-      "Relapse",
-      x = grid::unit(0.18, "npc"),
-      y = grid::unit(1, "npc"),
-      just = c("left", "top"),
-      gp = grid::gpar(fontsize = 10)
-    ),
-    grid::textGrob(
-      "Nonrelapse mortality",
-      x = grid::unit(0.18, "npc"),
-      y = grid::unit(0.5, "npc"),
-      just = c("left", "centre"),
-      gp = grid::gpar(fontsize = 10)
-    ),
-    grid::textGrob(
-      "Other exclusion reason",
-      x = grid::unit(0.18, "npc"),
-      y = grid::unit(0, "npc"),
-      just = c("left", "bottom"),
-      gp = grid::gpar(fontsize = 10)
-    )
-  )
-
   swimmer_plot <- ggplot2::ggplot(plot_data) +
 
     # Add MRD rectangles
@@ -153,10 +107,11 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "R"
+      label = "R",
+      colour = "Relapse"
     ),
     hjust = -0.2,
-    show.legend = FALSE
+    show.legend = TRUE
     ) +
 
     # Add nonrelapse mortality annotation
@@ -166,10 +121,11 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "\u2020"
+      label = "†",
+      colour = "Nonrelapse mortality"
     ),
     hjust = -0.2,
-    show.legend = FALSE
+    show.legend = TRUE
     ) +
 
     # Add Other exclusion reason annotation
@@ -179,10 +135,26 @@ swimmerplot <- function(
     ), ggplot2::aes(
       x = rel_term_dat + 5,
       y = y,
-      label = "*"
+      label = "*",
+      colour = "Other exclusion reason"
     ),
     hjust = -0.2,
-    show.legend = FALSE
+    show.legend = TRUE
+    ) +
+
+    ggplot2::scale_colour_manual(
+      name = "Outcome",
+      values = c(
+        "Relapse" = "black",
+        "Nonrelapse mortality" = "black",
+        "Other exclusion reason" = "black"
+      ),
+      labels = c(
+        "Relapse (R)",
+        "Nonrelapse mortality (†)",
+        "Other exclusion reason (*)"
+      ),
+      guide = ggplot2::guide_legend(order = 6)
     ) +
 
     ggnewscale::new_scale_fill() +
