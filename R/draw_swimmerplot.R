@@ -109,25 +109,31 @@ swimmerplot <- function(
             outcome == "Nonrelapse mortality" ~ "\u00D7",
             outcome == "Other exclusion reason" ~ "*",
             TRUE ~ NA_character_
+          ),
+          outcome_label = dplyr::case_when(
+            outcome == "Relapse" ~ "Relapse",
+            outcome == "Nonrelapse mortality" ~ "Nonrelapse mortality",
+            outcome == "Other exclusion reason" ~ "Other exclusion reason",
+            TRUE ~ NA_character_
           )
         ) |>
         dplyr::filter(!is.na(label)),
       ggplot2::aes(
         x = rel_term_dat + 5,
         y = y,
-        label = label
+        label = label,
+        colour = outcome_label
       ),
       hjust = -0.2,
-      show.legend = FALSE
+      inherit.aes = FALSE,
+      show.legend = TRUE
     ) +
-
-    # Add outcome legend
-    ggplot2::scale_fill_manual(
-      name = "Outcome",
+    ggplot2::scale_colour_manual(
+      name = "Outcome symbols",
       values = c(
-        "Relapse" = "R",
-        "Nonrelapse mortality" = "\u00D7",
-        "Other exclusion reason" = "*"
+        "Relapse" = "black",
+        "Nonrelapse mortality" = "black",
+        "Other exclusion reason" = "black"
       ),
       guide = ggplot2::guide_legend(order = 3)
     ) +
