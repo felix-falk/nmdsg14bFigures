@@ -102,71 +102,6 @@ swimmerplot <- function(
 
     ggnewscale::new_scale_fill() +
 
-    # Add relapse annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Relapse"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "R",
-      colour = "Relapse"
-    ),
-    hjust = -0.2,
-    show.legend = TRUE
-    ) +
-
-    # Add nonrelapse mortality annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Nonrelapse mortality"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "†",
-      colour = "Nonrelapse mortality"
-    ),
-    hjust = -0.2,
-    show.legend = TRUE
-    ) +
-
-    # Add Other exclusion reason annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Other exclusion reason"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "*",
-      colour = "Other exclusion reason"
-    ),
-    hjust = -0.2,
-    show.legend = TRUE
-    ) +
-
-    ggplot2::scale_colour_manual(
-      name = "Outcome",
-      values = c(
-        "Relapse" = "black",
-        "Nonrelapse mortality" = "black",
-        "Other exclusion reason" = "black"
-      ),
-      labels = c(
-        "Relapse (R)",
-        "Nonrelapse mortality (†)",
-        "Other exclusion reason (*)"
-      ),
-      guide = ggplot2::guide_legend(
-        order = 6,
-        override.aes = list(
-          label = c("R", "†", "*"),
-          size = 4
-        )
-      )
-    ) +
-
-    ggnewscale::new_scale_fill() +
-
     # Add treatment annotations
     ggplot2::geom_point(
       data = treatment_pts |> dplyr::filter(!is.na(treatment)),
@@ -244,6 +179,71 @@ swimmerplot <- function(
         "Severe"   = "#5B27F5"
       ),
       guide = ggplot2::guide_legend(order = 4)
+    ) +
+
+    ggnewscale::new_scale_fill() +
+
+    # Add relapse annotation
+    ggplot2::geom_text(data = dplyr::filter(
+      outcome_pts,
+      outcome == "Relapse"
+    ), ggplot2::aes(
+      x = rel_term_dat + 5,
+      y = y,
+      label = "R",
+      colour = "Relapse"
+    ),
+    hjust = -0.2,
+    show.legend = TRUE
+    ) +
+
+    # Add nonrelapse mortality annotation
+    ggplot2::geom_text(data = dplyr::filter(
+      outcome_pts,
+      outcome == "Nonrelapse mortality"
+    ), ggplot2::aes(
+      x = rel_term_dat + 5,
+      y = y,
+      label = "†",
+      colour = "Nonrelapse mortality"
+    ),
+    hjust = -0.2,
+    show.legend = TRUE
+    ) +
+
+    # Add Other exclusion reason annotation
+    ggplot2::geom_text(data = dplyr::filter(
+      outcome_pts,
+      outcome == "Other exclusion reason"
+    ), ggplot2::aes(
+      x = rel_term_dat + 5,
+      y = y,
+      label = "*",
+      colour = "Other exclusion reason"
+    ),
+    hjust = -0.2,
+    show.legend = TRUE
+    ) +
+
+    ggplot2::scale_colour_manual(
+      name = "Outcome",
+      values = c(
+        "Relapse" = "black",
+        "Nonrelapse mortality" = "black",
+        "Other exclusion reason" = "black"
+      ),
+      labels = c(
+        "Relapse (R)",
+        "Nonrelapse mortality (†)",
+        "Other exclusion reason (*)"
+      ),
+      guide = ggplot2::guide_legend(
+        order = 6,
+        override.aes = list(
+          label = c("R", "†", "*"),
+          size = 4
+        )
+      )
     ) +
 
     # Add graph title and axis labels
