@@ -111,7 +111,8 @@ swimmerplot <- function(
       colour = "Relapse"
     ),
     hjust = -0.2,
-    show.legend = TRUE
+    show.legend = TRUE,
+    key_glyph = "text"
     ) +
 
     # Add nonrelapse mortality annotation
@@ -125,7 +126,8 @@ swimmerplot <- function(
       colour = "Nonrelapse mortality"
     ),
     hjust = -0.2,
-    show.legend = TRUE
+    show.legend = TRUE,
+    key_glyph = "text"
     ) +
 
     # Add Other exclusion reason annotation
@@ -139,7 +141,8 @@ swimmerplot <- function(
       colour = "Other exclusion reason"
     ),
     hjust = -0.2,
-    show.legend = TRUE
+    show.legend = TRUE,
+    key_glyph = "text"
     ) +
 
     ggplot2::scale_colour_manual(
@@ -154,7 +157,13 @@ swimmerplot <- function(
         "Nonrelapse mortality (†)",
         "Other exclusion reason (*)"
       ),
-      guide = ggplot2::guide_legend(order = 6)
+      guide = ggplot2::guide_legend(
+        order = 6,
+        override.aes = list(
+          label = c("R", "†", "*"),
+          size = 4
+        )
+      )
     ) +
 
     ggnewscale::new_scale_fill() +
@@ -254,7 +263,6 @@ swimmerplot <- function(
 
   return(swimmer_plot)
 }
-
 
 #' Draw swimmer plot and export to PNG.
 #'

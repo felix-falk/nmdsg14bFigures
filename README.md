@@ -51,7 +51,7 @@ packageVersion("nmdsg14bFigures")
 # Optional: navigate to the files directory
 setwd("~/study_files")
 
-# Run nmds_figures_main
+# Create a swimmer plot
 nmds_figures_main(
   general_info_file = "general_info.xlsx",
   mrd_file = "mrd.xlsx",
