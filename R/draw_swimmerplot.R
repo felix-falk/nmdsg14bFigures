@@ -40,7 +40,8 @@ swimmerplot <- function(
       ymax = plot_data$ymax + 0.2,
       fill = plot_data$mrd_category
     ),
-    color = "black"
+    color = "black",
+    key_glyph = "rect"
     ) +
 
     # Add MRD legend
@@ -66,7 +67,8 @@ swimmerplot <- function(
       ),
       shape = 22,
       size = 1,
-      color = "black"
+      color = "black",
+      key_glyph = "point"
     ) +
 
     ggnewscale::new_scale_fill() +
@@ -177,7 +179,8 @@ swimmerplot <- function(
         fill = treatment
       ),
       color = "black",
-      shape = 24
+      shape = 24,
+      key_glyph = "point"
     ) +
 
     # Add treatment legend
@@ -204,7 +207,8 @@ swimmerplot <- function(
         fill = agvhdstage
       ),
       color = "black",
-      shape = 23
+      shape = 23,
+      key_glyph = "point"
     ) +
 
     # Add acute GVHD legend
@@ -231,7 +235,8 @@ swimmerplot <- function(
         fill = cgvhdstage
       ),
       color = "black",
-      shape = 23
+      shape = 23,
+      key_glyph = "point"
     ) +
 
     ggplot2::scale_fill_manual(
