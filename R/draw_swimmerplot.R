@@ -31,19 +31,6 @@ swimmerplot <- function(
   title_string
 ) {
 
-  # Add outcome legend
-  legend_df <- data.frame(
-    x = c(10, 10, 10),
-    y = c(8, 7.5, 7),
-    label = c("R", "\u00D7", "*"),
-    colour = c("black", "black", "black"),
-    desc = c(
-      "Relapse",
-      "Non-relapse mortality",
-      "Overall event-free survival"
-    )
-  )
-
   swimmer_plot <- ggplot2::ggplot(plot_data) +
 
     # Add MRD rectangles
@@ -133,20 +120,6 @@ swimmerplot <- function(
       ),
       hjust = -0.2,
       show.legend = FALSE
-    ) +
-
-    geom_text(
-      data = legend_df,
-      aes(x, y, label = label),
-      colour = legend_df$colour,
-      inherit.aes = FALSE,
-      fontface = "bold"
-    ) +
-    geom_text(
-      data = legend_df,
-      aes(x + 0.4, y, label = desc),
-      inherit.aes = FALSE,
-      hjust = 0
     ) +
 
     ggnewscale::new_scale_fill() +
