@@ -22,5 +22,7 @@ Data frame containing azacitidine and dli treatment timepoints.
 Creates treatment data frame based on dli and aza data frames.
 }
 \examples{
+\dontrun{
 create_treatment_df(aza_raw, dli_raw, end_date_df)
+}
 }

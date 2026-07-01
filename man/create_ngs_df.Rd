@@ -6,6 +6,9 @@
 \usage{
 create_ngs_df(ngs_raw)
 }
+\arguments{
+\item{ngs_raw}{Data frame with patno, Gen and cDNA forandring columns.}
+}
 \description{
 Creates ngs data frame based on ngs_raw.
 }

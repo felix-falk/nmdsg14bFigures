@@ -1,0 +1,73 @@
+
+R version 4.5.2 (2025-10-31) -- "[Not] Part in a Rumble"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "nmdsg14bFigures"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('nmdsg14bFigures')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("apply_filters")
+> ### * apply_filters
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: apply_filters
+> ### Title: Manual data filtering ahead of plotting.
+> ### Aliases: apply_filters
+> 
+> ### ** Examples
+> 
+> processed <- list(
++   general_info = data.frame(patno = c(1, 2), outcome = c("Relapse", "Remission")),
++   treatment = data.frame(patno = 1, treatment = "Azacitidine"),
++   mrd = data.frame(patno = 1, level = 0.2),
++   immune = data.frame(patno = 1),
++   ngs = data.frame(patno = 1, Gen = "TP53")
++ )
+> filters <- list(outcomes = "Relapse")
+> apply_filters(processed, filters)
+$patient_ids
+[1] 1
+
+$n_patients
+[1] 1
+
+> 
+> 
+> 
+> cleanEx()
+> nameEx("column_check")
+> ### * column_check
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: column_check
+> ### Title: Called by preprocess_data to check that all required columns are
+> ###   present in the provided file.
+> ### Aliases: column_check
+> 
+> ### ** Examples
+> 
+> column_check(dli_raw, c("patno", "dlidat"))
+Error in column_check(dli_raw, c("patno", "dlidat")) : 
+  could not find function "column_check"
+Execution halted

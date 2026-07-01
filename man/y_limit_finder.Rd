@@ -20,5 +20,7 @@ Called by the draw_clinical_course function to
 find the upper limit of the MRD and/or chimerism y-axis.
 }
 \examples{
+\dontrun{
 y_limit_finder(d$mrd)
+}
 }

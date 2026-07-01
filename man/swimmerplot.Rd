@@ -26,6 +26,10 @@ the data for the swimmer plot rectangles.}
 
 \item{gvhd_pts}{A vector of patient IDs.}
 
+\item{mrd_terminal_pts}{A data frame describing mrd values taken
+at the termination date, with the columns patno, rel_term_dat,
+y and mrd_category.}
+
 \item{title_string}{The title for the swimmer plot.}
 }
 \value{

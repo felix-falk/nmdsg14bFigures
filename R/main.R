@@ -10,8 +10,14 @@
 #' @param chimerism_file Excel file with chimerism information
 #' @param immune_filter_file CSV file with immune suppression filter
 #' @param output_folder Folder for generated figures
-#' @param plot_type Either "swimmerplot" or "clinical_course"
+#' @param strata_filename Optional file name or data source used for strata.
+#' @param strata_colname Optional column name for strata.
+#' @param strata_itemname Optional strata value to keep.
+#' @param survival_baseline Baseline for survival analysis, one of "transplant", "rel_pos_mrd_dat_0.1", "rel_pos_mrd_dat_0.5", or "rel_pos_mrd_dat_1.0".
+#' @param survival_metric Survival metric, one of "os", "rfs", or "efs".
+#' @param plot_type Either "swimmerplot", "clinical_course", "clinical_course_chimerism", or "survival"
 #' @param filters Optional filter list
+#' @param output_format Output format, either "svg" or "pdf"
 #'
 #' @export
 #' @examples

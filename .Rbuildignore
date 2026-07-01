@@ -1,1 +1,8 @@
 ^LICENSE\.md$
+^\.git$
+^\.github$
+^\.DS_Store$
+^.*\.DS_Store$
+^\.Rcheck$
+^\.Rproj\.user$
+^\.gitattributes$

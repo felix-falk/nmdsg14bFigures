@@ -19,5 +19,7 @@ Called by the draw_clinical_course function to
 find the range of MRD x-axis values.
 }
 \examples{
+\dontrun{
 x_range_finder(d$general_info)
+}
 }

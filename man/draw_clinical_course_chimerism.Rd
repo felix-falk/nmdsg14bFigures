@@ -21,6 +21,8 @@ for general_info, treatment, mrd, gvhd, immune_intervals, and ngs.}
 \item{output_folder}{The folder where the output PDF will be saved.}
 
 \item{output_filename}{The name of the output PDF file.}
+
+\item{output_format}{Output format string, "svg" or "pdf".}
 }
 \value{
 A numeric vector.
@@ -29,10 +31,11 @@ A numeric vector.
 Draw clinical course figures and export to PDF.
 }
 \examples{
-draw_clinical_course(
+draw_clinical_course_chimerism(
 processed,
 patient_subset,
 "~/output",
-"clinical_course.pdf"
+"clinical_course.pdf",
+output_format = "pdf"
 )
 }

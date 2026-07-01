@@ -10,6 +10,8 @@ create_end_date_df(general_info_raw = NULL, mrd_raw = NULL)
 \arguments{
 \item{general_info_raw}{Data frame containing patno,
 termindat and transpldt columns.}
+
+\item{mrd_raw}{Data frame containing patno and MRDdat columns.}
 }
 \value{
 Data frame containing patno, transpldt
@@ -18,4 +20,9 @@ and rel_term dat columns.
 \description{
 Creates a gvhd data frame based on general_info_raw and mrd_raw,
 that contains patno, transpldt and rel_term_dat
+}
+\examples{
+\dontrun{
+create_end_date_df(general_info_raw, mrd_raw)
+}
 }

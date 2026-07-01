@@ -21,6 +21,8 @@ for general_info, treatment, mrd, gvhd, immune_intervals, and ngs.}
 \item{output_folder}{The folder where the output PDF will be saved.}
 
 \item{output_filename}{The name of the output PDF file.}
+
+\item{output_format}{Output format string, "svg" or "pdf".}
 }
 \value{
 A numeric vector.

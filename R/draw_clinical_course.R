@@ -39,12 +39,31 @@ create_ciklo_rectangles <- function(immune_data) {
 
 #' Generate MRD plot for a given patient
 #'
-#' @param data A data frame containing longitudinal MRD data
+#' @param mrd_data A data frame containing longitudinal MRD data.
+#' @param general_info_data A data frame containing general patient information.
+#' @param ngs_data A data frame containing NGS mutation data.
 #' @param x_range The range of the x-axis.
 #' @param y_upper The upper limit of the y-axis.
+#' @param pat_id A patient identifier.
 #' @returns A ggplot object representing the MRD plot for the patient.
 #' @examples
-#' draw_mrd_plot(d$mrd)
+#' \dontrun{
+#' mrd_data <- data.frame(
+#'   rel_mrd_dat = c(0, 30),
+#'   level_no0s = c(0.2, 0.1),
+#'   Mutation = c("TP53", "TP53")
+#' )
+#' general_info_data <- data.frame(
+#'   mdsdiagnosis = "MDS",
+#'   ipssm_title = "High",
+#'   karyotyp = "del(5q)",
+#'   outcome = "Remission",
+#'   rel_term_dat = 100,
+#'   deathcause = NA_character_
+#' )
+#' ngs_data <- data.frame(mutlist = "TP53")
+#' draw_mrd_plot(mrd_data, general_info_data, ngs_data, c(0, 100), 1, "P1")
+#' }
 draw_mrd_plot <- function(
   mrd_data,
   general_info_data,

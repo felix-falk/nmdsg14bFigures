@@ -11,6 +11,9 @@ create_chimerism_df(chimerism_raw, end_date_df)
 \item{chimerism_raw}{Data frame containing patno, chimerism, chimbmdt and
 columns starting with CD that contain chimerims values
 for each surface marker.}
+
+\item{end_date_df}{Data frame containing patno, transpldt and
+rel_term_dat columns.}
 }
 \value{
 Data frame containing patno, surface_marker, chimerism, and
@@ -19,4 +22,9 @@ rel_chimerism_dat columns.
 \description{
 Creates a chimerism data frame based on chimerism_raw and end_date_df,
 that contains patno, chimerism, rel_chimerism_dat and surface_marker columns.
+}
+\examples{
+\dontrun{
+create_chimerism_df(chimerism_raw, end_date_df)
+}
 }

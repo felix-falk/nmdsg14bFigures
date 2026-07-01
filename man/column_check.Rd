@@ -20,5 +20,7 @@ Called by preprocess_data to check that all
 required columns are present in the provided file.
 }
 \examples{
+\dontrun{
 column_check(dli_raw, c("patno", "dlidat"))
+}
 }

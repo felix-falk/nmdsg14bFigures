@@ -289,11 +289,22 @@ swimmerplot <- function(
 #' @param processed A list of data frames containing the processed data
 #' for general_info, treatment, mrd, gvhd, immune_intervals, and ngs.
 #' @param patient_subset A vector of patient IDs.
-#' @param output_folder The folder where the output PNG will be saved.
-#' @param output_filename The name of the output PNG file.
+#' @param output_folder The folder where the output plot will be saved.
+#' @param output_filename The name of the output plot file.
+#' @param output_format Output format string, "svg" or "pdf".
 #' @returns A numeric vector.
 #' @examples
-#' draw_swimmerplot(processed, patient_subset, "~/output", "swimmerplot.png")
+#' \dontrun{
+#' processed <- list(
+#'   general_info = data.frame(patno = 1, rel_term_dat = 100, outcome = "Remission"),
+#'   treatment = data.frame(patno = 1, treatment = "Azacitidine", rel_treatment_dat = 20),
+#'   mrd = data.frame(patno = 1, rel_mrd_dat = 0, mrd_category = "Negative (< 0.1)", rel_term_dat = 100),
+#'   gvhd = data.frame(patno = 1),
+#'   immune_intervals = data.frame(patno = 1),
+#'   ngs = data.frame(patno = 1)
+#' )
+#' draw_swimmerplot(processed, patient_subset = c(1), output_folder = tempdir(), output_filename = "swimmerplot", output_format = "svg")
+#' }
 draw_swimmerplot <- function(
   processed,
   patient_subset = NULL,

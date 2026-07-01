@@ -10,6 +10,9 @@ create_gvhd_df(gvhd_raw = NULL, end_date_df = NULL)
 \arguments{
 \item{gvhd_raw}{Data frame containing patno, agvhdstage, gvhddate,
 agvhdmaxstage, agvhdmaxdt, cgvhdstage, cgvhdmaxstage, cgvhdmaxdt columns.}
+
+\item{end_date_df}{Data frame containing patno, transpldt
+and rel_term dat columns.}
 }
 \value{
 Data frame containing patno, gvhd, rel_gvhd_dat,
@@ -18,4 +21,9 @@ agvhdstage, cgvhdstage columns.
 \description{
 Creates a gvhd data frame based on gvhd_raw and end_date_df, that contains
 gvhd events occuring at and in between regular checkups.
+}
+\examples{
+\dontrun{
+create_gvhd_df(gvhd_raw, end_date_df)
+}
 }

@@ -20,5 +20,7 @@ A legend grob.
 Called by the draw_clinical_course function to create GVHD dummy legends.
 }
 \examples{
+\dontrun{
 make_dummy_legend(c("0", "1", "2"), c("red", "blue", "green"), "GVHD Stage")
+}
 }

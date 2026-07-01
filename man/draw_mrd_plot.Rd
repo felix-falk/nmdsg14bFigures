@@ -7,11 +7,17 @@
 draw_mrd_plot(mrd_data, general_info_data, ngs_data, x_range, y_upper, pat_id)
 }
 \arguments{
+\item{mrd_data}{A data frame containing longitudinal MRD data.}
+
+\item{general_info_data}{A data frame containing general patient information.}
+
+\item{ngs_data}{A data frame containing NGS mutation data.}
+
 \item{x_range}{The range of the x-axis.}
 
 \item{y_upper}{The upper limit of the y-axis.}
 
-\item{data}{A data frame containing longitudinal MRD data}
+\item{pat_id}{A patient identifier.}
 }
 \value{
 A ggplot object representing the MRD plot for the patient.
@@ -20,5 +26,21 @@ A ggplot object representing the MRD plot for the patient.
 Generate MRD plot for a given patient
 }
 \examples{
-draw_mrd_plot(d$mrd)
+\dontrun{
+mrd_data <- data.frame(
+  rel_mrd_dat = c(0, 30),
+  level_no0s = c(0.2, 0.1),
+  Mutation = c("TP53", "TP53")
+)
+general_info_data <- data.frame(
+  mdsdiagnosis = "MDS",
+  ipssm_title = "High",
+  karyotyp = "del(5q)",
+  outcome = "Remission",
+  rel_term_dat = 100,
+  deathcause = NA_character_
+)
+ngs_data <- data.frame(mutlist = "TP53")
+draw_mrd_plot(mrd_data, general_info_data, ngs_data, c(0, 100), 1, "P1")
+}
 }

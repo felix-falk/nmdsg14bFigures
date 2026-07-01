@@ -18,5 +18,7 @@ Called by the preprocess_data function to identify
 immune suppression intervals, based on the immune suppression data frame.
 }
 \examples{
+\dontrun{
 interval_finder(immune)
+}
 }

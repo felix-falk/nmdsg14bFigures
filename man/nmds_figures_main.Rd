@@ -45,11 +45,23 @@ nmds_figures_main(
 
 \item{immune_filter_file}{CSV file with immune suppression filter}
 
+\item{strata_filename}{Optional file name or data source used for strata.}
+
+\item{strata_colname}{Optional column name for strata.}
+
+\item{strata_itemname}{Optional strata value to keep.}
+
+\item{survival_baseline}{Baseline for survival analysis, one of "transplant", "rel_pos_mrd_dat_0.1", "rel_pos_mrd_dat_0.5", or "rel_pos_mrd_dat_1.0".}
+
+\item{survival_metric}{Survival metric, one of "os", "rfs", or "efs".}
+
 \item{output_folder}{Folder for generated figures}
 
-\item{plot_type}{Either "swimmerplot" or "clinical_course"}
+\item{plot_type}{Either "swimmerplot", "clinical_course", "clinical_course_chimerism", or "survival"}
 
 \item{filters}{Optional filter list}
+
+\item{output_format}{Output format, either "svg" or "pdf"}
 }
 \description{
 Run analysis using the nmds_figures_main function.

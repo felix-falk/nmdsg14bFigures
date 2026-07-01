@@ -36,6 +36,14 @@ preprocess_data(
 \item{ngs_file}{Path to the NGS Excel file.}
 
 \item{immune_filter_file}{Path to the immune suppression filter CSV file.}
+
+\item{chimerism_file}{Path to the chimerism Excel file.}
+
+\item{strata_filename}{Name of the file containing the strata of interest.}
+
+\item{strata_colname}{Name of the column containing the strata of interest.}
+
+\item{strata_itemname}{Name of the item of the strata of interest.}
 }
 \value{
 A list of processed data frames.

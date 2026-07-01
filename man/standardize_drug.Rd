@@ -22,5 +22,7 @@ drug names in the immune suppression data frame,
 based on a provided mapping data frame.
 }
 \examples{
+\dontrun{
 standardize_drug("Drug A", immune_suppression_filter)
+}
 }

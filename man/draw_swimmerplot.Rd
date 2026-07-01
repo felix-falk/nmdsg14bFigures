@@ -18,9 +18,11 @@ for general_info, treatment, mrd, gvhd, immune_intervals, and ngs.}
 
 \item{patient_subset}{A vector of patient IDs.}
 
-\item{output_folder}{The folder where the output PNG will be saved.}
+\item{output_folder}{The folder where the output plot will be saved.}
 
-\item{output_filename}{The name of the output PNG file.}
+\item{output_filename}{The name of the output plot file.}
+
+\item{output_format}{Output format string, "svg" or "pdf".}
 }
 \value{
 A numeric vector.
@@ -29,5 +31,15 @@ A numeric vector.
 Draw swimmer plot and export to PNG.
 }
 \examples{
-draw_swimmerplot(processed, patient_subset, "~/output", "swimmerplot.png")
+\dontrun{
+processed <- list(
+  general_info = data.frame(patno = 1, rel_term_dat = 100, outcome = "Remission"),
+  treatment = data.frame(patno = 1, treatment = "Azacitidine", rel_treatment_dat = 20),
+  mrd = data.frame(patno = 1, rel_mrd_dat = 0, mrd_category = "Negative (< 0.1)", rel_term_dat = 100),
+  gvhd = data.frame(patno = 1),
+  immune_intervals = data.frame(patno = 1),
+  ngs = data.frame(patno = 1)
+)
+draw_swimmerplot(processed, patient_subset = c(1), output_folder = tempdir(), output_filename = "swimmerplot", output_format = "svg")
+}
 }

@@ -7,7 +7,7 @@
 draw_chimerism_plot(
   mrd_data,
   general_info_data,
-  ngs_data,
+  ngs_data = NULL,
   chimerism_data,
   x_range,
   y_upper,
@@ -15,9 +15,11 @@ draw_chimerism_plot(
 )
 }
 \arguments{
-\item{mrd_data}{A data frame containing longitudinal MRD data.}
+\item{mrd_data}{Mandatory argument:
+a data frame containing longitudinal MRD data.}
 
-\item{general_info_data}{A data frame containing general patient info data.}
+\item{general_info_data}{Mandatory argument:
+a data frame containing general patient info data.}
 
 \item{ngs_data}{A data frame containing ngs data.}
 

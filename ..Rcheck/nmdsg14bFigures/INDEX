@@ -1,0 +1,54 @@
+add_strata              Adds strata for survival analysis to the
+                        general_info data frame.
+apply_filters           Manual data filtering ahead of plotting.
+column_check            Called by preprocess_data to check that all
+                        required columns are present in the provided
+                        file.
+create_chimerism_df     Creates a chimerism data frame based on
+                        chimerism_raw and end_date_df, that contains
+                        patno, chimerism, rel_chimerism_dat and
+                        surface_marker columns.
+create_end_date_df      Creates a gvhd data frame based on
+                        general_info_raw and mrd_raw, that contains
+                        patno, transpldt and rel_term_dat
+create_gvhd_df          Creates a gvhd data frame based on gvhd_raw and
+                        end_date_df, that contains gvhd events occuring
+                        at and in between regular checkups.
+create_ngs_df           Creates ngs data frame based on ngs_raw.
+create_treatment_df     Creates treatment data frame based on dli and
+                        aza data frames.
+draw_chimerism_plot     Generate MRD + chimerism plot for a given
+                        patient.
+draw_clinical_course    Draw clinical course figures and export to PDF.
+draw_clinical_course_chimerism
+                        Draw clinical course figures and export to PDF.
+draw_events_plot        Generate events plot for a given patient
+draw_mrd_plot           Generate MRD plot for a given patient
+draw_swimmerplot        Draw swimmer plot and export to PNG.
+interval_finder         Called by the preprocess_data function to
+                        identify immune suppression intervals, based on
+                        the immune suppression data frame.
+make_dummy_legend       Called by the draw_clinical_course function to
+                        create GVHD dummy legends.
+nmds_figures_main       Run analysis using the nmds_figures_main
+                        function.
+plot_chimerism_timeline
+                        Generate MRD + Chimerism + GVHD timeline for a
+                        given patient
+plot_patient_timeline   Generate MRD + GVHD timeline for a given
+                        patient
+preprocess_data         Preprocess data ahead of manual filtering and
+                        plotting and.
+select_one_patient      Called by the draw_clinical_course function to
+                        select one patient per graph.
+standardize_drug        Called by the preprocess_data function to
+                        standardize drug names in the immune
+                        suppression data frame, based on a provided
+                        mapping data frame.
+swimmerplot             Called by draw_swimmerplot to draw swimmer
+                        plot.
+x_range_finder          Called by the draw_clinical_course function to
+                        find the range of MRD x-axis values.
+y_limit_finder          Called by the draw_clinical_course function to
+                        find the upper limit of the MRD and/or
+                        chimerism y-axis.

@@ -4,7 +4,9 @@
 #' @param df Immune suppression data frame.
 #' @returns A data frame with identified immune suppression intervals.
 #' @examples
+#' \dontrun{
 #' interval_finder(immune)
+#' }
 interval_finder <- function(df) {
 
   df |>
@@ -42,7 +44,9 @@ interval_finder <- function(df) {
 #' @param mapping_df Mapping data frame with patterns and standardized names.
 #' @returns The standardized drug name or NA if no match is found.
 #' @examples
+#' \dontrun{
 #' standardize_drug("Drug A", immune_suppression_filter)
+#' }
 standardize_drug <- function(drug, mapping_df) {
   match_idx <- which(
     purrr::map_lgl(
@@ -63,7 +67,9 @@ standardize_drug <- function(drug, mapping_df) {
 #' @param title The title of the legend.
 #' @returns A legend grob.
 #' @examples
+#' \dontrun{
 #' make_dummy_legend(c("0", "1", "2"), c("red", "blue", "green"), "GVHD Stage")
+#' }
 make_dummy_legend <- function(levels, colours, title) {
   df <- data.frame(stage = factor(levels, levels = levels), x = 1, y = 1)
   cowplot::get_legend(
@@ -81,7 +87,9 @@ make_dummy_legend <- function(levels, colours, title) {
 #' @returns Filtered data frame for a specific patient,
 #' or the original data frame if it does not meet the criteria.
 #' @examples
+#' \dontrun{
 #' select_one_patient(df)
+#' }
 select_one_patient <- function(df, pat_id = NULL) {
   if (is.null(df)) {
     return(NULL)
@@ -104,7 +112,9 @@ select_one_patient <- function(df, pat_id = NULL) {
 #' @param chimerism_data A data frame containing chimerism data.
 #' @returns A numeric value indicating the upper y-axis limit.
 #' @examples
+#' \dontrun{
 #' y_limit_finder(d$mrd)
+#' }
 y_limit_finder <- function(
   mrd_data,
   chimerism_data = NULL
@@ -152,7 +162,9 @@ y_limit_finder <- function(
 #' termination date of the patient, relative to the transplantation date.
 #' @returns A numeric vector indicating the range of the x-axis.
 #' @examples
+#' \dontrun{
 #' x_range_finder(d$general_info)
+#' }
 x_range_finder <- function(general_info_data){
 
   # Determine the range of the x axis
@@ -178,7 +190,9 @@ x_range_finder <- function(general_info_data){
 #' @returns
 #' Stops the function and raises a message if columns are missing, else passes.
 #' @examples
+#' \dontrun{
 #' column_check(dli_raw, c("patno", "dlidat"))
+#' }
 column_check <- function(
   df = NULL,
   required_columns = NULL
@@ -205,7 +219,10 @@ column_check <- function(
 #' @param end_date_df Data frame containing patno, transpldt
 #' and rel_term_dat columns.
 #' @returns Data frame containing azacitidine and dli treatment timepoints.
-#' @examples create_treatment_df(aza_raw, dli_raw, end_date_df)
+#' @examples
+#' \dontrun{
+#' create_treatment_df(aza_raw, dli_raw, end_date_df)
+#' }
 create_treatment_df <- function(
   aza_raw = NULL,
   dli_raw = NULL,
@@ -257,7 +274,10 @@ create_treatment_df <- function(
 #' and rel_term dat columns.
 #' @returns Data frame containing patno, gvhd, rel_gvhd_dat,
 #' agvhdstage, cgvhdstage columns.
-#' @example create_gvhd_df(gvhd_raw, end_date_df)
+#' @examples
+#' \dontrun{
+#' create_gvhd_df(gvhd_raw, end_date_df)
+#' }
 create_gvhd_df <- function(
   gvhd_raw = NULL,
   end_date_df = NULL
@@ -331,7 +351,10 @@ create_ngs_df <- function(
 #' @param mrd_raw Data frame containing patno and MRDdat columns.
 #' @returns Data frame containing patno, transpldt
 #' and rel_term dat columns.
-#' @example create_end_date_df(general_info_raw, mrd_raw)
+#' @examples
+#' \dontrun{
+#' create_end_date_df(general_info_raw, mrd_raw)
+#' }
 create_end_date_df <- function(
   general_info_raw = NULL,
   mrd_raw = NULL
@@ -362,8 +385,11 @@ create_end_date_df <- function(
 #' @param strata_colname Name of column with strata of interest.
 #' @param strata_itemname Name of item with strata of interest.
 #' @returns general_info data frame with an additional strata column.
-#' @example add_strata(general_info, strata_filename = "ngs",
+#' @examples
+#' \dontrun{
+#' add_strata(general_info, strata_filename = "ngs",
 #' strata_colname = "Gen", strata_itemname = "TP53")
+#' }
 add_strata <- function(
   general_info,
   strata_filename = NULL,
@@ -422,7 +448,10 @@ add_strata <- function(
 #' rel_term_dat columns.
 #' @returns Data frame containing patno, surface_marker, chimerism, and
 #' rel_chimerism_dat columns.
-#' @example create_chimerism_df(chimerism_raw, end_date_df)
+#' @examples
+#' \dontrun{
+#' create_chimerism_df(chimerism_raw, end_date_df)
+#' }
 create_chimerism_df <- function(
   chimerism_raw,
   end_date_df

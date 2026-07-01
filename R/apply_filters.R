@@ -4,6 +4,14 @@
 #' @param filters A list of filter settings.
 #' @returns A list of filtered data frames.
 #' @examples
+#' processed <- list(
+#'   general_info = data.frame(patno = c(1, 2), outcome = c("Relapse", "Remission")),
+#'   treatment = data.frame(patno = 1, treatment = "Azacitidine"),
+#'   mrd = data.frame(patno = 1, level = 0.2),
+#'   immune = data.frame(patno = 1),
+#'   ngs = data.frame(patno = 1, Gen = "TP53")
+#' )
+#' filters <- list(outcomes = "Relapse")
 #' apply_filters(processed, filters)
 apply_filters <- function(processed, filters) {
 

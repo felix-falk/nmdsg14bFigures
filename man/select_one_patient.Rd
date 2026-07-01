@@ -8,6 +8,8 @@ select_one_patient(df, pat_id = NULL)
 }
 \arguments{
 \item{df}{Data frame containing patient information with a "patno" column.}
+
+\item{pat_id}{The patno number of the patient.}
 }
 \value{
 Filtered data frame for a specific patient,
@@ -17,5 +19,7 @@ or the original data frame if it does not meet the criteria.
 Called by the draw_clinical_course function to select one patient per graph.
 }
 \examples{
+\dontrun{
 select_one_patient(df)
+}
 }

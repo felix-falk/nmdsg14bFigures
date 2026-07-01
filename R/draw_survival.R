@@ -60,11 +60,14 @@ draw_survival <- function(
   # Re-calculate event time relative to first positive MRD
   if (survival_baseline != "transplant") {
     survival_data <- survival_data |>
-      dplyr::filter(!is.na(.data[[survival_baseline]])) |>
-      dplyr::mutate(
-        "{time_col}" := .data[[time_col]] - .data[[survival_baseline]]
-      ) |>
-      dplyr::filter(.data[[time_col]] >= 0)
+      dplyr::filter(!is.na(.data[[survival_baseline]]))
+
+    survival_data[[time_col]] <- survival_data[[time_col]] - survival_data[[survival_baseline]]
+    survival_data <- survival_data[
+      !is.na(survival_data[[time_col]]) & survival_data[[time_col]] >= 0,
+      ,
+      drop = FALSE
+    ]
   }
 
   # Fit survival model
@@ -101,12 +104,12 @@ draw_survival <- function(
 
   # Save figure to svg or pdf
   if (output_format == "svg") {
-    svg("survival.svg", width = 8, height = 8)
+    grDevices::svg("survival.svg", width = 8, height = 8)
     print(survplot)
-    dev.off()
+    grDevices::dev.off()
   } else {
-    pdf("survival.pdf", width = 8, height = 8)
+    grDevices::pdf("survival.pdf", width = 8, height = 8)
     print(survplot)
-    dev.off()
+    grDevices::dev.off()
   }
 }

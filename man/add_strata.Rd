@@ -13,10 +13,22 @@ add_strata(
 }
 \arguments{
 \item{general_info}{Data frame with patno column.}
+
+\item{strata_filename}{Name of data frame with strata of interest.}
+
+\item{strata_colname}{Name of column with strata of interest.}
+
+\item{strata_itemname}{Name of item with strata of interest.}
 }
 \value{
 general_info data frame with an additional strata column.
 }
 \description{
 Adds strata for survival analysis to the general_info data frame.
+}
+\examples{
+\dontrun{
+add_strata(general_info, strata_filename = "ngs",
+strata_colname = "Gen", strata_itemname = "TP53")
+}
 }
