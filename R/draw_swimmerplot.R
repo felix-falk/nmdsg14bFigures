@@ -100,43 +100,25 @@ swimmerplot <- function(
 
     ggnewscale::new_scale_fill() +
 
-    # Add relapse annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Relapse"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "R"
-    ),
-    hjust = -0.2,
-    show.legend = FALSE
-    ) +
-
-    # Add nonrelapse mortality annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Nonrelapse mortality"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "\u2020"
-    ),
-    hjust = -0.2,
-    show.legend = FALSE
-    ) +
-
-    # Add Other exclusion reason annotation
-    ggplot2::geom_text(data = dplyr::filter(
-      outcome_pts,
-      outcome == "Other exclusion reason"
-    ), ggplot2::aes(
-      x = rel_term_dat + 5,
-      y = y,
-      label = "*"
-    ),
-    hjust = -0.2,
-    show.legend = FALSE
+    # Add outcome annotations
+    ggplot2::geom_text(
+      data = outcome_pts |>
+        dplyr::mutate(
+          label = dplyr::case_when(
+            outcome == "Relapse" ~ "R",
+            outcome == "Nonrelapse mortality" ~ "†",
+            outcome == "Other exclusion reason" ~ "*",
+            TRUE ~ NA_character_
+          )
+        ) |>
+        dplyr::filter(!is.na(label)),
+      ggplot2::aes(
+        x = rel_term_dat + 5,
+        y = y,
+        label = label
+      ),
+      hjust = -0.2,
+      show.legend = TRUE
     ) +
 
     ggnewscale::new_scale_fill() +
