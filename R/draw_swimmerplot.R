@@ -90,7 +90,7 @@ swimmerplot <- function(
       name = NULL,
       values = c("Immune suppression" = "solid"),
       guide = ggplot2::guide_legend(
-        order = 5,
+        order = 2,
         override.aes = list(
           linewidth = 2.5,
           color = "brown"
@@ -106,7 +106,7 @@ swimmerplot <- function(
         dplyr::mutate(
           label = dplyr::case_when(
             outcome == "Relapse" ~ "R",
-            outcome == "Nonrelapse mortality" ~ "†",
+            outcome == "Nonrelapse mortality" ~ "\u00D7",
             outcome == "Other exclusion reason" ~ "*",
             TRUE ~ NA_character_
           )
@@ -119,6 +119,17 @@ swimmerplot <- function(
       ),
       hjust = -0.2,
       show.legend = FALSE
+    ) +
+
+    # Add outcome legend
+    ggplot2::scale_fill_manual(
+      name = "Outcome",
+      values = c(
+        "Relapse" = "R",
+        "Nonrelapse mortality" = "\u00D7",
+        "Other exclusion reason" = "*"
+      ),
+      guide = ggplot2::guide_legend(order = 3)
     ) +
 
     ggnewscale::new_scale_fill() +
@@ -142,7 +153,7 @@ swimmerplot <- function(
         "DLI" = "darkgrey",
         "Azacitidine" = "white"
       ),
-      guide = ggplot2::guide_legend(order = 2)
+      guide = ggplot2::guide_legend(order = 4)
     ) +
 
     ggnewscale::new_scale_fill() +
@@ -169,7 +180,7 @@ swimmerplot <- function(
         "3" = "#FF8A8A",
         "4" = "#D10000"
       ),
-      guide = ggplot2::guide_legend(order = 3)
+      guide = ggplot2::guide_legend(order = 5)
     ) +
 
     ggnewscale::new_scale_fill() +
@@ -195,7 +206,7 @@ swimmerplot <- function(
         "Moderate" = "#27D6F5",
         "Severe"   = "#5B27F5"
       ),
-      guide = ggplot2::guide_legend(order = 4)
+      guide = ggplot2::guide_legend(order = 6)
     ) +
 
     # Add graph title and axis labels
