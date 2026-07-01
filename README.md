@@ -42,7 +42,7 @@ packageVersion("nmdsg14bFigures")
 | ```aza.xlsx``` | ```patno, azacitstart``` |
 | ```immune.xlsx``` | ```patno, drugname, drugdt, drugstopped``` |
 | ```gvhd.xlsx``` | ```patno, gvhddate, agvhdstage, cgvhdstage, agvhdmaxstage, agvhdmaxdt, cgvhdmaxstage, cgvhdmaxdt``` |
-| ```ngs.xlsx``` | ```Studienummer, Gen, cDNA förändring``` |
+| ```ngs.xlsx``` | ```patno, Gen, cDNA forandring``` |
 | ```chimerism.xlsx``` | ```patno, chimbmdt, CD33BM, CD34BM``` |
 
 ## Run the package in R

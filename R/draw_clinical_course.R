@@ -473,6 +473,7 @@ plot_patient_timeline <- function(processed, pat_id) {
 #' @param patient_subset A vector of patient IDs.
 #' @param output_folder The folder where the output PDF will be saved.
 #' @param output_filename The name of the output PDF file.
+#' @param output_format Output format string, "svg" or "pdf".
 #' @returns A numeric vector.
 #' @examples
 #' draw_clinical_course(

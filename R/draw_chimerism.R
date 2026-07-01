@@ -1,7 +1,9 @@
 #' Generate MRD + chimerism plot for a given patient.
 #'
-#' @param mrd_data A data frame containing longitudinal MRD data.
-#' @param general_info_data A data frame containing general patient info data.
+#' @param mrd_data Mandatory argument:
+#' a data frame containing longitudinal MRD data.
+#' @param general_info_data Mandatory argument:
+#' a data frame containing general patient info data.
 #' @param ngs_data A data frame containing ngs data.
 #' @param chimerism_data A data frame containing chimerism data.
 #' @param x_range The range of the x-axis.
@@ -19,13 +21,13 @@
 #'   pat_id
 #' )
 draw_chimerism_plot <- function(
-  mrd_data,
-  general_info_data,
-  ngs_data,
-  chimerism_data,
-  x_range,
-  y_upper,
-  pat_id
+  mrd_data, # Mandatory
+  general_info_data, # Mandatory
+  ngs_data = NULL, # Optional
+  chimerism_data, # Mandatory
+  x_range, # Mandatory
+  y_upper, # Mandatory
+  pat_id # Mandatory
 ) {
 
   plot <- ggplot2::ggplot() +
@@ -73,7 +75,8 @@ draw_chimerism_plot <- function(
         x = rel_chimerism_dat,
         y = chimerism / 10, # Divide chimerism by 10.
         colour = surface_marker
-      )
+      ),
+      linetype = "dashed"
     ) +
 
     # Add CHIMERISM points, including those with only one data point.
@@ -270,13 +273,15 @@ plot_chimerism_timeline <- function(processed, pat_id) {
 #' @param patient_subset A vector of patient IDs.
 #' @param output_folder The folder where the output PDF will be saved.
 #' @param output_filename The name of the output PDF file.
+#' @param output_format Output format string, "svg" or "pdf".
 #' @returns A numeric vector.
 #' @examples
-#' draw_clinical_course(
+#' draw_clinical_course_chimerism(
 #' processed,
 #' patient_subset,
 #' "~/output",
-#' "clinical_course.pdf"
+#' "clinical_course.pdf",
+#' output_format = "pdf"
 #' )
 draw_clinical_course_chimerism <- function(
   processed,

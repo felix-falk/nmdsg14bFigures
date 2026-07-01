@@ -13,7 +13,11 @@ preprocess_data(
   gvhd_file,
   ngs_file,
   immune_filter_file,
-  chimerism_file
+  chimerism_file,
+  strata_filename = list("general_info", "aza", "dli", "ngs", "chimerism", "mrd",
+    "immune"),
+  strata_colname = NULL,
+  strata_itemname = NULL
 )
 }
 \arguments{

@@ -77,6 +77,7 @@ make_dummy_legend <- function(levels, colours, title) {
 #' Called by the draw_clinical_course function to select one patient per graph.
 #'
 #' @param df Data frame containing patient information with a "patno" column.
+#' @param pat_id The patno number of the patient.
 #' @returns Filtered data frame for a specific patient,
 #' or the original data frame if it does not meet the criteria.
 #' @examples
@@ -252,7 +253,7 @@ create_treatment_df <- function(
 #' gvhd events occuring at and in between regular checkups.
 #' @param gvhd_raw Data frame containing patno, agvhdstage, gvhddate,
 #' agvhdmaxstage, agvhdmaxdt, cgvhdstage, cgvhdmaxstage, cgvhdmaxdt columns.
-#' @ param end_date_df Data frame containing patno, transpldt
+#' @param end_date_df Data frame containing patno, transpldt
 #' and rel_term dat columns.
 #' @returns Data frame containing patno, gvhd, rel_gvhd_dat,
 #' agvhdstage, cgvhdstage columns.
@@ -300,25 +301,25 @@ create_gvhd_df <- function(
 }
 
 #' Creates ngs data frame based on ngs_raw.
-#' @param
-create_ngs_df <- function(ngs_raw){
+#' @param ngs_raw Data frame with patno, Gen and cDNA forandring columns.
+create_ngs_df <- function(
+  ngs_raw
+) {
   # NGS Data filtering
   gene_lists <-
     ngs_raw |>
-    dplyr::filter(!is.na(Studienummer)) |>
+    dplyr::filter(!is.na(patno)) |>
     dplyr::summarise(
       mutlist = paste(unique(Gen), collapse = ", "),
-      .by = Studienummer
+      .by = patno
     )
 
   ngs <-
     ngs_raw |>
-    dplyr::left_join(gene_lists, by = "Studienummer") |>
+    dplyr::left_join(gene_lists, by = "patno") |>
     dplyr::mutate(
-      mutname = paste0(Gen, "_", "cDNA förändring"),
-      patno = as.double(Studienummer)
-    ) |>
-    dplyr::select(-Studienummer)
+      mutname = paste0(Gen, "_", "cDNA forandring")
+    )
 
   return(ngs)
 }
@@ -327,7 +328,7 @@ create_ngs_df <- function(ngs_raw){
 #' that contains patno, transpldt and rel_term_dat
 #' @param general_info_raw Data frame containing patno,
 #' termindat and transpldt columns.
-#' @ param mrd_raw Data frame containing patno and MRDdat columns.
+#' @param mrd_raw Data frame containing patno and MRDdat columns.
 #' @returns Data frame containing patno, transpldt
 #' and rel_term dat columns.
 #' @example create_end_date_df(general_info_raw, mrd_raw)
@@ -357,9 +358,9 @@ create_end_date_df <- function(
 
 #' Adds strata for survival analysis to the general_info data frame.
 #' @param general_info Data frame with patno column.
-#' @strata_filename Name of data frame with strata of interest.
-#' @strata_colname Name of column with strata of interest.
-#' @strata_itemname Name of item with strata of interest.
+#' @param strata_filename Name of data frame with strata of interest.
+#' @param strata_colname Name of column with strata of interest.
+#' @param strata_itemname Name of item with strata of interest.
 #' @returns general_info data frame with an additional strata column.
 #' @example add_strata(general_info, strata_filename = "ngs",
 #' strata_colname = "Gen", strata_itemname = "TP53")
@@ -417,7 +418,7 @@ add_strata <- function(
 #' @param chimerism_raw Data frame containing patno, chimerism, chimbmdt and
 #' columns starting with CD that contain chimerims values
 #' for each surface marker.
-#' @ param end_date_df Data frame containing patno, transpldt and
+#' @param end_date_df Data frame containing patno, transpldt and
 #' rel_term_dat columns.
 #' @returns Data frame containing patno, surface_marker, chimerism, and
 #' rel_chimerism_dat columns.

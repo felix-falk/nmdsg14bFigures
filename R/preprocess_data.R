@@ -8,6 +8,10 @@
 #' @param gvhd_file Path to the GVHD events Excel file.
 #' @param ngs_file Path to the NGS Excel file.
 #' @param immune_filter_file Path to the immune suppression filter CSV file.
+#' @param chimerism_file Path to the chimerism Excel file.
+#' @param strata_filename Name of the file containing the strata of interest.
+#' @param strata_colname Name of the column containing the strata of interest.
+#' @param strata_itemname Name of the item of the strata of interest.
 #' @returns A list of processed data frames.
 #' @examples
 #' preprocess_data(
@@ -129,10 +133,10 @@ preprocess_data <- function(
   }
 
   if (is.null(ngs_file) || !file.exists(ngs_file)) {
-    ngs_raw <- tibble::tibble(Studienummer = double(), Gen = character())
+    ngs_raw <- tibble::tibble(patno = double(), Gen = character())
   } else {
     ngs_raw <- readxl::read_excel(ngs_file)
-    column_check(ngs_raw, c("Studienummer", "Gen"))
+    column_check(ngs_raw, c("patno", "Gen"))
   }
 
   if (is.null(chimerism_file) || !file.exists(chimerism_file)) {
@@ -145,12 +149,6 @@ preprocess_data <- function(
     chimerism_raw <- readxl::read_excel(chimerism_file)
     column_check(chimerism_raw, c("patno", "chimbmdt", "CD33BM", "CD34BM"))
   }
-
-  # Make column names ASCII-safe for NGS if present
-  names(ngs_raw) <- iconv(
-    names(ngs_raw), from = "UTF-8", to = "ASCII//TRANSLIT"
-  )
-  names(ngs_raw) <- gsub(" ", "_", names(ngs_raw), fixed = TRUE)
 
   # Read immune suppresion filter file
   if (is.null(immune_filter_file) || !file.exists(immune_filter_file)) {

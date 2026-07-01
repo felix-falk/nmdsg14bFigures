@@ -3,19 +3,21 @@
 \name{y_limit_finder}
 \alias{y_limit_finder}
 \title{Called by the draw_clinical_course function to
-find the upper limit of the MRD y-axis.}
+find the upper limit of the MRD and/or chimerism y-axis.}
 \usage{
-y_limit_finder(mrd_data)
+y_limit_finder(mrd_data, chimerism_data = NULL)
 }
 \arguments{
 \item{mrd_data}{A data frame containing MRD data.}
+
+\item{chimerism_data}{A data frame containing chimerism data.}
 }
 \value{
 A numeric value indicating the upper y-axis limit.
 }
 \description{
 Called by the draw_clinical_course function to
-find the upper limit of the MRD y-axis.
+find the upper limit of the MRD and/or chimerism y-axis.
 }
 \examples{
 y_limit_finder(d$mrd)

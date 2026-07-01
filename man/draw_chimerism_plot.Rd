@@ -2,23 +2,47 @@
 % Please edit documentation in R/draw_chimerism.R
 \name{draw_chimerism_plot}
 \alias{draw_chimerism_plot}
-\title{Generate chimerism plot for a given patient}
+\title{Generate MRD + chimerism plot for a given patient.}
 \usage{
-draw_chimerism_plot(chimerism_data, general_info_data, x_range, pat_id)
+draw_chimerism_plot(
+  mrd_data,
+  general_info_data,
+  ngs_data,
+  chimerism_data,
+  x_range,
+  y_upper,
+  pat_id
+)
 }
 \arguments{
+\item{mrd_data}{A data frame containing longitudinal MRD data.}
+
+\item{general_info_data}{A data frame containing general patient info data.}
+
+\item{ngs_data}{A data frame containing ngs data.}
+
+\item{chimerism_data}{A data frame containing chimerism data.}
+
 \item{x_range}{The range of the x-axis.}
 
-\item{data}{A data frame containing longitudinal MRD data}
-
 \item{y_upper}{The upper limit of the y-axis.}
+
+\item{pat_id}{The patient id of the patient you want to plot.}
 }
 \value{
 A ggplot object representing the MRD plot for the patient.
 }
 \description{
-Generate chimerism plot for a given patient
+Generate MRD + chimerism plot for a given patient.
 }
 \examples{
-draw_mrd_plot(d$mrd)
+draw_chimerism_plot(
+  d$mrd,
+  d$general_info,
+  d$ngs_data,
+  d$chimerism_data,
+  x_range,
+  y_upper,
+  pat_id
+)
 }

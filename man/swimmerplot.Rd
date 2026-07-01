@@ -41,6 +41,7 @@ immune_pts,
 outcome_pts,
 treatment_pts,
 gvhd_pts,
+mrd_terminal_pts,
 title_string
 )
 }

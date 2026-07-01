@@ -6,6 +6,9 @@
 #' @param outcome_pts A vector of patient IDs.
 #' @param treatment_pts A vector of patient IDs.
 #' @param gvhd_pts A vector of patient IDs.
+#' @param mrd_terminal_pts A data frame describing mrd values taken
+#' at the termination date, with the columns patno, rel_term_dat,
+#' y and mrd_category.
 #' @param title_string The title for the swimmer plot.
 #' @returns A swimmer plot ggplot object.
 #' @examples

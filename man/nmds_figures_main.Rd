@@ -2,18 +2,23 @@
 % Please edit documentation in R/main.R
 \name{nmds_figures_main}
 \alias{nmds_figures_main}
-\title{Run analysis using the nmdsFiguresMain function}
+\title{Run analysis using the nmds_figures_main function.}
 \usage{
 nmds_figures_main(
   general_info_file,
   mrd_file,
-  dli_file,
-  aza_file,
-  immune_file,
-  gvhd_file,
-  ngs_file,
-  chimerism_file,
-  immune_filter_file,
+  dli_file = NULL,
+  aza_file = NULL,
+  immune_file = NULL,
+  gvhd_file = NULL,
+  ngs_file = NULL,
+  chimerism_file = NULL,
+  immune_filter_file = NULL,
+  strata_filename = NULL,
+  strata_colname = NULL,
+  strata_itemname = NULL,
+  survival_baseline = NULL,
+  survival_metric = NULL,
   output_folder,
   plot_type = c("swimmerplot", "clinical_course", "clinical_course_chimerism",
     "survival"),
@@ -36,29 +41,35 @@ nmds_figures_main(
 
 \item{ngs_file}{Excel file with NGS information}
 
+\item{chimerism_file}{Excel file with chimerism information}
+
 \item{immune_filter_file}{CSV file with immune suppression filter}
 
 \item{output_folder}{Folder for generated figures}
 
 \item{plot_type}{Either "swimmerplot" or "clinical_course"}
 
-\item{filters}{Optional filter list or path to JSON file}
+\item{filters}{Optional filter list}
 }
 \description{
-Run analysis using the nmdsFiguresMain function
+Run analysis using the nmds_figures_main function.
 }
 \examples{
 nmds_figures_main(
-general_info_file = "~/general.xlsx",
-mrd_file = "~/mrd.xlsx",
-dli_file = "~/dli.xlsx",
-aza_file = "~/aza.xlsx",
-immune_file = "~/immune.xlsx",
-gvhd_file = "~/gvhd.xlsx",
-ngs_file = "~/ngs.xlsx",
-immune_filter_file = "~/immune_filter.csv",
-output_folder = "~/output",
-plot_type = "clinical_course",
-filters = NULL
+ general_info_file = "general.xlsx",
+ mrd_file = "mrd.xlsx",
+ dli_file = "dli.xlsx",
+ aza_file = "aza.xlsx",
+ immune_file = "immune.xlsx",
+ gvhd_file = "gvhd.xlsx",
+ ngs_file = "ngs.xlsx",
+ chimerism_file = "chimerism.xlsx",
+ immune_filter_file = "immune_filter.csv",
+ output_folder = "output",
+ plot_type = "clinical_course",
+ filters = list(
+   genes = "TP53",
+   outcomes = "Relapse"
+ )
 )
 }

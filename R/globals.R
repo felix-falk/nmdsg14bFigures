@@ -37,7 +37,6 @@ utils::globalVariables(
     "rel_aza_dat",
     "rel_dli_dat",
     "rel_gvhd_dat",
-    "Studienummer",
     "mutlist",
     "exclude",
     "eosreason",
