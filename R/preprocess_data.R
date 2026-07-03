@@ -321,20 +321,6 @@ preprocess_data <- function(
 
   # --- IMMUNE RECTANGLES ---
 
-  immune_rectangles <- interval_df |>
-    dplyr::select(patno, interval_start, interval_end, dose_percentage) |>
-    dplyr::filter(!is.na(interval_start), !is.na(interval_end)) |>
-    dplyr::mutate(
-      xmin = interval_start,
-      xmax = interval_end
-    ) |>
-    dplyr::filter(xmin != xmax) |>
-    dplyr::select(patno, xmin, xmax, dose_percentage) |>
-    dplyr::arrange(patno, xmin) |>
-    dplyr::group_by(patno) |>
-    dplyr::mutate(rect_index = dplyr::row_number()) |>
-    dplyr::ungroup()
-
   # Based on gvhd, compute earliest relevant GVHD event per patient:
   # - aGVHD grade III-IV
   # - cGVHD severe

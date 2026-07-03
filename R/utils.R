@@ -12,26 +12,21 @@ interval_finder <- function(df) {
   df |>
     dplyr::arrange(patno, drugname_standardized, rel_immune_dat) |>
     dplyr::group_by(patno, drugname_standardized) |>
-    dplyr::group_modify(~ {
-
-      # Create intervals: each row spans from its rel_immune_dat
-      # to the next row's rel_immune_dat (or rel_term_dat for the last row)
-      rel_term_dat_val <- dplyr::first(.x$rel_term_dat)
-
-      tibble::tibble(
-        interval_no = seq_len(nrow(.x)),
-        interval_start = .x$rel_immune_dat,
-        interval_end = c(
-          .x$rel_immune_dat[-nrow(.x)],
-          rel_term_dat_val
-        ),
-        patno = .x$patno,
-        drugname_standardized = .x$drugname_standardized,
-        drugdose = .x$drugdose,
-        dose_percentage = .x$dose_percentage,
-        drugstopped = .x$drugstopped
-      )
-    }) |>
+    dplyr::mutate(
+      interval_no = dplyr::row_number(),
+      interval_start = dplyr::lag(rel_immune_dat, default = 0),
+      interval_end = rel_immune_dat
+    ) |>
+    dplyr::select(
+      interval_no,
+      interval_start,
+      interval_end,
+      patno,
+      drugname_standardized,
+      drugdose,
+      dose_percentage,
+      drugstopped
+    ) |>
     dplyr::ungroup()
 }
 
