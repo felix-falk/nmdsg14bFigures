@@ -368,7 +368,7 @@ preprocess_data <- function(
     dplyr::filter(gvhd == "Chronic GVHD") |>
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
     dplyr::filter(grepl("Moderate", stage_norm)) |>
-    dplyr::left_join(overlapping_interval_df, by = "patno") |>
+    dplyr::left_join(interval_df, by = "patno") |>
     dplyr::filter(
       !is.na(interval_start) &
         rel_gvhd_dat >= interval_start &
@@ -491,7 +491,6 @@ preprocess_data <- function(
       ngs = ngs,
       immune_events = immune,
       immune_intervals = interval_df,
-      ciclosporine_intervals = overlapping_ciclosporin_interval_df,
       chimerism = chimerism
     )
   )
