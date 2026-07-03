@@ -14,23 +14,22 @@ interval_finder <- function(df) {
     dplyr::group_by(patno, drugname_standardized) |>
     dplyr::group_modify(~ {
 
-      stop_idx <- which(.x$drugstopped == "Yes")
-
-      if (length(stop_idx) == 0) {
-        return(tibble::tibble(
-          interval_no = 1,
-          interval_start = min(.x$rel_immune_dat, na.rm = TRUE),
-          interval_end = max(.x$rel_term_dat, na.rm = TRUE)
-        ))
-      }
-
-      starts <- c(1, stop_idx[-length(stop_idx)] + 1)
-      ends <- stop_idx
+      # Create intervals: each row spans from its rel_immune_dat
+      # to the next row's rel_immune_dat (or rel_term_dat for the last row)
+      rel_term_dat_val <- dplyr::first(.x$rel_term_dat)
 
       tibble::tibble(
-        interval_no = seq_along(starts),
-        interval_start = .x$rel_immune_dat[starts],
-        interval_end = .x$rel_immune_dat[ends]
+        interval_no = seq_len(nrow(.x)),
+        interval_start = .x$rel_immune_dat,
+        interval_end = c(
+          .x$rel_immune_dat[-nrow(.x)],
+          rel_term_dat_val
+        ),
+        patno = .x$patno,
+        drugname_standardized = .x$drugname_standardized,
+        drugdose = .x$drugdose,
+        dose_percentage = .x$dose_percentage,
+        drugstopped = .x$drugstopped
       )
     }) |>
     dplyr::ungroup()
@@ -165,7 +164,7 @@ y_limit_finder <- function(
 #' \dontrun{
 #' x_range_finder(d$general_info)
 #' }
-x_range_finder <- function(general_info_data){
+x_range_finder <- function(general_info_data) {
 
   # Determine the range of the x axis
   x_end <- general_info_data$rel_term_dat[1]
@@ -476,4 +475,58 @@ create_chimerism_df <- function(
     dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
 
   return(chimerism)
+}
+
+#' Called by preprocess_data to find overlapping intervals
+#' in an immune intervals data frame.
+#' @oaram interval_df Data frame containing patno, interval_start and
+#' interval_end columns.
+#' @returns Data frame containing patno, overlap_group, interval_start and
+#' interval_end columns, where overlapping intervals are consolidated
+#' into a single interval.
+#' @example overlapping_interval_finder(interval_df)
+overlapping_interval_finder <- function(interval_df) {
+  overlapping_interval_df <- interval_df |>
+    dplyr::arrange(patno, interval_start, interval_end) |>
+    dplyr::group_by(patno) |>
+    dplyr::mutate(
+      running_max_end = cummax(interval_end),
+      new_group = interval_start > dplyr::lag(
+        running_max_end,
+        default = dplyr::first(interval_end)
+      ),
+      overlap_group = cumsum(new_group) + 1
+    ) |>
+    dplyr::group_by(patno, overlap_group) |>
+    dplyr::summarise(
+      interval_start = min(interval_start),
+      interval_end = max(interval_end),
+      .groups = "drop"
+    )
+  return(overlapping_interval_df)
+}
+
+#' Called by preprocess_data to calculate the percentage of the maximum dose
+#' for each drug in the immune suppression data frame.
+#' @param immune_df Data frame containing patno, drugname_standardized and
+#' drugdose columns.
+#' @returns Data frame containing patno, drugname_standardized, drugdose and
+#' dose_percentage columns, where dose_percentage is the percentage of the
+#' maximum dose for each drug.
+#' @example calc_immune_percentage_dose(immune_df)
+calc_immune_percentage_dose <- function(immune_df) {
+  immune_df <- immune_df |>
+    dplyr::group_by(patno, drugname_standardized) |>
+    dplyr::mutate(
+      max_dose = max(drugdose, na.rm = TRUE),
+      dose_percentage = dplyr::if_else(
+        max_dose > 0,
+        (drugdose / max_dose) * 100,
+        NA_real_
+      )
+    ) |>
+    dplyr::select(-max_dose) |>
+    dplyr::ungroup()
+
+  return(immune_df)
 }

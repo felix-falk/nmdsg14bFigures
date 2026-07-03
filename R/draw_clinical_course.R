@@ -1,42 +1,3 @@
-create_ciklo_rectangles <- function(immune_data) {
-  # --- CIKLOSPORIN RECTANGLES ---
-
-  ciklosporin_base <- immune_data |>
-    dplyr::filter(
-      drugname_standardized == "ciclosporin"
-    ) |>
-    dplyr::arrange(patno, rel_immune_dat) |>
-    dplyr::select(
-      patno,
-      rel_immune_dat,
-      drugdose,
-      drugstopped
-    )
-
-  ciklosporin_rectangles <- ciklosporin_base |>
-    dplyr::group_by(patno) |>
-    dplyr::mutate(
-      xmin = rel_immune_dat,
-      xmax = dplyr::lead(rel_immune_dat),
-      xmax = dplyr::coalesce(
-        xmax,
-        dplyr::if_else(
-          drugstopped == "Yes",
-          rel_immune_dat,
-          as.Date(NA)
-        )
-      )
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::filter(!is.na(xmax), xmin != xmax) |>
-    dplyr::transmute(
-      patno,
-      xmin,
-      xmax,
-      drugdose
-    )
-}
-
 #' Generate MRD plot for a given patient
 #'
 #' @param mrd_data A data frame containing longitudinal MRD data.
@@ -217,6 +178,7 @@ draw_events_plot <- function(
   ) && nrow(
     immune_intervals_data
   ) > 0
+
   has_aza <- FALSE
   has_dli <- FALSE
   if (!is.null(treatment_data) && nrow(treatment_data) > 0) {
@@ -323,19 +285,33 @@ draw_events_plot <- function(
       )
   }
 
-  # Immune suppression intervals
+  # Immune suppression intervals (old function)
+  #if (has_immune) {
+  #  events_plot <- events_plot +
+  #    ggplot2::geom_segment(
+  #      data = immune_intervals_data,
+  #      ggplot2::aes(
+  #        x = interval_start,
+  #        xend = interval_end,
+  #        y = y_map$immune,
+  #        yend = y_map$immune
+  #      ),
+  #      linewidth = 2,
+  #      colour = "black"
+  #    )
+  #}
+
+  # Immune suppression interval (new function)
   if (has_immune) {
     events_plot <- events_plot +
-      ggplot2::geom_segment(
-        data = immune_intervals_data,
-        ggplot2::aes(
-          x = interval_start,
-          xend = interval_end,
-          y = y_map$immune,
-          yend = y_map$immune
-        ),
-        linewidth = 2,
-        colour = "black"
+      ggplot2::geom_rect(ggplot2::aes(
+        xmin = immune_intervals_data$interval_start,
+        xmax = immune_intervals_data$interval_end,
+        ymin = immune_intervals_data$y_map$immune - 0.2,
+        ymax = immune_intervals_data$y_map$immune + 0.2,
+        fill = immune_intervals_data$dose_percentage
+      ),
+      color = "black"
       )
   }
 
@@ -433,6 +409,7 @@ plot_patient_timeline <- function(processed, pat_id) {
   events_plot <- draw_events_plot(
     d$gvhd,
     d$immune_intervals,
+    d$ciclosporine_intervals,
     d$treatment,
     x_range
   )

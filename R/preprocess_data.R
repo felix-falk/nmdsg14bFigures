@@ -298,26 +298,41 @@ preprocess_data <- function(
   # NGS Data filtering
   ngs <- create_ngs_df(ngs_raw)
 
+  # Calculate relative immune suppression drug concentrations
+  immune <- calc_immune_percentage_dose(immune)
+
   # Create immune intervals data frame
   interval_df <- interval_finder(immune)
 
-  overlapping_interval_df <- interval_df |>
-    dplyr::arrange(patno, interval_start, interval_end) |>
-    dplyr::group_by(patno) |>
+  # Find overlapping immune suppression intervals
+  overlapping_interval_df <- overlapping_interval_finder(interval_df)
+
+  # Create ciclosporine intervals data frame
+  ciclosporine_interval_df <- interval_finder(
+    immune |>
+      dplyr::filter(drugname_standardized == "ciclosporin")
+  )
+
+  # Find overlapping immune suppression intervals for ciclosporin
+  overlapping_ciclosporin_interval_df <- overlapping_interval_finder(
+    ciclosporine_interval_df
+  )
+
+  # --- IMMUNE RECTANGLES ---
+
+  immune_rectangles <- interval_df |>
+    dplyr::select(patno, interval_start, interval_end, dose_percentage) |>
+    dplyr::filter(!is.na(interval_start), !is.na(interval_end)) |>
     dplyr::mutate(
-      running_max_end = cummax(interval_end),
-      new_group = interval_start > dplyr::lag(
-        running_max_end,
-        default = dplyr::first(interval_end)
-      ),
-      overlap_group = cumsum(new_group) + 1
+      xmin = interval_start,
+      xmax = interval_end
     ) |>
-    dplyr::group_by(patno, overlap_group) |>
-    dplyr::summarise(
-      interval_start = min(interval_start),
-      interval_end = max(interval_end),
-      .groups = "drop"
-    )
+    dplyr::filter(xmin != xmax) |>
+    dplyr::select(patno, xmin, xmax, dose_percentage) |>
+    dplyr::arrange(patno, xmin) |>
+    dplyr::group_by(patno) |>
+    dplyr::mutate(rect_index = dplyr::row_number()) |>
+    dplyr::ungroup()
 
   # Based on gvhd, compute earliest relevant GVHD event per patient:
   # - aGVHD grade III-IV
@@ -475,8 +490,8 @@ preprocess_data <- function(
       ngs = ngs,
       immune_events = immune,
       immune_intervals = overlapping_interval_df,
+      ciclosporine_intervals = overlapping_ciclosporin_interval_df,
       chimerism = chimerism
-
     )
   )
 }
