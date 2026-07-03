@@ -202,8 +202,15 @@ draw_events_plot <- function(
     current_y <- current_y + 1
   }
   if (has_immune) {
-    y_map$immune <- current_y
-    current_y <- current_y + 1
+    immune_drugs <- immune_intervals_data |>
+      dplyr::distinct(drugname_standardized) |>
+      dplyr::arrange(drugname_standardized) |>
+      dplyr::pull(drugname_standardized)
+    y_map$immune <- stats::setNames(
+      seq(current_y, length.out = length(immune_drugs)),
+      immune_drugs
+    )
+    current_y <- current_y + length(immune_drugs)
   }
   if (has_aza) {
     y_map$aza <- current_y
@@ -225,7 +232,7 @@ draw_events_plot <- function(
     labels <- c()
     if (has_agvhd) labels <- c(labels, "aGVHD")
     if (has_cgvhd) labels <- c(labels, "cGVHD")
-    if (has_immune) labels <- c(labels, "Immune suppression")
+    if (has_immune) labels <- c(labels, names(y_map$immune))
     if (has_aza) labels <- c(labels, "Azacitidine")
     if (has_dli) labels <- c(labels, "DLI")
     limits <- c(0.5, (current_y - 1) + 0.5)
@@ -296,7 +303,8 @@ draw_events_plot <- function(
           drugstopped == "Yes",
           NA_real_,
           dose_percentage
-        )
+        ),
+        y = unname(y_map$immune[drugname_standardized])
       )
 
     events_plot <- events_plot +
@@ -305,8 +313,8 @@ draw_events_plot <- function(
         ggplot2::aes(
           xmin = interval_start,
           xmax = interval_end,
-          ymin = y_map$immune - 0.2,
-          ymax = y_map$immune + 0.2,
+          ymin = y - 0.2,
+          ymax = y + 0.2,
           fill = fill_value
         ),
         colour = NA
@@ -367,7 +375,6 @@ draw_events_plot <- function(
   return(events_plot)
 
 }
-
 
 #' Generate MRD + GVHD timeline for a given patient
 #'

@@ -77,6 +77,8 @@ utils::globalVariables(
     "n",
     "gvhd",
     "mdsdiagnosis",
-    "karyotyp"
+    "karyotyp",
+    "fill_value",
+    "dose_percentage"
   )
 )
