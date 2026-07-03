@@ -306,18 +306,18 @@ preprocess_data <- function(
   interval_df <- interval_finder(immune)
 
   # Find overlapping immune suppression intervals
-  overlapping_interval_df <- overlapping_interval_finder(interval_df)
+  #overlapping_interval_df <- overlapping_interval_finder(interval_df)
 
   # Create ciclosporine intervals data frame
-  ciclosporine_interval_df <- interval_finder(
-    immune |>
-      dplyr::filter(drugname_standardized == "ciclosporin")
-  )
+  #ciclosporine_interval_df <- interval_finder(
+  #  immune |>
+  #    dplyr::filter(drugname_standardized == "ciclosporin")
+  #)
 
   # Find overlapping immune suppression intervals for ciclosporin
-  overlapping_ciclosporin_interval_df <- overlapping_interval_finder(
-    ciclosporine_interval_df
-  )
+  #overlapping_ciclosporin_interval_df <- overlapping_interval_finder(
+  #  ciclosporine_interval_df
+  #)
 
   # --- IMMUNE RECTANGLES ---
 
@@ -490,7 +490,7 @@ preprocess_data <- function(
       gvhd_events = gvhd_events,
       ngs = ngs,
       immune_events = immune,
-      immune_intervals = overlapping_interval_df,
+      immune_intervals = interval_df,
       ciclosporine_intervals = overlapping_ciclosporin_interval_df,
       chimerism = chimerism
     )
