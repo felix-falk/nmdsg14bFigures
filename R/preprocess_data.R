@@ -479,7 +479,7 @@ preprocess_data <- function(
     strata_itemname
   )
 
-  print(general_info, width = Inf)
+  print(interval_df, width = Inf)
 
   return(
     list(
