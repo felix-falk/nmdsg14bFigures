@@ -104,7 +104,7 @@ preprocess_data <- function(
     )
   } else {
     immune_raw <- readxl::read_excel(immune_file)
-    column_check(immune_raw, c("patno", "drugname", "drugdt", "drugstopped"))
+    column_check(immune_raw, c("patno", "drugname", "drugdt", "drugstopped", "drugdose"))
   }
 
   if (is.null(gvhd_file) || !file.exists(gvhd_file)) {
@@ -254,7 +254,8 @@ preprocess_data <- function(
       drugstopped,
       rel_term_dat,
       rel_immune_dat,
-      drugname_standardized
+      drugname_standardized,
+      drugdose
     ) |>
     dplyr::distinct()
 
