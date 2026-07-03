@@ -256,7 +256,8 @@ draw_events_plot <- function(
           "4" = "#800000"
         ),
         guide = "none"
-      )
+      ) +
+      ggnewscale::new_scale_fill()
   }
 
   # Add chronic GVHD points and its color scale if present
@@ -282,24 +283,9 @@ draw_events_plot <- function(
           "Severe" = "#290088"
         ),
         guide = "none"
-      )
+      ) +
+      ggnewscale::new_scale_fill()
   }
-
-  # Immune suppression intervals (old function)
-  #if (has_immune) {
-  #  events_plot <- events_plot +
-  #    ggplot2::geom_segment(
-  #      data = immune_intervals_data,
-  #      ggplot2::aes(
-  #        x = interval_start,
-  #        xend = interval_end,
-  #        y = y_map$immune,
-  #        yend = y_map$immune
-  #      ),
-  #      linewidth = 2,
-  #      colour = "black"
-  #    )
-  #}
 
   # Immune suppression interval (new function)
   if (has_immune) {
