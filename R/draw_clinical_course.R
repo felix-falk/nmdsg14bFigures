@@ -301,10 +301,18 @@ draw_events_plot <- function(
   #    )
   #}
 
-  print(immune_intervals_data, width = Inf)
-
   # Immune suppression interval (new function)
   if (has_immune) {
+
+    immune_intervals_data <- immune_intervals_data |>
+      dplyr::mutate(
+        fill_group = dplyr::if_else(
+          drugstopped == "Yes",
+          NA_character_,
+          as.character(dose_percentage)
+        )
+      )
+
     events_plot <- events_plot +
       ggplot2::geom_rect(
         data = immune_intervals_data,
@@ -313,9 +321,9 @@ draw_events_plot <- function(
           xmax = interval_end,
           ymin = y_map$immune - 0.2,
           ymax = y_map$immune + 0.2,
-          fill = dose_percentage
+          fill = fill_group
         ),
-        color = "black"
+        colour = NA
       )
   }
 
