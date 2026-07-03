@@ -409,7 +409,6 @@ plot_patient_timeline <- function(processed, pat_id) {
   events_plot <- draw_events_plot(
     d$gvhd,
     d$immune_intervals,
-    d$ciclosporine_intervals,
     d$treatment,
     x_range
   )
