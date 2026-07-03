@@ -324,7 +324,18 @@ draw_events_plot <- function(
           fill = fill_group
         ),
         colour = NA
-      )
+      ) +
+      ggplot2::scale_fill_manual(
+        values = c(
+          "25" = "#d9f0a3",
+          "50" = "#addd8e",
+          "75" = "#78c679",
+          "100" = "#31a354"
+        ),
+        na.value = "transparent",
+        guide = "none"
+      ) +
+      ggnewscale::new_scale_fill()
   }
 
   # Azacitidine
