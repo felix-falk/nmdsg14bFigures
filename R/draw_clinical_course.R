@@ -306,10 +306,10 @@ draw_events_plot <- function(
 
     immune_intervals_data <- immune_intervals_data |>
       dplyr::mutate(
-        fill_group = dplyr::if_else(
+        fill_value = dplyr::if_else(
           drugstopped == "Yes",
-          NA_character_,
-          as.character(dose_percentage)
+          NA_real_,
+          dose_percentage
         )
       )
 
@@ -321,17 +321,14 @@ draw_events_plot <- function(
           xmax = interval_end,
           ymin = y_map$immune - 0.2,
           ymax = y_map$immune + 0.2,
-          fill = fill_group
+          fill = fill_value
         ),
         colour = NA
       ) +
-      ggplot2::scale_fill_manual(
-        values = c(
-          "25" = "#d9f0a3",
-          "50" = "#addd8e",
-          "75" = "#78c679",
-          "100" = "#31a354"
-        ),
+      ggplot2::scale_fill_gradient(
+        low = "#d9f0a3",
+        high = "#31a354",
+        limits = c(0, 100),
         na.value = "transparent",
         guide = "none"
       ) +
