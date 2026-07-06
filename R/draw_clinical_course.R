@@ -326,7 +326,7 @@ draw_events_plot <- function(
           ymax = y + 0.2,
           fill = fill_value
         ),
-        colour = NA
+        colour = fill_value
       ) +
       ggplot2::scale_fill_gradient(
         low = "#d9f0a3",
