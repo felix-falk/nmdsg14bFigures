@@ -451,24 +451,41 @@ create_chimerism_df <- function(
   chimerism_raw,
   end_date_df
 ) {
-  chimerism <- chimerism_raw |>
-    tidyr::pivot_longer(
-      dplyr::starts_with("CD"),
-      names_to = "surface_marker",
-      values_to = "chimerism"
-    ) |>
-    dplyr::filter(!is.na(chimerism)) |>
-    dplyr::left_join(end_date_df, by = "patno") |>
-    dplyr::mutate(
-      rel_chimerism_dat = as.numeric(difftime(
-        as.Date(chimbmdt),
-        as.Date(transpldt),
-        units = "days"
-      ))
-    ) |>
-    dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
-    dplyr::filter(surface_marker %in% c("CD33BM", "CD34BM"))
-
+  # If the data frame already contains a single surface_marker column, 
+  # there is no need to pivot longer. 
+  if ("surface_marker" %in% colnames(chimerism_raw)) {
+    chimerism <- chimerism_raw |>
+      dplyr::filter(!is.na(chimerism)) |>
+      dplyr::left_join(end_date_df, by = "patno") |>
+      dplyr::mutate(
+        rel_chimerism_dat = as.numeric(difftime(
+          as.Date(chimbmdt),
+          as.Date(transpldt),
+          units = "days"
+        ))
+      ) |>
+      dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
+      dplyr::filter(surface_marker %in% c("CD33*", "CD34*"))
+  } else {
+    # Also use pivot longer to unify chimerism data in one single column.
+    chimerism <- chimerism_raw |>
+      tidyr::pivot_longer(
+        dplyr::starts_with("CD"),
+        names_to = "surface_marker",
+        values_to = "chimerism"
+      ) |>
+      dplyr::filter(!is.na(chimerism)) |>
+      dplyr::left_join(end_date_df, by = "patno") |>
+      dplyr::mutate(
+        rel_chimerism_dat = as.numeric(difftime(
+          as.Date(chimbmdt),
+          as.Date(transpldt),
+          units = "days"
+        ))
+      ) |>
+      dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
+      dplyr::filter(surface_marker %in% c("CD33*", "CD34*"))
+  }
   return(chimerism)
 }
 
