@@ -324,9 +324,9 @@ draw_events_plot <- function(
           xmax = interval_end,
           ymin = y - 0.2,
           ymax = y + 0.2,
-          fill = fill_value,
-          colour = fill_value
-        )
+          fill = fill_value
+        ),
+        colour = NA
       ) +
       ggplot2::scale_fill_gradient(
         low = "#d9f0a3",
