@@ -67,7 +67,6 @@ preprocess_data <- function(
     "transpldt",
     "termindat",
     "eosreason",
-    "ipssm",
     "mdsdiagnosis",
     "karyotyp",
     "deathcause"
@@ -274,17 +273,13 @@ preprocess_data <- function(
       eosreason == "Death" ~ "Nonrelapse mortality",
       eosreason == "Full hematological relapse" ~ "Relapse",
       eosreason == "Consent withdrawal" ~ "Other exclusion reason",
+      eosreason == "Patients wish" ~ "Other exclusion reason",
+      eosreason == "Other (please use comment)" ~ "Other exclusion reason",
       eosreason == "Other reason" ~ "Other exclusion reason",
+      eosreason == "Relapse" ~ "Relapse",
+      eosreason == "Two years passed" ~ "Remission",
       is.na(eosreason) & patno %in% mrd_relapse_cases ~ "Relapse",
       TRUE ~ "Remission"
-    )) |>
-    dplyr::mutate(ipssm_title = dplyr::case_when(
-      ipssm < -1.5 ~ "Very Low",
-      ipssm >= -1.5 & ipssm < -0.5 ~ "Low",
-      ipssm >= -0.5 & ipssm < 0 ~ "Moderate Low",
-      ipssm >= 0 & ipssm < 0.5 ~ "Moderate High",
-      ipssm >= 0.5 & ipssm < 1.5 ~ "High",
-      ipssm >= 1.5 ~ "Very High"
     )) |>
     dplyr::left_join(
       end_date_df |>
@@ -295,6 +290,19 @@ preprocess_data <- function(
       mrd_pos_dates,
       by = "patno"
     )
+
+  # Add ipssm_title column to general_info if ipssm is present
+  if (ipssm %in% colnames(general_info)) {
+    general_info <- general_info |>
+      dplyr::mutate(ipssm_title = dplyr::case_when(
+        ipssm < -1.5 ~ "Very Low",
+        ipssm >= -1.5 & ipssm < -0.5 ~ "Low",
+        ipssm >= -0.5 & ipssm < 0 ~ "Moderate Low",
+        ipssm >= 0 & ipssm < 0.5 ~ "Moderate High",
+        ipssm >= 0.5 & ipssm < 1.5 ~ "High",
+        ipssm >= 1.5 ~ "Very High"
+      ))
+  }
 
   # NGS Data filtering
   ngs <- create_ngs_df(ngs_raw)
