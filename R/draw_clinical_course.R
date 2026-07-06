@@ -173,10 +173,20 @@ draw_events_plot <- function(
     ) > 0
   }
 
-  has_immune <- !is.null(
-    immune_intervals_data
+  has_immune_ciclo <- !is.null(
+    immune_intervals_data |>
+      dplyr::filter(drugname_standardized == "Ciclosporin")
   ) && nrow(
-    immune_intervals_data
+    immune_intervals_data |>
+      dplyr::filter(drugname_standardized == "Ciclosporin")
+  ) > 0
+
+  has_immune_other <- !is.null(
+    immune_intervals_data |>
+      dplyr::filter(drugname_standardized != "Ciclosporin")
+  ) && nrow(
+    immune_intervals_data |>
+      dplyr::filter(drugname_standardized != "Ciclosporin")
   ) > 0
 
   has_aza <- FALSE
@@ -201,16 +211,13 @@ draw_events_plot <- function(
     y_map$cgvhd <- current_y
     current_y <- current_y + 1
   }
-  if (has_immune) {
-    immune_drugs <- immune_intervals_data |>
-      dplyr::distinct(drugname_standardized) |>
-      dplyr::arrange(drugname_standardized) |>
-      dplyr::pull(drugname_standardized)
-    y_map$immune <- stats::setNames(
-      seq(current_y, length.out = length(immune_drugs)),
-      immune_drugs
-    )
-    current_y <- current_y + length(immune_drugs)
+  if (has_immune_ciclo) {
+    y_map$immune_ciclo <- current_y
+    current_y <- current_y + 1
+  }
+  if (has_immune_other) {
+    y_map$immune_other <- current_y
+    current_y <- current_y + 1
   }
   if (has_aza) {
     y_map$aza <- current_y
@@ -232,7 +239,8 @@ draw_events_plot <- function(
     labels <- c()
     if (has_agvhd) labels <- c(labels, "aGVHD")
     if (has_cgvhd) labels <- c(labels, "cGVHD")
-    if (has_immune) labels <- c(labels, names(y_map$immune))
+    if (has_immune_ciclo) labels <- c(labels, "Ciclosporin")
+    if (has_immune_other) labels <- c(labels, "Immune suppression")
     if (has_aza) labels <- c(labels, "Azacitidine")
     if (has_dli) labels <- c(labels, "DLI")
     limits <- c(0.5, (current_y - 1) + 0.5)
@@ -294,22 +302,23 @@ draw_events_plot <- function(
       ggnewscale::new_scale_fill()
   }
 
-  # Immune suppression interval (new function)
-  if (has_immune) {
+  # Immune suppression interval (Ciclosporin)
+  if (has_immune_ciclo) {
 
-    immune_intervals_data <- immune_intervals_data |>
+    immune_intervals_data_ciclo <- immune_intervals_data |>
+      dplyr::filter(drugname_standardized == "Ciclosporin") |>
       dplyr::mutate(
         fill_value = dplyr::if_else(
           drugstopped == "Yes",
           NA_real_,
           dose_percentage
         ),
-        y = unname(y_map$immune[drugname_standardized])
+        y = y_map$immune_ciclo
       )
 
     events_plot <- events_plot +
       ggplot2::geom_rect(
-        data = immune_intervals_data,
+        data = immune_intervals_data_ciclo,
         ggplot2::aes(
           xmin = interval_start,
           xmax = interval_end,
@@ -325,6 +334,30 @@ draw_events_plot <- function(
         limits = c(0, 100),
         na.value = "transparent",
         guide = "none"
+      ) +
+      ggnewscale::new_scale_fill()
+  }
+
+  # Immune suppression interval (Other immune suppression drugs)
+  if (has_immune_other) {
+
+    immune_intervals_data_other <- immune_intervals_data |>
+      dplyr::filter(drugname_standardized != "Ciclosporin") |>
+      dplyr::mutate(
+        y = y_map$immune_other
+      )
+
+    events_plot <- events_plot +
+      ggplot2::geom_rect(
+        data = immune_intervals_data_other,
+        ggplot2::aes(
+          xmin = interval_start,
+          xmax = interval_end,
+          ymin = y - 0.2,
+          ymax = y + 0.2,
+          fill = "grey"
+        ),
+        colour = NA
       ) +
       ggnewscale::new_scale_fill()
   }
