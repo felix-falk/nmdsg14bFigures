@@ -146,7 +146,7 @@ preprocess_data <- function(
     )
   } else {
     chimerism_raw <- readxl::read_excel(chimerism_file)
-    column_check(chimerism_raw, c("patno", "chimbmdt", "CD33BM", "CD34BM"))
+    column_check(chimerism_raw, c("patno", "chimbmdt"))
   }
 
   # Read immune suppresion filter file
