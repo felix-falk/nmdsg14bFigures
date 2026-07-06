@@ -35,7 +35,7 @@ packageVersion("nmdsg14bFigures")
 3. The excel data files require the following columns
 
 | Excel file | Required columns | Optional columns |
-| ------- | ------- |
+| ------- | ------- | ------- |
 | ```general_info.xlsx``` |  ```patno, transpldt, termindat, eosreason, mdsdiagnosis, karyotyp, deathcause``` | ```ipssm``` |
 | ```mrd.xlsx``` |  ```patno, MRDdat, mutname, level``` | |
 | ```dli.xlsx``` | ```patno, dlidat``` | |
