@@ -23,12 +23,12 @@
 #' )
 swimmerplot <- function(
   plot_data,
-  immune_pts,
   outcome_pts,
-  treatment_pts,
-  gvhd_pts,
   mrd_terminal_pts,
-  title_string
+  title_string,
+  immune_pts = NULL,
+  treatment_pts = NULL,
+  gvhd_pts = NULL
 ) {
 
   swimmer_plot <- ggplot2::ggplot(plot_data) +
@@ -72,36 +72,7 @@ swimmerplot <- function(
 
     ggnewscale::new_scale_fill() +
 
-    # Add immune suppression line
-    ggplot2::geom_segment(
-      data = immune_pts,
-      ggplot2::aes(
-        x = interval_start,
-        xend = interval_end,
-        y = y + 0.3,
-        yend = y + 0.3,
-        linetype = "Immune suppression"
-      ),
-      linewidth = 1.5,
-      color = "brown"
-    ) +
-
-    # Add immune suppression legend
-    ggplot2::scale_linetype_manual(
-      name = NULL,
-      values = c("Immune suppression" = "solid"),
-      guide = ggplot2::guide_legend(
-        order = 2,
-        override.aes = list(
-          linewidth = 2.5,
-          color = "brown"
-        )
-      )
-    ) +
-
-    ggnewscale::new_scale_fill() +
-
-    # Add outcome annotations
+     # Add outcome annotations (MANDATORY)
     ggplot2::geom_text(
       data = outcome_pts |>
         dplyr::mutate(
@@ -122,10 +93,41 @@ swimmerplot <- function(
       show.legend = FALSE
     ) +
 
+    # Add immune suppression line (OPTIONAL)
+    if (!is.null(immune_pts)) {
+      ggplot2::geom_segment(
+        data = immune_pts,
+        ggplot2::aes(
+          x = interval_start,
+          xend = interval_end,
+          y = y + 0.3,
+          yend = y + 0.3,
+          linetype = "Immune suppression"
+        ),
+        linewidth = 1.5,
+        color = "brown"
+      ) +
+      # Add immune suppression legend
+      ggplot2::scale_linetype_manual(
+        name = NULL,
+        values = c("Immune suppression" = "solid"),
+        guide = ggplot2::guide_legend(
+          order = 2,
+          override.aes = list(
+            linewidth = 2.5,
+            color = "brown"
+          )
+        )
+      ) +
+      ggnewscale::new_scale_fill() +
+  }
+
+   
     ggnewscale::new_scale_fill() +
 
-    # Add treatment annotations
-    ggplot2::geom_point(
+    # Add treatment annotations (OPTIONAL)
+    if (!is.null(treatment_pts)) {
+      ggplot2::geom_point(
       data = treatment_pts |> dplyr::filter(!is.na(treatment)),
       ggplot2::aes(
         x = rel_treatment_dat,
@@ -145,10 +147,10 @@ swimmerplot <- function(
       ),
       guide = ggplot2::guide_legend(order = 4)
     ) +
-
     ggnewscale::new_scale_fill() +
+    }
 
-    # Add acute GVHD annotation
+    # Add acute GVHD annotation (OPTIONAL)
     ggplot2::geom_point(
       data = gvhd_pts |> dplyr::filter(
         gvhd == "Acute GVHD",
