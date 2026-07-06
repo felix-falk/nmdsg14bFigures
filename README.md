@@ -34,16 +34,16 @@ packageVersion("nmdsg14bFigures")
 
 3. The excel data files require the following columns
 
-| Excel file | Required columns |
+| Excel file | Required columns | Optional columns |
 | ------- | ------- |
-| ```general_info.xlsx``` |  ```patno, transpldt, termindat, eosreason, ipssm, mdsdiagnosis, karyotyp, deathcause``` |
-| ```mrd.xlsx``` |  ```patno, MRDdat, mutname, level``` |
-| ```dli.xlsx``` | ```patno, dlidat``` |
-| ```aza.xlsx``` | ```patno, azacitstart``` |
-| ```immune.xlsx``` | ```patno, drugname, drugdt, drugstopped``` |
-| ```gvhd.xlsx``` | ```patno, gvhddate, agvhdstage, cgvhdstage, agvhdmaxstage, agvhdmaxdt, cgvhdmaxstage, cgvhdmaxdt``` |
-| ```ngs.xlsx``` | ```patno, Gen, cDNA forandring``` |
-| ```chimerism.xlsx``` | ```patno, chimbmdt, CD33BM, CD34BM``` |
+| ```general_info.xlsx``` |  ```patno, transpldt, termindat, eosreason, mdsdiagnosis, karyotyp, deathcause``` | ```ipssm``` |
+| ```mrd.xlsx``` |  ```patno, MRDdat, mutname, level``` | |
+| ```dli.xlsx``` | ```patno, dlidat``` | |
+| ```aza.xlsx``` | ```patno, azacitstart``` | |
+| ```immune.xlsx``` | ```patno, drugname, drugdt, drugstopped``` | |
+| ```gvhd.xlsx``` | ```patno, gvhddate, agvhdstage, cgvhdstage, agvhdmaxstage, agvhdmaxdt, cgvhdmaxstage, cgvhdmaxdt``` | |
+| ```ngs.xlsx``` | ```patno, Gen, cDNA forandring``` | |
+| ```chimerism.xlsx``` | ```patno, chimbmdt``` | ```CD33BM, CD34BM``` |
 
 ## Run the package in R
 
