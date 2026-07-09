@@ -1,13 +1,16 @@
 #' Run analysis using the nmds_figures_main function.
 #'
-#' @param general_info_file Excel file with general patient clinical information
-#' @param mrd_file Excel file with MRD measurements
+#' @param general_info_file Excel file with general patient clinical
+#' information. Required for all plot types.
+#' @param mrd_file Excel file with MRD measurements. Required for all
+#' plot types.
 #' @param dli_file Excel file with DLI treatment information
 #' @param aza_file Excel file with Azacitidine treatment information
 #' @param immune_file Excel file with immune suppression treatment information
 #' @param gvhd_file Excel file with GVHD events information
 #' @param ngs_file Excel file with NGS information
-#' @param chimerism_file Excel file with chimerism information
+#' @param chimerism_file Excel file with chimerism information.
+#' Required when `plot_type = "clinical_course_chimerism"`.
 #' @param immune_filter_file CSV file with immune suppression filter
 #' @param output_folder Folder for generated figures
 #' @param strata_filename Optional file name or data source used for strata.
@@ -70,24 +73,51 @@ nmds_figures_main <- function(
   plot_type <- match.arg(plot_type)
   output_format <- match.arg(output_format)
 
-  required_args <- list(
+  required_files <- list(
     general_info_file = general_info_file,
-    mrd_file = mrd_file,
-    output_folder = output_folder
+    mrd_file = mrd_file
   )
 
-  missing_args <- names(required_args)[
-    vapply(required_args, is.null, logical(1))
+  if (plot_type == "clinical_course_chimerism") {
+    required_files$chimerism_file <- chimerism_file
+  }
+
+  missing_files <- names(required_files)[
+    vapply(required_files, is.null, logical(1))
   ]
 
-  if (length(missing_args) > 0) {
+  if (length(missing_files) > 0) {
     stop(
       sprintf(
-        "Missing required arguments: %s",
-        paste(missing_args, collapse = ", ")
+        "Missing required input file arguments for plot_type '%s': %s",
+        plot_type,
+        paste(missing_files, collapse = ", ")
       ),
       call. = FALSE
     )
+  }
+
+  non_existing_files <- names(required_files)[
+    !vapply(
+      required_files,
+      function(path) file.exists(path.expand(path)),
+      logical(1)
+    )
+  ]
+
+  if (length(non_existing_files) > 0) {
+    stop(
+      sprintf(
+        "Required input files do not exist for plot_type '%s': %s",
+        plot_type,
+        paste(non_existing_files, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (is.null(output_folder)) {
+    stop("Missing required argument: output_folder", call. = FALSE)
   }
 
   # ----------------------------------------------------------

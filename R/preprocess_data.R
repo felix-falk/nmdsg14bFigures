@@ -97,9 +97,11 @@ preprocess_data <- function(
   if (is.null(immune_file) || !file.exists(immune_file)) {
     immune_raw <- tibble::tibble(
       patno = double(),
+      immunsupptreatm = character(),
       drugdt = as.Date(character()),
       drugname = character(),
-      drugstopped = character()
+      drugstopped = character(),
+      drugdose = numeric()
     )
   } else {
     immune_raw <- readxl::read_excel(immune_file)

@@ -11,61 +11,82 @@ draw_survival <- function(
     "rel_pos_mrd_dat_0.1",
     "rel_pos_mrd_dat_0.5",
     "rel_pos_mrd_dat_1.0"
-  ), # Set the baseline timepoint for survival analysis
+  ),
   survival_metric = c(
     "os",
     "rfs",
     "efs"
-  ), # Set metric for survival analysis
-  survival_filename
+  ),
+  survival_filename = "survival"
 ) {
 
+  processed$general_info <- ensure_data_frame_columns(
+    processed$general_info,
+    c(
+      "patno", "os_time", "os_status", "rfs_time", "rfs_status",
+      "event_time", "event_status",
+      "rel_pos_mrd_dat_0.1", "rel_pos_mrd_dat_0.5", "rel_pos_mrd_dat_1.0"
+    )
+  )
+  processed$treatment <- ensure_data_frame_columns(processed$treatment, c("patno"))
+  processed$mrd <- ensure_data_frame_columns(processed$mrd, c("patno"))
+  processed$gvhd <- ensure_data_frame_columns(processed$gvhd, c("patno"))
+  processed$immune_intervals <- ensure_data_frame_columns(
+    processed$immune_intervals,
+    c("patno")
+  )
+  processed$ngs <- ensure_data_frame_columns(processed$ngs, c("patno"))
+
   if (!is.null(patient_subset)) {
-
-    processed$general_info <-
-      processed$general_info |>
+    processed$general_info <- processed$general_info |>
       dplyr::filter(patno %in% patient_subset)
 
-    processed$treatment <-
-      processed$treatment |>
+    processed$treatment <- processed$treatment |>
       dplyr::filter(patno %in% patient_subset)
 
-    processed$mrd <-
-      processed$mrd |>
+    processed$mrd <- processed$mrd |>
       dplyr::filter(patno %in% patient_subset)
 
-    processed$gvhd <-
-      processed$gvhd |>
+    processed$gvhd <- processed$gvhd |>
       dplyr::filter(patno %in% patient_subset)
 
-    processed$immune_intervals <-
-      processed$immune_intervals |>
+    processed$immune_intervals <- processed$immune_intervals |>
       dplyr::filter(patno %in% patient_subset)
 
-    processed$ngs <-
-      processed$ngs |>
+    processed$ngs <- processed$ngs |>
       dplyr::filter(patno %in% patient_subset)
+  }
 
+  survival_data <- processed$general_info
+  if (nrow(survival_data) == 0) {
+    stop("No patients available after filtering.", call. = FALSE)
   }
 
   # Survival metric mapping
   survival_metric <- match.arg(survival_metric)
-  survival_data <- processed$general_info
   metric_map <- list(
-    os  = list(time = "os_time",  status = "os_status"),
+    os = list(time = "os_time", status = "os_status"),
     rfs = list(time = "rfs_time", status = "rfs_status"),
     efs = list(time = "event_time", status = "event_status")
   )
   time_col <- metric_map[[survival_metric]]$time
   status_col <- metric_map[[survival_metric]]$status
 
-  strata_var <- if (!is.null(strata_colname)) {
-    strata_colname
+  # Build strata variable; if none is provided, analyse all patients as one group.
+  if (is.null(strata_colname) && is.null(strata_filename)) {
+    strata_var <- ".all_patients"
+    survival_data[[strata_var]] <- "All"
   } else {
-    strata_filename
+    strata_var <- if (!is.null(strata_colname)) strata_colname else strata_filename
+    if (!strata_var %in% names(survival_data)) {
+      stop(
+        sprintf("Strata column '%s' not found in survival data.", strata_var),
+        call. = FALSE
+      )
+    }
   }
 
-  # optional filtering ONLY
+  # Optional filtering ONLY
   if (!is.null(strata_itemname)) {
     survival_data <- survival_data |>
       dplyr::filter(.data[[strata_var]] == strata_itemname)
@@ -73,9 +94,6 @@ draw_survival <- function(
 
   # Match the requested baseline
   survival_baseline <- match.arg(survival_baseline)
-
-  # Rename the survival data set
-  survival_data <- processed$general_info
 
   # Re-calculate event time relative to first positive MRD
   if (survival_baseline != "transplant") {
@@ -91,6 +109,10 @@ draw_survival <- function(
     ]
   }
 
+  if (nrow(survival_data) == 0) {
+    stop("No patients available after applying survival baseline/strata filters.")
+  }
+
   # Fit survival model
   form <- stats::as.formula(
     sprintf("Surv(%s, %s) ~ `%s`", time_col, status_col, strata_var)
@@ -101,15 +123,14 @@ draw_survival <- function(
   # Write x-axis label
   xlab_text <- paste(
     "Days after",
-    if (survival_baseline == "transplant")
-      "transplantation" else survival_baseline
+    if (survival_baseline == "transplant") "transplantation" else survival_baseline
   )
 
   # Write y-axis label
   ylab_text <-
     if (survival_metric == "os") "Overall survival"
     else if (survival_metric == "rfs") "Relapse free survival"
-    else if (survival_metric == "efs") "Event free survival"
+    else "Event free survival"
 
   # Draw figure
   survplot <- survminer::ggsurvplot(
@@ -124,13 +145,22 @@ draw_survival <- function(
     risk.table.col = "strata"
   )
 
+  if (!dir.exists(output_folder)) {
+    dir.create(output_folder, recursive = TRUE)
+  }
+
+  out_file <- file.path(
+    output_folder,
+    paste0(tools::file_path_sans_ext(survival_filename), ".", output_format)
+  )
+
   # Save figure to svg or pdf
   if (output_format == "svg") {
-    grDevices::svg("survival.svg", width = 8, height = 8)
+    grDevices::svg(out_file, width = 8, height = 8)
     print(survplot)
     grDevices::dev.off()
   } else {
-    grDevices::pdf("survival.pdf", width = 8, height = 8)
+    grDevices::pdf(out_file, width = 8, height = 8)
     print(survplot)
     grDevices::dev.off()
   }

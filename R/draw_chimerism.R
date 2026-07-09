@@ -30,6 +30,47 @@ draw_chimerism_plot <- function(
   pat_id # Mandatory
 ) {
 
+  diagnosis_label <- if (
+    "mdsdiagnosis" %in% names(general_info_data) &&
+    length(general_info_data$mdsdiagnosis) > 0 &&
+    !is.na(general_info_data$mdsdiagnosis[1])
+  ) {
+    general_info_data$mdsdiagnosis[1]
+  } else {
+    "Not available"
+  }
+
+  ipssm_label <- if (
+    "ipssm_title" %in% names(general_info_data) &&
+    length(general_info_data$ipssm_title) > 0 &&
+    !is.na(general_info_data$ipssm_title[1])
+  ) {
+    general_info_data$ipssm_title[1]
+  } else {
+    "Not available"
+  }
+
+  karyotype_label <- if (
+    "karyotyp" %in% names(general_info_data) &&
+    length(general_info_data$karyotyp) > 0 &&
+    !is.na(general_info_data$karyotyp[1])
+  ) {
+    general_info_data$karyotyp[1]
+  } else {
+    "Not available"
+  }
+
+  ngs_label <- if (
+    !is.null(ngs_data) &&
+    nrow(ngs_data) > 0 &&
+    "mutlist" %in% names(ngs_data) &&
+    !is.na(ngs_data$mutlist[1])
+  ) {
+    ngs_data$mutlist[1]
+  } else {
+    "Not available"
+  }
+
   plot <- ggplot2::ggplot() +
 
     # Add a shaded rectangle to indicate the MRD negative range (below 0.1 %)
@@ -115,13 +156,13 @@ draw_chimerism_plot <- function(
     ),
     subtitle = paste0(
       "Diagnosis: ",
-      general_info_data$mdsdiagnosis[1],
+      diagnosis_label,
       "\nIPSS-M: ",
-      general_info_data$ipssm_title[1],
+      ipssm_label,
       "\nKaryotype: ",
-      general_info_data$karyotyp[1],
+      karyotype_label,
       "\nNGS: ",
-      ngs_data$mutlist[1]
+      ngs_label
     )
     ) +
 
@@ -293,6 +334,41 @@ draw_clinical_course_chimerism <- function(
 ) {
 
   output_format <- match.arg(output_format)
+
+  processed$general_info <- ensure_data_frame_columns(
+    processed$general_info,
+    c(
+      "patno", "rel_term_dat", "outcome", "mdsdiagnosis",
+      "karyotyp", "deathcause", "ipssm_title"
+    )
+  )
+  processed$mrd <- ensure_data_frame_columns(
+    processed$mrd,
+    c("patno", "rel_mrd_dat", "level", "Mutation")
+  )
+  processed$treatment <- ensure_data_frame_columns(
+    processed$treatment,
+    c("patno", "treatment", "rel_treatment_dat")
+  )
+  processed$gvhd <- ensure_data_frame_columns(
+    processed$gvhd,
+    c("patno", "gvhd", "agvhdstage", "cgvhdstage", "rel_gvhd_dat")
+  )
+  processed$immune_intervals <- ensure_data_frame_columns(
+    processed$immune_intervals,
+    c(
+      "patno", "interval_start", "interval_end", "drugname_standardized",
+      "dose_percentage", "drugstopped"
+    )
+  )
+  processed$ngs <- ensure_data_frame_columns(
+    processed$ngs,
+    c("patno", "mutlist")
+  )
+  processed$chimerism <- ensure_data_frame_columns(
+    processed$chimerism,
+    c("patno", "rel_chimerism_dat", "chimerism", "surface_marker")
+  )
 
   if (nrow(processed$general_info) == 0) {
     stop("No patients available after filtering.")

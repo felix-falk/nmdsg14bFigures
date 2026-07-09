@@ -278,6 +278,31 @@ draw_swimmerplot <- function(
 
   output_format <- match.arg(output_format)
 
+  processed$general_info <- ensure_data_frame_columns(
+    processed$general_info,
+    c("patno", "rel_term_dat", "outcome")
+  )
+  processed$mrd <- ensure_data_frame_columns(
+    processed$mrd,
+    c("patno", "rel_mrd_dat", "mrd_category", "rel_term_dat")
+  )
+  processed$treatment <- ensure_data_frame_columns(
+    processed$treatment,
+    c("patno", "treatment", "rel_treatment_dat")
+  )
+  processed$gvhd <- ensure_data_frame_columns(
+    processed$gvhd,
+    c("patno", "gvhd", "agvhdstage", "cgvhdstage", "rel_gvhd_dat")
+  )
+  processed$immune_intervals <- ensure_data_frame_columns(
+    processed$immune_intervals,
+    c("patno", "interval_start", "interval_end")
+  )
+  processed$ngs <- ensure_data_frame_columns(
+    processed$ngs,
+    c("patno", "mutlist")
+  )
+
   if (nrow(processed$general_info) == 0) {
     stop("No patients available after filtering.")
   }

@@ -100,6 +100,26 @@ select_one_patient <- function(df, pat_id = NULL) {
   dplyr::filter(df, patno == pat_id)
 }
 
+#' Ensure a data frame exists and has required columns.
+#'
+#' @param df Input object that should be a data frame.
+#' @param required_cols Character vector of required column names.
+#' @returns A data frame containing all required columns.
+ensure_data_frame_columns <- function(df, required_cols = character()) {
+  if (is.null(df) || !is.data.frame(df)) {
+    df <- tibble::tibble()
+  }
+
+  missing_cols <- setdiff(required_cols, names(df))
+  if (length(missing_cols) > 0) {
+    for (col in missing_cols) {
+      df[[col]] <- NA
+    }
+  }
+
+  df
+}
+
 #' Called by the draw_clinical_course function to
 #' find the upper limit of the MRD and/or chimerism y-axis.
 #' @param mrd_data A data frame containing MRD data.

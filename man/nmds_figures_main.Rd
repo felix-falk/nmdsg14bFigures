@@ -27,9 +27,10 @@ nmds_figures_main(
 )
 }
 \arguments{
-\item{general_info_file}{Excel file with general patient clinical information}
+\item{general_info_file}{Excel file with general patient clinical information.
+Required for all plot types.}
 
-\item{mrd_file}{Excel file with MRD measurements}
+\item{mrd_file}{Excel file with MRD measurements. Required for all plot types.}
 
 \item{dli_file}{Excel file with DLI treatment information}
 
@@ -41,7 +42,8 @@ nmds_figures_main(
 
 \item{ngs_file}{Excel file with NGS information}
 
-\item{chimerism_file}{Excel file with chimerism information}
+\item{chimerism_file}{Excel file with chimerism information.
+Required when \code{plot_type = "clinical_course_chimerism"}.}
 
 \item{immune_filter_file}{CSV file with immune suppression filter}
 
