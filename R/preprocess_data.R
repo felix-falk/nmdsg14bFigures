@@ -292,15 +292,15 @@ preprocess_data <- function(
     )
 
   # Add ipssm_title column to general_info if ipssm is present
-  if (ipssm %in% colnames(general_info)) {
+  if ("ipssm" %in% colnames(general_info)) {
     general_info <- general_info |>
       dplyr::mutate(ipssm_title = dplyr::case_when(
-        ipssm < -1.5 ~ "Very Low",
-        ipssm >= -1.5 & ipssm < -0.5 ~ "Low",
-        ipssm >= -0.5 & ipssm < 0 ~ "Moderate Low",
-        ipssm >= 0 & ipssm < 0.5 ~ "Moderate High",
-        ipssm >= 0.5 & ipssm < 1.5 ~ "High",
-        ipssm >= 1.5 ~ "Very High"
+        .data$ipssm < -1.5 ~ "Very Low",
+        .data$ipssm >= -1.5 & .data$ipssm < -0.5 ~ "Low",
+        .data$ipssm >= -0.5 & .data$ipssm < 0 ~ "Moderate Low",
+        .data$ipssm >= 0 & .data$ipssm < 0.5 ~ "Moderate High",
+        .data$ipssm >= 0.5 & .data$ipssm < 1.5 ~ "High",
+        .data$ipssm >= 1.5 ~ "Very High"
       ))
   }
 
