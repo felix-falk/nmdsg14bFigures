@@ -130,11 +130,14 @@ swimmerplot <- function(
         "Other exclusion reason" = "black"
       ),
       labels = c(
-        "Relapse"                = "R \u2014 Relapse",
-        "Nonrelapse mortality"   = "\u00D7 \u2014 Nonrelapse mortality",
-        "Other exclusion reason" = "* \u2014 Other exclusion reason"
+        "Relapse"                = "R  Relapse",
+        "Nonrelapse mortality"   = "\u00D7  Nonrelapse mortality",
+        "Other exclusion reason" = "*  Other exclusion reason"
       ),
-      guide = ggplot2::guide_legend(order = 3)
+      guide = ggplot2::guide_legend(
+        order = 3,
+        keywidth = ggplot2::unit(0, "pt")
+      )
     )
 
   # Add immune suppression line (OPTIONAL)
