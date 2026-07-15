@@ -80,7 +80,7 @@ swimmerplot <- function(
 
     ggnewscale::new_scale_fill() +
 
-    # Add outcome annotations (MANDATORY)
+    # Add outcome annotations (MANDATORY) — text labels on the plot
     ggplot2::geom_text(
       data = outcome_pts |>
         dplyr::filter(
@@ -98,11 +98,28 @@ swimmerplot <- function(
           outcome == "Nonrelapse mortality" ~ "\u00D7",
           outcome == "Other exclusion reason" ~ "*",
           TRUE ~ ""
-        ),
-        color = outcome
+        )
       ),
       hjust = -0.2,
-      show.legend = c(color = TRUE)
+      show.legend = FALSE
+    ) +
+
+    # Invisible points used solely to drive the Outcome legend
+    ggplot2::geom_point(
+      data = outcome_pts |>
+        dplyr::filter(
+          .data$outcome %in% c(
+            "Relapse",
+            "Nonrelapse mortality",
+            "Other exclusion reason"
+          )
+        ),
+      ggplot2::aes(
+        x = rel_term_dat + 5,
+        y = y,
+        color = outcome
+      ),
+      shape = NA
     ) +
 
     ggplot2::scale_color_manual(
@@ -112,13 +129,12 @@ swimmerplot <- function(
         "Nonrelapse mortality"   = "black",
         "Other exclusion reason" = "black"
       ),
-      guide = ggplot2::guide_legend(
-        order = 3,
-        override.aes = list(
-          label = c("R", "\u00D7", "*"),
-          size  = 4
-        )
-      )
+      labels = c(
+        "Relapse"                = "R \u2014 Relapse",
+        "Nonrelapse mortality"   = "\u00D7 \u2014 Nonrelapse mortality",
+        "Other exclusion reason" = "* \u2014 Other exclusion reason"
+      ),
+      guide = ggplot2::guide_legend(order = 3)
     )
 
   # Add immune suppression line (OPTIONAL)
