@@ -102,7 +102,7 @@ swimmerplot <- function(
         color = outcome
       ),
       hjust = -0.2,
-      show.legend = TRUE
+      show.legend = c(color = TRUE)
     ) +
 
     ggplot2::scale_color_manual(
