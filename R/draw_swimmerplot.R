@@ -130,9 +130,9 @@ swimmerplot <- function(
         "Other exclusion reason" = "black"
       ),
       labels = c(
-        "Relapse"                = "R  Relapse",
-        "Nonrelapse mortality"   = "\u00D7  Nonrelapse mortality",
-        "Other exclusion reason" = "*  Other exclusion reason"
+        "Relapse"                = "R                    Relapse",
+        "Nonrelapse mortality"   = "×       Nonrelapse mortality",
+        "Other exclusion reason" = "*   Other exclusion reason"
       ),
       guide = ggplot2::guide_legend(
         order = 3,
