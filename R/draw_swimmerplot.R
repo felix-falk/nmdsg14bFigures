@@ -98,10 +98,27 @@ swimmerplot <- function(
           outcome == "Nonrelapse mortality" ~ "\u00D7",
           outcome == "Other exclusion reason" ~ "*",
           TRUE ~ ""
-        )
+        ),
+        color = outcome
       ),
       hjust = -0.2,
-      show.legend = FALSE
+      show.legend = TRUE
+    ) +
+
+    ggplot2::scale_color_manual(
+      name = "Outcome",
+      values = c(
+        "Relapse"                = "black",
+        "Nonrelapse mortality"   = "black",
+        "Other exclusion reason" = "black"
+      ),
+      guide = ggplot2::guide_legend(
+        order = 3,
+        override.aes = list(
+          label = c("R", "\u00D7", "*"),
+          size  = 4
+        )
+      )
     )
 
   # Add immune suppression line (OPTIONAL)
