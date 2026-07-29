@@ -58,7 +58,7 @@ swimmerplot <- function(
     ggplot2::scale_fill_manual(
       name = "MRD category (VAF %)",
       values = c(
-        "Negative (< 0.1)" = "#FFFFCC",
+        "Negative (< 0.1)" = "#FFFFFF",
         "Low (0.1 - 0.5)" = "#FED976",
         "Intermediate (0.5 - 1)" = "#FD8D3C",
         "High (> 1)" = "#BD0026"
@@ -502,12 +502,64 @@ draw_swimmerplot <- function(
     paste0(tools::file_path_sans_ext(output_filename), ".", output_format)
   )
 
+  plot_height_in <- max(5, length(unique(plot_data$patno)) * 0.2)
+  legend_grob <- cowplot::get_legend(swimmer_plot)
+
+  if (is.null(legend_grob)) {
+    final_plot <- swimmer_plot
+    final_height_in <- plot_height_in
+  } else {
+    legend_height_in <- grid::convertHeight(
+      sum(legend_grob$heights),
+      "in",
+      valueOnly = TRUE
+    )
+    final_height_in <- max(plot_height_in, legend_height_in)
+
+    swimmer_plot_no_legend <- swimmer_plot +
+      ggplot2::theme(legend.position = "none")
+
+    plot_top_bottom_pad <- max(0, (final_height_in - plot_height_in) / 2)
+    legend_top_bottom_pad <- max(0, (final_height_in - legend_height_in) / 2)
+
+    plot_column <- cowplot::plot_grid(
+      cowplot::ggdraw(),
+      swimmer_plot_no_legend,
+      cowplot::ggdraw(),
+      ncol = 1,
+      rel_heights = c(
+        plot_top_bottom_pad,
+        plot_height_in,
+        plot_top_bottom_pad
+      )
+    )
+
+    legend_column <- cowplot::plot_grid(
+      cowplot::ggdraw(),
+      cowplot::ggdraw(legend_grob),
+      cowplot::ggdraw(),
+      ncol = 1,
+      rel_heights = c(
+        legend_top_bottom_pad,
+        legend_height_in,
+        legend_top_bottom_pad
+      )
+    )
+
+    final_plot <- cowplot::plot_grid(
+      plot_column,
+      legend_column,
+      ncol = 2,
+      rel_widths = c(1, 0.42)
+    )
+  }
+
   ggplot2::ggsave(
     filename = out_filename,
-    plot = swimmer_plot,
+    plot = final_plot,
     device = output_format,
     width = 6,
-    height = max(5, length(unique(plot_data$patno)) * 0.2),
+    height = final_height_in,
     units = "in",
     dpi = 300,
     bg = "white"
