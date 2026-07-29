@@ -69,114 +69,22 @@ make_dummy_legend <- function(levels, colours, title) {
   cowplot::get_legend(
     ggplot2::ggplot(df, ggplot2::aes(x, y, colour = stage)) +
       ggplot2::geom_point(size = 3) +
-      ggplot2::scale_colour_manual(name = title, values = colours) +
-      ggplot2::theme_void() + ggplot2::theme(legend.position = "right")
-  )
-}
-
-#' Called by the draw_clinical_course function to create continuous legends.
-#'
-#' @param title The title of the legend.
-#' @param low_colour Colour representing the minimum value.
-#' @param high_colour Colour representing the maximum value.
-#' @param limits Numeric length-2 vector giving the legend range.
-#' @param breaks Numeric break positions to show on the legend.
-#' @returns A legend grob.
-#' @examples
-#' \dontrun{
-#' make_gradient_legend(
-#'   "Ciclosporin dose (%)",
-#'   "#d9f0a3",
-#'   "#31a354",
-#'   c(0, 100),
-#'   c(0, 50, 100)
-#' )
-#' }
-make_gradient_legend <- function(
-  title,
-  low_colour,
-  high_colour,
-  limits,
-  breaks
-) {
-  df <- data.frame(x = 1, y = 1, fill_value = mean(limits))
-  cowplot::get_legend(
-    ggplot2::ggplot(df, ggplot2::aes(x, y, fill = fill_value)) +
-      ggplot2::geom_tile() +
-      ggplot2::scale_fill_gradient(
+      ggplot2::scale_colour_manual(
         name = title,
-        low = low_colour,
-        high = high_colour,
-        limits = limits,
-        breaks = breaks,
-        labels = paste0(breaks, "%"),
-        guide = ggplot2::guide_colorbar(
-          direction = "vertical",
-          barheight = ggplot2::unit(60, "pt")
+        values = colours,
+        guide = ggplot2::guide_legend(
+          title.position = "top",
+          title.hjust = 0
         )
       ) +
       ggplot2::theme_void() +
-      ggplot2::theme(legend.position = "right")
-  )
-}
-
-# Build an explicit grob-based Ciclosporin legend so it remains visible
-# when stacked with other legends.
-make_ciclosporin_legend_grob <- function(
-  title = "Ciclosporin dose (%)",
-  low_colour = "#d9f0a3",
-  high_colour = "#31a354"
-) {
-  # Flip the gradient so 100% is at the top and 0% at the bottom.
-  gradient_cols <- rev(
-    grDevices::colorRampPalette(c(low_colour, high_colour))(128)
-  )
-  gradient_mat <- matrix(gradient_cols, ncol = 1)
-
-  grid::grobTree(
-    grid::textGrob(
-      label = title,
-      x = 0,
-      y = 1,
-      just = c("left", "top"),
-      gp = grid::gpar(fontsize = 9)
-    ),
-    grid::rectGrob(
-      x = 0.22,
-      y = 0.53,
-      width = 0.2,
-      height = 0.56,
-      gp = grid::gpar(col = "grey40", fill = NA, lwd = 0.6)
-    ),
-    grid::rasterGrob(
-      image = gradient_mat,
-      x = 0.22,
-      y = 0.53,
-      width = 0.14,
-      height = 0.5,
-      interpolate = TRUE
-    ),
-    grid::textGrob(
-      label = "100%",
-      x = 0.39,
-      y = 0.78,
-      just = c("left", "center"),
-      gp = grid::gpar(fontsize = 8)
-    ),
-    grid::textGrob(
-      label = "50%",
-      x = 0.39,
-      y = 0.53,
-      just = c("left", "center"),
-      gp = grid::gpar(fontsize = 8)
-    ),
-    grid::textGrob(
-      label = "0%",
-      x = 0.39,
-      y = 0.28,
-      just = c("left", "center"),
-      gp = grid::gpar(fontsize = 8)
-    )
+      ggplot2::theme(
+        legend.position = "right",
+        legend.title = ggplot2::element_text(hjust = 0),
+        legend.text = ggplot2::element_text(hjust = 0),
+        legend.margin = ggplot2::margin(0, 0, 0, 0),
+        legend.box.margin = ggplot2::margin(0, 0, 0, 0)
+      )
   )
 }
 

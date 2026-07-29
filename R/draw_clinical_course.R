@@ -197,7 +197,8 @@ draw_events_plot <- function(
   gvhd_data,
   immune_intervals_data,
   treatment_data,
-  x_range
+  x_range,
+  show_ciclosporin_legend = FALSE
 ) {
 
   is_ciclo <- is_ciclosporin_name(immune_intervals_data$drugname_standardized)
@@ -374,11 +375,23 @@ draw_events_plot <- function(
         colour = NA
       ) +
       ggplot2::scale_fill_gradient(
+        name = "Ciclosporin dose (%)",
         low = "#d9f0a3",
         high = "#31a354",
         limits = c(0, 100),
         na.value = "transparent",
-        guide = "none"
+        breaks = c(0, 50, 100),
+        labels = c("0%", "50%", "100%"),
+        guide = if (show_ciclosporin_legend) {
+          ggplot2::guide_colorbar(
+            direction = "vertical",
+            barheight = ggplot2::unit(55, "pt"),
+            title.position = "top",
+            title.hjust = 0
+          )
+        } else {
+          "none"
+        }
       ) +
       ggnewscale::new_scale_fill()
   }
@@ -399,9 +412,9 @@ draw_events_plot <- function(
           xmin = interval_start,
           xmax = interval_end,
           ymin = y - 0.2,
-          ymax = y + 0.2,
-          fill = "grey"
+          ymax = y + 0.2
         ),
+        fill = "#F8766D",
         colour = NA
       ) +
       ggnewscale::new_scale_fill()
@@ -440,7 +453,7 @@ draw_events_plot <- function(
     ggplot2::labs(x = "Days after transplantation", y = NULL) +
     ggplot2::theme_minimal() +
     ggplot2::theme(
-      legend.position = "none",
+      legend.position = if (show_ciclosporin_legend) "right" else "none",
       axis.text.y = ggplot2::element_text(size = 10)
     ) +
     ggplot2::scale_x_continuous(limits = x_range) +
@@ -503,13 +516,20 @@ plot_patient_timeline <- function(processed, pat_id) {
     d$gvhd,
     d$immune_intervals,
     d$treatment,
-    x_range
+    x_range,
+    show_ciclosporin_legend = TRUE
   )
+
+  # Extract ciclosporin legend
+  ciclo_legend <- cowplot::get_legend(events_plot)
+
+  # Remove ciclosporin legend from events plot
+  events_plot_clean <- events_plot + ggplot2::theme(legend.position = "none")
 
   # Combine MRD + events vertically
   combined_plots <- cowplot::plot_grid(
     mrd_plot_clean,
-    events_plot,
+    events_plot_clean,
     ncol = 1,
     rel_heights = c(2, 1),
     align = "v",
@@ -534,55 +554,18 @@ plot_patient_timeline <- function(processed, pat_id) {
     names(cgvhd_colours), cgvhd_colours, "cGVHD Stage"
   )
 
-  left_align_legend <- function(grob_obj) {
-    cowplot::ggdraw() +
-      cowplot::draw_grob(
-        grob_obj,
-        x = 0,
-        y = 0,
-        width = 1,
-        height = 1,
-        hjust = 0,
-        vjust = 0
-      )
-  }
-
-  mrd_legend_panel <- left_align_legend(mrd_legend)
-  agvhd_legend_panel <- left_align_legend(agvhd_legend_grob)
-  cgvhd_legend_panel <- left_align_legend(cgvhd_legend_grob)
-
-  ciclo_legend_grob <- NULL
-  ciclo_legend_panel <- NULL
-  if (!is.null(d$immune_intervals) && nrow(d$immune_intervals) > 0) {
-    has_ciclosporin <- any(
-      is_ciclosporin_name(d$immune_intervals$drugname_standardized),
-      na.rm = TRUE
-    )
-
-    if (has_ciclosporin) {
-      ciclo_legend_grob <- make_gradient_legend(
-        title = "Ciclosporin dose (%)",
-        low_colour = "#d9f0a3",
-        high_colour = "#31a354",
-        limits = c(0, 100),
-        breaks = c(0, 50, 100)
-      )
-      ciclo_legend_panel <- left_align_legend(ciclo_legend_grob)
-    }
-  }
-
   # Combine all legends vertically
   legend_grobs <- Filter(
     Negate(is.null),
     list(
-      mrd_legend_panel,
-      agvhd_legend_panel,
-      cgvhd_legend_panel,
-      ciclo_legend_panel
+      mrd_legend,
+      agvhd_legend_grob,
+      cgvhd_legend_grob,
+      ciclo_legend
     )
   )
   legend_rel_heights <- rep(1, length(legend_grobs))
-  if (!is.null(ciclo_legend_panel) && length(legend_rel_heights) > 0) {
+  if (!is.null(ciclo_legend) && length(legend_rel_heights) > 0) {
     legend_rel_heights[length(legend_rel_heights)] <- 1.6
   }
   combined_legends <- do.call(
