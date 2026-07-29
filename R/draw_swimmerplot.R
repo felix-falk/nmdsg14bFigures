@@ -45,11 +45,11 @@ swimmerplot <- function(
 
     # Add MRD rectangles
     ggplot2::geom_rect(ggplot2::aes(
-      xmin = plot_data$xmin,
-      xmax = plot_data$xmax,
-      ymin = plot_data$ymin - 0.2,
-      ymax = plot_data$ymax + 0.2,
-      fill = plot_data$mrd_category
+      xmin = xmin,
+      xmax = xmax,
+      ymin = ymin - 0.2,
+      ymax = ymax + 0.2,
+      fill = mrd_category
     ),
     color = "black"
     ) +
@@ -69,7 +69,11 @@ swimmerplot <- function(
 
     # Add MRD annotations at the final recorded date
     ggplot2::geom_point(
-      data = mrd_terminal_pts,
+      data = mrd_terminal_pts |>
+        dplyr::filter(
+          is.finite(rel_term_dat),
+          is.finite(y)
+        ),
       ggplot2::aes(
         x = rel_term_dat,
         y = y,
@@ -90,7 +94,9 @@ swimmerplot <- function(
             "Relapse",
             "Nonrelapse mortality",
             "Other exclusion reason"
-          )
+          ),
+          is.finite(rel_term_dat),
+          is.finite(y)
         ),
       ggplot2::aes(
         x = rel_term_dat + 5,
@@ -114,14 +120,18 @@ swimmerplot <- function(
             "Relapse",
             "Nonrelapse mortality",
             "Other exclusion reason"
-          )
+          ),
+          is.finite(rel_term_dat),
+          is.finite(y)
         ),
       ggplot2::aes(
         x = rel_term_dat + 5,
         y = y,
         color = outcome
       ),
-      shape = NA
+      shape = 16,
+      size = 0.01,
+      alpha = 0
     ) +
 
     ggplot2::scale_color_manual(
@@ -144,103 +154,137 @@ swimmerplot <- function(
 
   # Add immune suppression line (OPTIONAL)
   if (!is.null(immune_pts) && nrow(immune_pts) > 0) {
-    swimmer_plot <- swimmer_plot +
-      ggplot2::geom_segment(
-        data = immune_pts,
-        ggplot2::aes(
-          x = interval_start,
-          xend = interval_end,
-          y = y + 0.3,
-          yend = y + 0.3,
-          linetype = "Immune suppression"
-        ),
-        linewidth = 1.5,
-        color = "brown"
-      ) +
-      ggplot2::scale_linetype_manual(
-        name = NULL,
-        values = c("Immune suppression" = "solid"),
-        guide = ggplot2::guide_legend(
-          order = 2,
-          override.aes = list(
-            linewidth = 2.5,
-            color = "brown"
+    immune_pts_filtered <- immune_pts |>
+      dplyr::filter(
+        is.finite(interval_start),
+        is.finite(interval_end),
+        is.finite(y)
+      )
+
+    if (nrow(immune_pts_filtered) > 0) {
+      swimmer_plot <- swimmer_plot +
+        ggplot2::geom_segment(
+          data = immune_pts_filtered,
+          ggplot2::aes(
+            x = interval_start,
+            xend = interval_end,
+            y = y + 0.3,
+            yend = y + 0.3,
+            linetype = "Immune suppression"
+          ),
+          linewidth = 1.5,
+          color = "brown"
+        ) +
+        ggplot2::scale_linetype_manual(
+          name = NULL,
+          values = c("Immune suppression" = "solid"),
+          guide = ggplot2::guide_legend(
+            order = 2,
+            override.aes = list(
+              linewidth = 2.5,
+              color = "brown"
+            )
           )
-        )
-      ) +
-      ggnewscale::new_scale_fill()
+        ) +
+        ggnewscale::new_scale_fill()
+    }
   }
 
   # Add treatment annotations (OPTIONAL)
   if (!is.null(treatment_pts) && nrow(treatment_pts) > 0) {
-    swimmer_plot <- swimmer_plot +
-      ggplot2::geom_point(
-        data = treatment_pts |> dplyr::filter(!is.na(.data$treatment)),
-        ggplot2::aes(
-          x = .data$rel_treatment_dat,
-          y = .data$y - 0.3,
-          fill = .data$treatment
-        ),
-        color = "black",
-        shape = 24
-      ) +
-      ggplot2::scale_fill_manual(
-        name = "Treatment",
-        values = c(
-          "DLI" = "darkgrey",
-          "Azacitidine" = "white"
-        ),
-        guide = ggplot2::guide_legend(order = 4)
-      ) +
-      ggnewscale::new_scale_fill()
+    treatment_pts_filtered <- treatment_pts |>
+      dplyr::filter(
+        !is.na(.data$treatment),
+        is.finite(.data$rel_treatment_dat),
+        is.finite(.data$y)
+      )
+
+    if (nrow(treatment_pts_filtered) > 0) {
+      swimmer_plot <- swimmer_plot +
+        ggplot2::geom_point(
+          data = treatment_pts_filtered,
+          ggplot2::aes(
+            x = .data$rel_treatment_dat,
+            y = .data$y - 0.3,
+            fill = .data$treatment
+          ),
+          color = "black",
+          shape = 24
+        ) +
+        ggplot2::scale_fill_manual(
+          name = "Treatment",
+          values = c(
+            "DLI" = "darkgrey",
+            "Azacitidine" = "white"
+          ),
+          guide = ggplot2::guide_legend(order = 4)
+        ) +
+        ggnewscale::new_scale_fill()
+    }
   }
 
   # Add GVHD annotations (OPTIONAL)
   if (!is.null(gvhd_pts) && nrow(gvhd_pts) > 0) {
-    swimmer_plot <- swimmer_plot +
-      ggplot2::geom_point(
-        data = gvhd_pts |> dplyr::filter(
-          .data$gvhd == "Acute GVHD",
-          .data$agvhdstage %in% c(3, 4)
-        ),
-        ggplot2::aes(
-          x = .data$rel_gvhd_dat,
-          y = .data$y - 0.3,
-          fill = .data$agvhdstage
-        ),
-        color = "black",
-        shape = 23
-      ) +
-      ggplot2::scale_fill_manual(
-        name = "Acute GVHD",
-        values = c(
-          "3" = "#FF8A8A",
-          "4" = "#D10000"
-        ),
-        guide = ggplot2::guide_legend(order = 5)
-      ) +
-      ggnewscale::new_scale_fill() +
-      ggplot2::geom_point(
-        data = gvhd_pts |> dplyr::filter(
-          .data$gvhd == "Chronic GVHD",
-          .data$cgvhdstage %in% c("Moderate", "Severe")
-        ),
-        ggplot2::aes(
-          x = .data$rel_gvhd_dat,
-          y = .data$y - 0.3,
-          fill = .data$cgvhdstage
-        ),
-        color = "black",
-        shape = 23
-      ) +
-      ggplot2::scale_fill_manual(
-        name = "Chronic GVHD",
-        values = c(
-          "Moderate" = "#27D6F5",
-          "Severe"   = "#5B27F5"
-        ),
-        guide = ggplot2::guide_legend(order = 6)
+    acute_gvhd_pts <- gvhd_pts |>
+      dplyr::filter(
+        .data$gvhd == "Acute GVHD",
+        as.character(.data$agvhdstage) %in% c("3", "4"),
+        is.finite(.data$rel_gvhd_dat),
+        is.finite(.data$y)
       )
+
+    if (nrow(acute_gvhd_pts) > 0) {
+      swimmer_plot <- swimmer_plot +
+        ggplot2::geom_point(
+          data = acute_gvhd_pts,
+          ggplot2::aes(
+            x = .data$rel_gvhd_dat,
+            y = .data$y - 0.3,
+            fill = as.character(.data$agvhdstage)
+          ),
+          color = "black",
+          shape = 23
+        ) +
+        ggplot2::scale_fill_manual(
+          name = "Acute GVHD",
+          values = c(
+            "3" = "#FF8A8A",
+            "4" = "#D10000"
+          ),
+          guide = ggplot2::guide_legend(order = 5)
+        ) +
+        ggnewscale::new_scale_fill()
+    }
+
+    chronic_gvhd_pts <- gvhd_pts |>
+      dplyr::filter(
+        .data$gvhd == "Chronic GVHD",
+        .data$cgvhdstage %in% c("Moderate", "Severe"),
+        is.finite(.data$rel_gvhd_dat),
+        is.finite(.data$y)
+      )
+
+    if (nrow(chronic_gvhd_pts) > 0) {
+      swimmer_plot <- swimmer_plot +
+        ggplot2::geom_point(
+          data = chronic_gvhd_pts,
+          ggplot2::aes(
+            x = .data$rel_gvhd_dat,
+            y = .data$y - 0.3,
+            fill = .data$cgvhdstage
+          ),
+          color = "black",
+          shape = 23
+        ) +
+        ggplot2::scale_fill_manual(
+          name = "Chronic GVHD",
+          values = c(
+            "Moderate" = "#27D6F5",
+            "Severe"   = "#5B27F5"
+          ),
+          guide = ggplot2::guide_legend(order = 6)
+        )
+    }
   }
 
   swimmer_plot <- swimmer_plot +
