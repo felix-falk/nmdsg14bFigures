@@ -90,7 +90,12 @@ draw_mrd_plot <- function(
     # Add MRD lines, only for mutations with more than 1 data point.
     ggplot2::geom_line(
       data = mrd_data |>
-        dplyr::filter(!is.na(Mutation)) |>
+        dplyr::filter(
+          !is.na(Mutation),
+          is.finite(rel_mrd_dat),
+          is.finite(level_no0s),
+          level_no0s > 0
+        ) |>
         dplyr::group_by(Mutation) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
@@ -102,11 +107,19 @@ draw_mrd_plot <- function(
     ) +
 
     # Add MRD points, including those with only one data point.
-    ggplot2::geom_point(data = mrd_data, ggplot2::aes(
-      x = rel_mrd_dat,
-      y = level_no0s,
-      colour = Mutation
-    )
+    ggplot2::geom_point(
+      data = mrd_data |>
+        dplyr::filter(
+          !is.na(Mutation),
+          is.finite(rel_mrd_dat),
+          is.finite(level_no0s),
+          level_no0s > 0
+        ),
+      ggplot2::aes(
+        x = rel_mrd_dat,
+        y = level_no0s,
+        colour = Mutation
+      )
     ) +
 
     # Set theme, adjust x and y labels, set color of MRD lines and points
@@ -298,9 +311,11 @@ draw_events_plot <- function(
   if (has_agvhd) {
     events_plot <- events_plot +
       ggplot2::geom_point(
-        data = gvhd_data |> dplyr::filter(
-          gvhd == "Acute GVHD" & !is.na(agvhdstage)
-        ),
+        data = gvhd_data |>
+          dplyr::filter(
+            gvhd == "Acute GVHD" & !is.na(agvhdstage) &
+              is.finite(rel_gvhd_dat)
+          ),
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$agvhd,
@@ -326,9 +341,11 @@ draw_events_plot <- function(
     events_plot <- events_plot +
       ggnewscale::new_scale_colour() +
       ggplot2::geom_point(
-        data = gvhd_data |> dplyr::filter(
-          gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
-        ),
+        data = gvhd_data |>
+          dplyr::filter(
+            gvhd == "Chronic GVHD" & !is.na(cgvhdstage) &
+              is.finite(rel_gvhd_dat)
+          ),
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$cgvhd,
@@ -424,7 +441,10 @@ draw_events_plot <- function(
   if (has_aza) {
     events_plot <- events_plot +
       ggplot2::geom_point(
-        data = treatment_data |> dplyr::filter(treatment == "Azacitidine"),
+        data = treatment_data |>
+          dplyr::filter(
+            treatment == "Azacitidine" & is.finite(rel_treatment_dat)
+          ),
         ggplot2::aes(
           x = rel_treatment_dat,
           y = y_map$aza
@@ -438,7 +458,10 @@ draw_events_plot <- function(
   if (has_dli) {
     events_plot <- events_plot +
       ggplot2::geom_point(
-        data = treatment_data |> dplyr::filter(treatment == "DLI"),
+        data = treatment_data |>
+          dplyr::filter(
+            treatment == "DLI" & is.finite(rel_treatment_dat)
+          ),
         ggplot2::aes(
           x = rel_treatment_dat,
           y = y_map$dli

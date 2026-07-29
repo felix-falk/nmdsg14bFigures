@@ -184,12 +184,18 @@ y_limit_finder <- function(
     max_mrd <- safe_max(mrd_data, "level_no0s")
     max_chim <- safe_max(chimerism_data, "chimerism")
 
-    # Determine the upper y-axis limit: at least 10, or the highest value
-    observed_max <- max(c(max_mrd, max_chim), na.rm = TRUE)
+    candidate_max <- c(max_mrd, max_chim)
   } else {
     max_mrd <- safe_max(mrd_data, "level_no0s")
-    # Determine the upper y-axis limit: at least 10, or the highest value
-    observed_max <- max(max_mrd, na.rm = TRUE)
+    candidate_max <- c(max_mrd)
+  }
+
+  # Determine the upper y-axis limit: at least 10, or the highest value
+  finite_max <- candidate_max[is.finite(candidate_max)]
+  if (length(finite_max) == 0) {
+    observed_max <- NA_real_
+  } else {
+    observed_max <- max(finite_max)
   }
 
   if (is.infinite(observed_max) || is.na(observed_max)) {
@@ -583,7 +589,14 @@ calc_immune_percentage_dose <- function(immune_df) {
   immune_df <- immune_df |>
     dplyr::group_by(patno, drugname_standardized) |>
     dplyr::mutate(
-      max_dose = max(drugdose, na.rm = TRUE),
+      max_dose = {
+        non_missing_dose <- drugdose[!is.na(drugdose)]
+        if (length(non_missing_dose) == 0) {
+          NA_real_
+        } else {
+          max(non_missing_dose)
+        }
+      },
       dose_percentage = dplyr::if_else(
         max_dose > 0,
         (drugdose / max_dose) * 100,
