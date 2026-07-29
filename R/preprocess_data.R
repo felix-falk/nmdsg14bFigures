@@ -477,18 +477,6 @@ preprocess_data <- function(
     strata_itemname
   )
 
-  print(interval_df |> dplyr::filter(patno == "1207"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "1408"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "1411"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "1504"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2004"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2017"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2023"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2033"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2035"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2037"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "4007"), width = Inf)
-
   return(
     list(
       general_info = general_info,
