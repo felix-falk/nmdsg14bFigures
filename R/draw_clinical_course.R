@@ -454,7 +454,9 @@ draw_events_plot <- function(
     ggplot2::theme_minimal() +
     ggplot2::theme(
       legend.position = if (show_ciclosporin_legend) "right" else "none",
-      axis.text.y = ggplot2::element_text(size = 10)
+      axis.text.y = ggplot2::element_text(size = 10),
+      panel.grid.minor.y = ggplot2::element_blank(),
+      panel.grid.minor.x = ggplot2::element_blank()
     ) +
     ggplot2::scale_x_continuous(limits = x_range) +
     ggplot2::scale_y_continuous(
