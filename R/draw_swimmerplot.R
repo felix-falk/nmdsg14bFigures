@@ -72,6 +72,7 @@ swimmerplot <- function(
       data = mrd_terminal_pts |>
         dplyr::filter(
           is.finite(rel_term_dat),
+          rel_term_dat >= 0,
           is.finite(y)
         ),
       ggplot2::aes(
@@ -96,6 +97,7 @@ swimmerplot <- function(
             "Other exclusion reason"
           ),
           is.finite(rel_term_dat),
+          rel_term_dat >= -5,
           is.finite(y)
         ),
       ggplot2::aes(
@@ -122,6 +124,7 @@ swimmerplot <- function(
             "Other exclusion reason"
           ),
           is.finite(rel_term_dat),
+          rel_term_dat >= -5,
           is.finite(y)
         ),
       ggplot2::aes(
@@ -196,6 +199,7 @@ swimmerplot <- function(
       dplyr::filter(
         !is.na(.data$treatment),
         is.finite(.data$rel_treatment_dat),
+        .data$rel_treatment_dat >= 0,
         is.finite(.data$y)
       )
 
@@ -230,6 +234,7 @@ swimmerplot <- function(
         .data$gvhd == "Acute GVHD",
         as.character(.data$agvhdstage) %in% c("3", "4"),
         is.finite(.data$rel_gvhd_dat),
+        .data$rel_gvhd_dat >= 0,
         is.finite(.data$y)
       )
 
@@ -261,6 +266,7 @@ swimmerplot <- function(
         .data$gvhd == "Chronic GVHD",
         .data$cgvhdstage %in% c("Moderate", "Severe"),
         is.finite(.data$rel_gvhd_dat),
+        .data$rel_gvhd_dat >= 0,
         is.finite(.data$y)
       )
 
