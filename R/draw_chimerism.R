@@ -24,19 +24,19 @@
 #' )
 #' }
 draw_chimerism_plot <- function(
-  mrd_data, # Mandatory
-  general_info_data, # Mandatory
-  ngs_data = NULL, # Optional
-  chimerism_data, # Mandatory
-  x_range, # Mandatory
-  y_upper, # Mandatory
-  pat_id # Mandatory
+  mrd_data,           # Mandatory
+  general_info_data,  # Mandatory
+  ngs_data = NULL,    # Optional
+  chimerism_data,     # Mandatory
+  x_range,            # Mandatory
+  y_upper,            # Mandatory
+  pat_id              # Mandatory
 ) {
 
   diagnosis_label <- if (
     "mdsdiagnosis" %in% names(general_info_data) &&
-    length(general_info_data$mdsdiagnosis) > 0 &&
-    !is.na(general_info_data$mdsdiagnosis[1])
+      length(general_info_data$mdsdiagnosis) > 0 &&
+      !is.na(general_info_data$mdsdiagnosis[1])
   ) {
     general_info_data$mdsdiagnosis[1]
   } else {
@@ -45,8 +45,8 @@ draw_chimerism_plot <- function(
 
   ipssm_label <- if (
     "ipssm_title" %in% names(general_info_data) &&
-    length(general_info_data$ipssm_title) > 0 &&
-    !is.na(general_info_data$ipssm_title[1])
+      length(general_info_data$ipssm_title) > 0 &&
+      !is.na(general_info_data$ipssm_title[1])
   ) {
     general_info_data$ipssm_title[1]
   } else {
@@ -55,8 +55,8 @@ draw_chimerism_plot <- function(
 
   karyotype_label <- if (
     "karyotyp" %in% names(general_info_data) &&
-    length(general_info_data$karyotyp) > 0 &&
-    !is.na(general_info_data$karyotyp[1])
+      length(general_info_data$karyotyp) > 0 &&
+      !is.na(general_info_data$karyotyp[1])
   ) {
     general_info_data$karyotyp[1]
   } else {
@@ -65,9 +65,9 @@ draw_chimerism_plot <- function(
 
   ngs_label <- if (
     !is.null(ngs_data) &&
-    nrow(ngs_data) > 0 &&
-    "mutlist" %in% names(ngs_data) &&
-    !is.na(ngs_data$mutlist[1])
+      nrow(ngs_data) > 0 &&
+      "mutlist" %in% names(ngs_data) &&
+      !is.na(ngs_data$mutlist[1])
   ) {
     ngs_data$mutlist[1]
   } else {
@@ -221,7 +221,10 @@ draw_chimerism_plot <- function(
 #' \dontrun{
 #' plot_chimerism_timeline(processed, pat_id)
 #' }
-plot_chimerism_timeline <- function(processed, pat_id) {
+plot_chimerism_timeline <- function(
+  processed,
+  pat_id
+) {
 
   # Select one patient
   d <- lapply(processed, function(x) select_one_patient(x, pat_id))

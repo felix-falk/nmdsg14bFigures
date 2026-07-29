@@ -6,7 +6,7 @@
 
 ## About
 
-An R package that draws a swimmer plot or per-patient clinical course figures based on the data sets collected in the NMDSG14B part 2 clinical study.
+An R package that draws swimmer plots, clinical course figures, chimerism figures and survival figures based on the data sets collected in the NMDSG14B parts 1 and 2 clinical studies.
 
 ## Installation
 
@@ -32,7 +32,7 @@ packageVersion("nmdsg14bFigures")
 
 2. If any files used in the package are open in the background, the files cannot be read by the package. Therefore, close any open data files before running the package. 
 
-3. The excel data files require the following columns
+3. The excel data files require the following columns:
 
 | Excel file | Required columns | Optional columns |
 | ------- | ------- | ------- |
@@ -51,7 +51,7 @@ packageVersion("nmdsg14bFigures")
 # Optional: navigate to the files directory
 setwd("~/study_files")
 
-# Create a swimmer plot
+# Create a swimmerplot
 nmds_figures_main(
   general_info_file = "general_info.xlsx",
   mrd_file = "mrd.xlsx",
@@ -64,6 +64,39 @@ nmds_figures_main(
   immune_filter_file = "immune_suppression_filter.csv",
   output_folder = "~/nmdsg14bFigures_output",
   plot_type = "swimmerplot", 
+  output_format = "pdf",
+  filters = list(genes = "TP53", outcomes = "Remission")
+)
+
+# Create a clinical course figure
+nmds_figures_main(
+  general_info_file = "general_info.xlsx",
+  mrd_file = "mrd.xlsx",
+  dli_file = "dli.xlsx",
+  aza_file = "aza.xlsx",
+  immune_file = "immune.xlsx",
+  gvhd_file = "gvhd.xlsx",
+  ngs_file = "ngs.xlsx",
+  immune_filter_file = "immune_suppression_filter.csv",
+  output_folder = "~/nmdsg14bFigures_output",
+  plot_type = "clinical_course", 
+  output_format = "pdf",
+  filters = list(genes = "TP53", outcomes = "Remission")
+)
+
+# Create a clinical course and chimerism figure
+nmds_figures_main(
+  general_info_file = "general_info.xlsx",
+  mrd_file = "mrd.xlsx",
+  dli_file = "dli.xlsx",
+  aza_file = "aza.xlsx",
+  immune_file = "immune.xlsx",
+  gvhd_file = "gvhd.xlsx",
+  ngs_file = "ngs.xlsx",
+  chimerism_file = "chimerism.xlsx",
+  immune_filter_file = "immune_suppression_filter.csv",
+  output_folder = "~/nmdsg14bFigures_output",
+  plot_type = "clinical_course_chimerism", 
   output_format = "pdf",
   filters = list(genes = "TP53", outcomes = "Remission")
 )
@@ -92,7 +125,7 @@ Set ```output_format``` to ```"pdf"``` or ```"svg"```.
 
 ## Plot type
 
-Set ```plot_type``` to ```"swimmerplot"```, ```"clinical_course"```, or ```"clinical_course_chimerism"```.
+Set ```plot_type``` to ```"swimmerplot"```, ```"clinical_course"```, ```"clinical_course_chimerism"``` or ```"survival"```.
 
 ## Filtering
 
