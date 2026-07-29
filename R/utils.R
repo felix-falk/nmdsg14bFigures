@@ -74,6 +74,52 @@ make_dummy_legend <- function(levels, colours, title) {
   )
 }
 
+#' Called by the draw_clinical_course function to create continuous legends.
+#'
+#' @param title The title of the legend.
+#' @param low_colour Colour representing the minimum value.
+#' @param high_colour Colour representing the maximum value.
+#' @param limits Numeric length-2 vector giving the legend range.
+#' @param breaks Numeric break positions to show on the legend.
+#' @returns A legend grob.
+#' @examples
+#' \dontrun{
+#' make_gradient_legend(
+#'   "Ciclosporin dose (%)",
+#'   "#d9f0a3",
+#'   "#31a354",
+#'   c(0, 100),
+#'   c(0, 50, 100)
+#' )
+#' }
+make_gradient_legend <- function(
+  title,
+  low_colour,
+  high_colour,
+  limits,
+  breaks
+) {
+  df <- data.frame(x = 1, y = 1, fill_value = mean(limits))
+  cowplot::get_legend(
+    ggplot2::ggplot(df, ggplot2::aes(x, y, fill = fill_value)) +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_gradient(
+        name = title,
+        low = low_colour,
+        high = high_colour,
+        limits = limits,
+        breaks = breaks,
+        labels = paste0(breaks, "%"),
+        guide = ggplot2::guide_colorbar(
+          direction = "vertical",
+          barheight = ggplot2::unit(60, "pt")
+        )
+      ) +
+      ggplot2::theme_void() +
+      ggplot2::theme(legend.position = "right")
+  )
+}
+
 #' Called by the draw_clinical_course function to select one patient per graph.
 #'
 #' @param df Data frame containing patient information with a "patno" column.

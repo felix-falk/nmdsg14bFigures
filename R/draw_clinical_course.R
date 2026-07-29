@@ -301,7 +301,7 @@ draw_events_plot <- function(
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$agvhd,
-          colour = agvhdstage
+          colour = factor(agvhdstage)
         ),
         size = 3
       ) +
@@ -329,7 +329,7 @@ draw_events_plot <- function(
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$cgvhd,
-          colour = cgvhdstage
+          colour = factor(cgvhdstage)
         ),
         size = 3
       ) +
@@ -532,13 +532,37 @@ plot_patient_timeline <- function(processed, pat_id) {
     names(cgvhd_colours), cgvhd_colours, "cGVHD Stage"
   )
 
+  ciclo_legend_grob <- NULL
+  if (!is.null(d$immune_intervals) && nrow(d$immune_intervals) > 0) {
+    has_ciclosporin <- any(
+      d$immune_intervals$drugname_standardized == "Ciclosporin",
+      na.rm = TRUE
+    )
+
+    if (has_ciclosporin) {
+      ciclo_legend_grob <- make_gradient_legend(
+        title = "Ciclosporin dose (%)",
+        low_colour = "#d9f0a3",
+        high_colour = "#31a354",
+        limits = c(0, 100),
+        breaks = c(0, 50, 100)
+      )
+    }
+  }
+
   # Combine all legends vertically
-  combined_legends <- cowplot::plot_grid(
-    mrd_legend,
-    agvhd_legend_grob,
-    cgvhd_legend_grob,
-    ncol = 1,
-    align = "v"
+  legend_grobs <- Filter(
+    Negate(is.null),
+    list(
+      mrd_legend,
+      agvhd_legend_grob,
+      cgvhd_legend_grob,
+      ciclo_legend_grob
+    )
+  )
+  combined_legends <- do.call(
+    cowplot::plot_grid,
+    c(legend_grobs, list(ncol = 1, align = "v"))
   )
 
   # Final combined plot
