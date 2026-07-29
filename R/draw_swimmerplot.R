@@ -105,7 +105,7 @@ swimmerplot <- function(
         y = y,
         label = dplyr::case_when(
           outcome == "Relapse" ~ "R",
-          outcome == "Nonrelapse mortality" ~ "\u00D7",
+          outcome == "Nonrelapse mortality" ~ "+",
           outcome == "Other exclusion reason" ~ "*",
           TRUE ~ ""
         )
@@ -146,7 +146,7 @@ swimmerplot <- function(
       ),
       labels = c(
         "Relapse"                = "R   Relapse",
-        "Nonrelapse mortality"   = "X   Nonrelapse mortality",
+        "Nonrelapse mortality"   = "+   Nonrelapse mortality",
         "Other exclusion reason" = "*   Other exclusion reason"
       ),
       guide = ggplot2::guide_legend(
