@@ -176,7 +176,7 @@ swimmerplot <- function(
             linetype = "Immune suppression"
           ),
           linewidth = 1.5,
-          color = "brown"
+          color = "#F8766D"
         ) +
         ggplot2::scale_linetype_manual(
           name = NULL,
@@ -185,7 +185,7 @@ swimmerplot <- function(
             order = 2,
             override.aes = list(
               linewidth = 2.5,
-              color = "brown"
+              color = "#F8766D"
             )
           )
         ) +
