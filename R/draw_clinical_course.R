@@ -554,14 +554,58 @@ plot_patient_timeline <- function(processed, pat_id) {
     names(cgvhd_colours), cgvhd_colours, "cGVHD Stage"
   )
 
+  nudge_legend <- function(
+    legend_grob,
+    x_offset = 0,
+    top_pad = 0,
+    bottom_pad = 0
+  ) {
+    if (is.null(legend_grob)) {
+      return(NULL)
+    }
+    shifted_legend <- cowplot::ggdraw() +
+      cowplot::draw_grob(
+        cowplot::as_grob(legend_grob),
+        x = x_offset,
+        y = 0,
+        width = 1,
+        height = 1,
+        hjust = 0,
+        vjust = 0
+      )
+
+    if (top_pad <= 0 && bottom_pad <= 0) {
+      return(shifted_legend)
+    }
+
+    cowplot::plot_grid(
+      cowplot::ggdraw(),
+      shifted_legend,
+      cowplot::ggdraw(),
+      ncol = 1,
+      rel_heights = c(top_pad, 1, bottom_pad)
+    )
+  }
+
+  mrd_legend_aligned <- nudge_legend(
+    mrd_legend,
+    x_offset = -0.06,
+    top_pad = 0.20
+  )
+  ciclo_legend_aligned <- nudge_legend(
+    ciclo_legend,
+    x_offset = 0.08,
+    bottom_pad = 0.20
+  )
+
   # Combine all legends vertically
   legend_grobs <- Filter(
     Negate(is.null),
     list(
-      mrd_legend,
+      mrd_legend_aligned,
       agvhd_legend_grob,
       cgvhd_legend_grob,
-      ciclo_legend
+      ciclo_legend_aligned
     )
   )
   legend_rel_heights <- rep(1, length(legend_grobs))
