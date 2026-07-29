@@ -542,12 +542,10 @@ plot_patient_timeline <- function(processed, pat_id) {
     )
 
     if (has_ciclosporin) {
-      ciclo_legend_grob <- make_gradient_legend(
+      ciclo_legend_grob <- make_ciclosporin_legend_grob(
         title = "Ciclosporin dose (%)",
         low_colour = "#d9f0a3",
-        high_colour = "#31a354",
-        limits = c(0, 100),
-        breaks = c(0, 50, 100)
+        high_colour = "#31a354"
       )
     }
   }
@@ -562,9 +560,16 @@ plot_patient_timeline <- function(processed, pat_id) {
       ciclo_legend_grob
     )
   )
+  legend_rel_heights <- rep(1, length(legend_grobs))
+  if (!is.null(ciclo_legend_grob) && length(legend_rel_heights) > 0) {
+    legend_rel_heights[length(legend_rel_heights)] <- 1.6
+  }
   combined_legends <- do.call(
     cowplot::plot_grid,
-    c(legend_grobs, list(ncol = 1, align = "v"))
+    c(
+      legend_grobs,
+      list(ncol = 1, rel_heights = legend_rel_heights)
+    )
   )
 
   # Final combined plot

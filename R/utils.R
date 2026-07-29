@@ -120,6 +120,63 @@ make_gradient_legend <- function(
   )
 }
 
+# Build an explicit grob-based Ciclosporin legend so it remains visible
+# when stacked with other legends.
+make_ciclosporin_legend_grob <- function(
+  title = "Ciclosporin dose (%)",
+  low_colour = "#d9f0a3",
+  high_colour = "#31a354"
+) {
+  gradient_cols <- grDevices::colorRampPalette(c(low_colour, high_colour))(128)
+  gradient_mat <- matrix(gradient_cols, nrow = 1)
+
+  grid::grobTree(
+    grid::textGrob(
+      label = title,
+      x = 0,
+      y = 1,
+      just = c("left", "top"),
+      gp = grid::gpar(fontsize = 9)
+    ),
+    grid::rectGrob(
+      x = 0.5,
+      y = 0.58,
+      width = 0.92,
+      height = 0.2,
+      gp = grid::gpar(col = "grey40", fill = NA, lwd = 0.6)
+    ),
+    grid::rasterGrob(
+      image = gradient_mat,
+      x = 0.5,
+      y = 0.58,
+      width = 0.9,
+      height = 0.16,
+      interpolate = TRUE
+    ),
+    grid::textGrob(
+      label = "0%",
+      x = 0.05,
+      y = 0.34,
+      just = c("left", "top"),
+      gp = grid::gpar(fontsize = 8)
+    ),
+    grid::textGrob(
+      label = "50%",
+      x = 0.5,
+      y = 0.34,
+      just = c("center", "top"),
+      gp = grid::gpar(fontsize = 8)
+    ),
+    grid::textGrob(
+      label = "100%",
+      x = 0.95,
+      y = 0.34,
+      just = c("right", "top"),
+      gp = grid::gpar(fontsize = 8)
+    )
+  )
+}
+
 #' Identify Ciclosporin-standardized drug names robustly.
 #'
 #' @param x Character vector of standardized drug names.
