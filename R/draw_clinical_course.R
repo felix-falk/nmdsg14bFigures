@@ -200,6 +200,8 @@ draw_events_plot <- function(
   x_range
 ) {
 
+  is_ciclo <- is_ciclosporin_name(immune_intervals_data$drugname_standardized)
+
   # Determine which event categories have data for this patient
   has_agvhd <- FALSE
   has_cgvhd <- FALSE
@@ -218,18 +220,18 @@ draw_events_plot <- function(
 
   has_immune_ciclo <- !is.null(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized == "Ciclosporin")
+      dplyr::filter(is_ciclo)
   ) && nrow(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized == "Ciclosporin")
+      dplyr::filter(is_ciclo)
   ) > 0
 
   has_immune_other <- !is.null(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized != "Ciclosporin")
+      dplyr::filter(!is_ciclo)
   ) && nrow(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized != "Ciclosporin")
+      dplyr::filter(!is_ciclo)
   ) > 0
 
   has_aza <- FALSE
@@ -349,7 +351,7 @@ draw_events_plot <- function(
   if (has_immune_ciclo) {
 
     immune_intervals_data_ciclo <- immune_intervals_data |>
-      dplyr::filter(drugname_standardized == "Ciclosporin") |>
+      dplyr::filter(is_ciclo) |>
       dplyr::mutate(
         fill_value = dplyr::if_else(
           drugstopped == "Yes",
@@ -385,7 +387,7 @@ draw_events_plot <- function(
   if (has_immune_other) {
 
     immune_intervals_data_other <- immune_intervals_data |>
-      dplyr::filter(drugname_standardized != "Ciclosporin") |>
+      dplyr::filter(!is_ciclo) |>
       dplyr::mutate(
         y = y_map$immune_other
       )
@@ -535,7 +537,7 @@ plot_patient_timeline <- function(processed, pat_id) {
   ciclo_legend_grob <- NULL
   if (!is.null(d$immune_intervals) && nrow(d$immune_intervals) > 0) {
     has_ciclosporin <- any(
-      d$immune_intervals$drugname_standardized == "Ciclosporin",
+      is_ciclosporin_name(d$immune_intervals$drugname_standardized),
       na.rm = TRUE
     )
 

@@ -120,6 +120,25 @@ make_gradient_legend <- function(
   )
 }
 
+#' Identify Ciclosporin-standardized drug names robustly.
+#'
+#' @param x Character vector of standardized drug names.
+#' @returns Logical vector indicating which entries should be treated as
+#' Ciclosporin.
+#' @examples
+#' \\dontrun{
+#' is_ciclosporin_name(c("Ciclosporin", "cyclosporine", "Tacrolimus"))
+#' }
+is_ciclosporin_name <- function(x) {
+  normalized <- trimws(tolower(as.character(x)))
+  normalized %in% c(
+    "ciclosporin",
+    "ciclosporine",
+    "cyclosporin",
+    "cyclosporine"
+  )
+}
+
 #' Called by the draw_clinical_course function to select one patient per graph.
 #'
 #' @param df Data frame containing patient information with a "patno" column.
