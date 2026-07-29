@@ -560,10 +560,12 @@ plot_patient_timeline <- function(processed, pat_id) {
     )
 
     if (has_ciclosporin) {
-      ciclo_legend_grob <- make_ciclosporin_legend_grob(
+      ciclo_legend_grob <- make_gradient_legend(
         title = "Ciclosporin dose (%)",
         low_colour = "#d9f0a3",
-        high_colour = "#31a354"
+        high_colour = "#31a354",
+        limits = c(0, 100),
+        breaks = c(0, 50, 100)
       )
       ciclo_legend_panel <- left_align_legend(ciclo_legend_grob)
     }
