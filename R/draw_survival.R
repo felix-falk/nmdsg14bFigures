@@ -184,7 +184,7 @@ draw_survival <- function(
 
   # Save figure to svg or pdf
   if (output_format == "svg") {
-    grDevices::svg(out_file, width = 8, height = 8)
+    svglite::svglite(out_file, width = 8, height = 8)
     print(survplot)
     grDevices::dev.off()
   } else {
