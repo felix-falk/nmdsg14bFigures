@@ -150,6 +150,7 @@ draw_survival <- function(
   } else {
     grDevices::hcl.colors(n_strata, palette = "Dark 3")
   }
+  risk_table_height <- min(0.75, max(0.25, 0.15 + 0.035 * n_strata))
 
   # Write x-axis label
   xlab_text <- paste(
@@ -174,6 +175,7 @@ draw_survival <- function(
     ylab = ylab_text,
     legend.title = strata_var,
     risk.table = TRUE,
+    risk.table.height = risk_table_height,
     risk.table.col = "strata",
     risk.table.y.text = TRUE,
     risk.table.y.text.col = TRUE
