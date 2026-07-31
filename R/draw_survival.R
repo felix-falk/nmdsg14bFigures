@@ -137,6 +137,9 @@ draw_survival <- function(
     sprintf("Surv(%s, %s) ~ `%s`", time_col, status_col, strata_var)
   )
   fit <- survival::survfit(form, data = survival_data)
+  if (!is.null(fit$strata)) {
+    names(fit$strata) <- sub("^[^=]+=", "", names(fit$strata))
+  }
   fit$call$formula <- form # Solves ggsurvplot bug
 
   # NEJM palette supports up to 8 groups. For higher-cardinality strata,
@@ -169,9 +172,18 @@ draw_survival <- function(
     palette = palette_spec,
     xlab = xlab_text,
     ylab = ylab_text,
+    legend.title = strata_var,
     risk.table = TRUE,
-    risk.table.col = "strata"
+    risk.table.col = "strata",
+    risk.table.y.text = TRUE,
+    risk.table.y.text.col = TRUE
   )
+
+  survplot$plot <- survplot$plot +
+    ggplot2::labs(color = strata_var, fill = strata_var)
+
+  survplot$table <- survplot$table +
+    ggplot2::labs(y = strata_var, color = strata_var)
 
   if (!dir.exists(output_folder)) {
     dir.create(output_folder, recursive = TRUE)
