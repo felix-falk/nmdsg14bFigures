@@ -89,11 +89,27 @@ draw_survival <- function(
     }
   }
 
+  # If raw IPSS-M is requested and categorized IPSS-M is available,
+  # use risk groups for a stable and interpretable stratification.
+  if (
+    identical(strata_var, "ipssm") &&
+      is.null(strata_itemname) &&
+      "ipssm_title" %in% names(survival_data)
+  ) {
+    strata_var <- "ipssm_title"
+    message("Using 'ipssm_title' risk groups instead of continuous 'ipssm'.")
+  }
+
   # Optional filtering ONLY
   if (!is.null(strata_itemname)) {
     survival_data <- survival_data |>
       dplyr::filter(.data[[strata_var]] == strata_itemname)
   }
+
+  # Keep strata values stable for plotting.
+  survival_data[[strata_var]] <- as.character(survival_data[[strata_var]])
+  survival_data[[strata_var]][is.na(survival_data[[strata_var]])] <- "Missing"
+  survival_data[[strata_var]] <- as.factor(survival_data[[strata_var]])
 
   # Match the requested baseline
   survival_baseline <- match.arg(survival_baseline)
@@ -123,6 +139,15 @@ draw_survival <- function(
   fit <- survival::survfit(form, data = survival_data)
   fit$call$formula <- form # Solves ggsurvplot bug
 
+  # NEJM palette supports up to 8 groups. For higher-cardinality strata,
+  # generate a palette with one color per strata level to avoid scale errors.
+  n_strata <- if (is.null(fit$strata)) 1L else length(fit$strata)
+  palette_spec <- if (n_strata <= 8L) {
+    "nejm"
+  } else {
+    grDevices::hcl.colors(n_strata, palette = "Dark 3")
+  }
+
   # Write x-axis label
   xlab_text <- paste(
     "Days after",
@@ -141,7 +166,7 @@ draw_survival <- function(
     data = survival_data,
     pval = TRUE,
     conf.int = TRUE,
-    palette = "nejm",
+    palette = palette_spec,
     xlab = xlab_text,
     ylab = ylab_text,
     risk.table = TRUE,
