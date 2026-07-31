@@ -107,7 +107,13 @@ preprocess_data <- function(
     )
   } else {
     immune_raw <- readxl::read_excel(immune_file)
-    column_check(immune_raw, c("patno", "drugname", "drugdt", "drugstopped", "drugdose"))
+    column_check(immune_raw, c(
+      "patno",
+      "drugname",
+      "drugdt",
+      "drugstopped",
+      "drugdose"
+    ))
   }
 
   if (is.null(gvhd_file) || !file.exists(gvhd_file)) {
@@ -316,20 +322,6 @@ preprocess_data <- function(
 
   # Create immune intervals data frame
   interval_df <- interval_finder(immune)
-
-  # Find overlapping immune suppression intervals
-  #overlapping_interval_df <- overlapping_interval_finder(interval_df)
-
-  # Create ciclosporine intervals data frame
-  #ciclosporine_interval_df <- interval_finder(
-  #  immune |>
-  #    dplyr::filter(drugname_standardized == "ciclosporin")
-  #)
-
-  # Find overlapping immune suppression intervals for ciclosporin
-  #overlapping_ciclosporin_interval_df <- overlapping_interval_finder(
-  #  ciclosporine_interval_df
-  #)
 
   # --- IMMUNE RECTANGLES ---
 

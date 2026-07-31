@@ -28,7 +28,10 @@ draw_survival <- function(
       "rel_pos_mrd_dat_0.1", "rel_pos_mrd_dat_0.5", "rel_pos_mrd_dat_1.0"
     )
   )
-  processed$treatment <- ensure_data_frame_columns(processed$treatment, c("patno"))
+  processed$treatment <- ensure_data_frame_columns(
+    processed$treatment,
+    c("patno")
+  )
   processed$mrd <- ensure_data_frame_columns(processed$mrd, c("patno"))
   processed$gvhd <- ensure_data_frame_columns(processed$gvhd, c("patno"))
   processed$immune_intervals <- ensure_data_frame_columns(
