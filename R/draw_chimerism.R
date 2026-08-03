@@ -74,6 +74,22 @@ draw_chimerism_plot <- function(
     "Not available"
   }
 
+  has_chimerism <- !is.null(chimerism_data) && nrow(chimerism_data) > 0
+  if (has_chimerism) {
+    # Clamp transformed values to the visible lower log bound so zeros and very
+    # small percentages remain visible in the panel.
+    chimerism_plot_data <- chimerism_data |>
+      dplyr::mutate(
+        chimerism_scaled = pmax(.data$chimerism / 10, 0.08)
+      )
+  } else {
+    chimerism_plot_data <- tibble::tibble(
+      rel_chimerism_dat = numeric(),
+      chimerism_scaled = numeric(),
+      surface_marker = character()
+    )
+  }
+
   plot <- ggplot2::ggplot() +
 
     # Add a shaded rectangle to indicate the MRD negative range (below 0.1 %)
@@ -110,25 +126,28 @@ draw_chimerism_plot <- function(
 
     # Add CHIMERISM lines, only for those with more than 1 data point.
     ggplot2::geom_line(
-      data = chimerism_data |>
+      data = chimerism_plot_data |>
         dplyr::filter(!is.na(surface_marker)) |>
         dplyr::group_by(surface_marker) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
       ggplot2::aes(
         x = rel_chimerism_dat,
-        y = chimerism / 10, # Divide chimerism by 10.
+        y = chimerism_scaled,
         colour = surface_marker
       ),
-      linetype = "dashed"
+      linetype = "dashed",
+      linewidth = 0.8
     ) +
 
     # Add CHIMERISM points, including those with only one data point.
-    ggplot2::geom_point(data = chimerism_data, ggplot2::aes(
+    ggplot2::geom_point(data = chimerism_plot_data, ggplot2::aes(
       x = rel_chimerism_dat,
-      y = chimerism / 10, # Divide chimerism by 10.
+      y = chimerism_scaled,
       colour = surface_marker
-    )
+    ),
+    shape = 17,
+    size = 2
     ) +
 
     # Set theme, adjust x and y labels, set color of MRD lines and points
@@ -206,6 +225,18 @@ draw_chimerism_plot <- function(
       plot.title = ggplot2::element_text(size = 12),
       plot.subtitle = ggplot2::element_text(size = 9)
     )
+
+  if (!has_chimerism) {
+    plot <- plot +
+      ggplot2::annotate(
+        "text",
+        x = mean(x_range),
+        y = 0.2,
+        label = "No chimerism data available",
+        colour = "grey40",
+        size = 3.5
+      )
+  }
 
   return(plot)
 
@@ -425,6 +456,15 @@ draw_clinical_course_chimerism <- function(
   }
 
   patient_ids <- unique(processed$general_info$patno)
+  chimerism_patient_ids <- unique(processed$chimerism$patno)
+
+  message(
+    sprintf(
+      "Chimerism data available for %d/%d patients.",
+      length(chimerism_patient_ids),
+      length(patient_ids)
+    )
+  )
 
   if (output_format == "svg") {
     base_name <- tools::file_path_sans_ext(output_filename)

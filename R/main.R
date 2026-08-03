@@ -143,6 +143,48 @@ nmds_figures_main <- function(
 
   }
 
+  # Validate optional files required by selected filters.
+  if (!is.null(user_filters)) {
+    filter_has_values <- function(x) {
+      !is.null(x) && length(x) > 0 && !(is.character(x) && all(nzchar(x) == FALSE))
+    }
+
+    if (filter_has_values(user_filters$genes) &&
+        (is.null(ngs_file) || !file.exists(path.expand(ngs_file)))) {
+      stop(
+        "Filter 'genes' requires a valid ngs_file path.",
+        call. = FALSE
+      )
+    }
+
+    if (filter_has_values(user_filters$treatments)) {
+      needs_dli <- any(user_filters$treatments %in% c("DLI", "Donor lymphocyte infusion"))
+      needs_aza <- any(user_filters$treatments %in% c("Azacitidine"))
+
+      if (needs_dli && (is.null(dli_file) || !file.exists(path.expand(dli_file)))) {
+        stop(
+          "Filter 'treatments' includes DLI but dli_file is missing or does not exist.",
+          call. = FALSE
+        )
+      }
+
+      if (needs_aza && (is.null(aza_file) || !file.exists(path.expand(aza_file)))) {
+        stop(
+          "Filter 'treatments' includes Azacitidine but aza_file is missing or does not exist.",
+          call. = FALSE
+        )
+      }
+    }
+
+    if (!is.null(user_filters$immune_suppression) &&
+        (is.null(immune_file) || !file.exists(path.expand(immune_file)))) {
+      stop(
+        "Filter 'immune_suppression' requires a valid immune_file path.",
+        call. = FALSE
+      )
+    }
+  }
+
   # ----------------------------------------------------------
   # Preprocess data
   # ----------------------------------------------------------
