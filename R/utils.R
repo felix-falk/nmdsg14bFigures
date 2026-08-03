@@ -510,18 +510,39 @@ create_chimerism_df <- function(
   chimerism_raw,
   end_date_df
 ) {
+  if (!"chimerism" %in% names(chimerism_raw)) {
+    cd_cols <- names(chimerism_raw)[startsWith(names(chimerism_raw), "CD")]
+
+    if (length(cd_cols) == 0) {
+      return(tibble::tibble(
+        patno = double(),
+        surface_marker = character(),
+        chimerism = numeric(),
+        chimbmdt = as.Date(character()),
+        rel_chimerism_dat = numeric()
+      ))
+    }
+
+    chimerism_raw <- chimerism_raw |>
+      tidyr::pivot_longer(
+        dplyr::all_of(cd_cols),
+        names_to = "surface_marker",
+        values_to = "chimerism"
+      )
+  }
+
   chimerism <- chimerism_raw |>
-    dplyr::filter(!is.na(chimerism)) |>
+    dplyr::filter(!is.na(.data$chimerism)) |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_chimerism_dat = as.numeric(difftime(
-        as.Date(chimbmdt),
-        as.Date(transpldt),
+        as.Date(.data$chimbmdt),
+        as.Date(.data$transpldt),
         units = "days"
       ))
     ) |>
     dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
-    dplyr::filter(surface_marker %in% c("CD33*", "CD34*"))
+    dplyr::filter(.data$surface_marker %in% c("CD33*", "CD34*"))
   return(chimerism)
 }
 
