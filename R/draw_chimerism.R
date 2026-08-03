@@ -144,8 +144,7 @@ draw_chimerism_plot <- function(
         x = rel_chimerism_dat,
         y = chimerism_scaled,
         colour = surface_marker
-      ),
-      linewidth = 0.8
+      )
     ) +
 
     # Add CHIMERISM points, including those with only one data point.
