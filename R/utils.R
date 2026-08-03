@@ -510,6 +510,11 @@ create_chimerism_df <- function(
   chimerism_raw,
   end_date_df
 ) {
+  if (!"chimerism" %in% names(chimerism_raw) && "level" %in% names(chimerism_raw)) {
+    chimerism_raw <- chimerism_raw |>
+      dplyr::rename(chimerism = level)
+  }
+
   if (!"chimerism" %in% names(chimerism_raw)) {
     cd_cols <- names(chimerism_raw)[startsWith(names(chimerism_raw), "CD")]
 
@@ -530,6 +535,15 @@ create_chimerism_df <- function(
         values_to = "chimerism"
       )
   }
+
+  chimerism_raw <- chimerism_raw |>
+    dplyr::mutate(
+      surface_marker = dplyr::case_when(
+        startsWith(tolower(as.character(.data$surface_marker)), "cd33") ~ "CD33*",
+        startsWith(tolower(as.character(.data$surface_marker)), "cd34") ~ "CD34*",
+        TRUE ~ as.character(.data$surface_marker)
+      )
+    )
 
   chimerism <- chimerism_raw |>
     dplyr::filter(!is.na(.data$chimerism)) |>

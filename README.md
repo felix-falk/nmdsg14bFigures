@@ -30,7 +30,9 @@ packageVersion("nmdsg14bFigures")
 
 1. The package cannot read "\\" in file paths, which is the default on Windows. Therefore, replace any "\\" with "/" in your file paths. 
 
-2. If any files used in the package are open in the background, the files cannot be read by the package. Therefore, close any open data files before running the package. 
+2. The package cannot read files that are open in the background. 
+
+3. The package cannot read excel files that are password protected. 
 
 3. The excel data files require the following columns:
 
@@ -43,7 +45,7 @@ packageVersion("nmdsg14bFigures")
 | ```immune.xlsx``` | ```patno, drugname, drugdt, drugstopped``` |
 | ```gvhd.xlsx``` | ```patno, gvhddate, agvhdstage, cgvhdstage, agvhdmaxstage, agvhdmaxdt, cgvhdmaxstage, cgvhdmaxdt``` |
 | ```ngs.xlsx``` | ```patno, Gen, cDNA forandring``` |
-| ```chimerism.xlsx``` | ```patno, chimbmdt``` |
+| ```chimerism.xlsx``` | ```patno, chimbmdt, surface_marker``` |
 
 ## Run the package in R
 

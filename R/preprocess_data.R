@@ -159,11 +159,19 @@ preprocess_data <- function(
     )
   } else {
     chimerism_raw <- readxl::read_excel(chimerism_file)
-    column_check(chimerism_raw, c(
-      "patno",
-      "chimbmdt",
-      "surface_marker"
-    ))
+    column_check(chimerism_raw, c("patno", "chimbmdt"))
+
+    has_long_cols <- all(c("surface_marker", "level") %in% names(chimerism_raw)) ||
+      all(c("surface_marker", "chimerism") %in% names(chimerism_raw))
+    has_wide_cols <- any(startsWith(names(chimerism_raw), "CD"))
+
+    if (!has_long_cols && !has_wide_cols) {
+      stop(
+        "chimerism_file must contain either long-format columns \
+'surface_marker' + ('level' or 'chimerism'), or wide-format columns starting with 'CD'.",
+        call. = FALSE
+      )
+    }
   }
 
   # Read immune suppresion filter file
