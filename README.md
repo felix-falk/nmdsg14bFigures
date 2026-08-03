@@ -1,6 +1,6 @@
 # nmdsg14bFigures
 
-**Version: 0.1.0**
+**Version: 1.0.0**
 
 **Author: [Felix Falk](https://github.com/felix-falk)**
 
