@@ -100,10 +100,20 @@ draw_survival <- function(
     message("Using 'ipssm_title' risk groups instead of continuous 'ipssm'.")
   }
 
-  # Optional filtering ONLY
+  # If an item name is supplied, treat it as the positive strata label when the
+  # underlying strata column is a membership flag created by add_strata().
   if (!is.null(strata_itemname)) {
-    survival_data <- survival_data |>
-      dplyr::filter(.data[[strata_var]] == strata_itemname)
+    strata_values <- survival_data[[strata_var]]
+    if (is.logical(strata_values) || all(na.omit(unique(strata_values)) %in% c(0, 1, TRUE, FALSE))) {
+      survival_data[[strata_var]] <- dplyr::if_else(
+        as.logical(strata_values),
+        strata_itemname,
+        "Other"
+      )
+    } else {
+      survival_data <- survival_data |>
+        dplyr::filter(.data[[strata_var]] == strata_itemname)
+    }
   }
 
   # Keep strata values stable for plotting.
