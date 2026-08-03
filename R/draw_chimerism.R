@@ -124,6 +124,15 @@ draw_chimerism_plot <- function(
     )
     ) +
 
+    # Separate MRD and chimerism legends by using independent colour scales.
+    ggplot2::scale_colour_brewer(
+      name = "MRD",
+      palette = "Set1",
+      na.translate = FALSE
+    ) +
+
+    ggnewscale::new_scale_colour() +
+
     # Add CHIMERISM lines, only for those with more than 1 data point.
     ggplot2::geom_line(
       data = chimerism_plot_data |>
@@ -136,7 +145,6 @@ draw_chimerism_plot <- function(
         y = chimerism_scaled,
         colour = surface_marker
       ),
-      linetype = "dashed",
       linewidth = 0.8
     ) +
 
@@ -154,7 +162,12 @@ draw_chimerism_plot <- function(
     ggplot2::theme_minimal() +
     ggplot2::xlab(NULL) +
     ggplot2::ylab("VAF (%)") +
-    ggplot2::scale_colour_brewer(palette = "Set1", na.translate = FALSE) +
+    ggplot2::scale_colour_brewer(
+      name = "Chimerism",
+      palette = "Dark2",
+      na.translate = FALSE,
+      labels = function(x) gsub("\\*$", "", x)
+    ) +
 
     # Set x and y axis limits based on x_range and y_upper parameters
     ggplot2::scale_x_continuous(limits = x_range) +
@@ -225,18 +238,6 @@ draw_chimerism_plot <- function(
       plot.title = ggplot2::element_text(size = 12),
       plot.subtitle = ggplot2::element_text(size = 9)
     )
-
-  if (!has_chimerism) {
-    plot <- plot +
-      ggplot2::annotate(
-        "text",
-        x = mean(x_range),
-        y = 0.2,
-        label = "No chimerism data available",
-        colour = "grey40",
-        size = 3.5
-      )
-  }
 
   return(plot)
 
