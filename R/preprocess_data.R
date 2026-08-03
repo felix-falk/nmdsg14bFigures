@@ -145,7 +145,10 @@ preprocess_data <- function(
     ngs_raw <- tibble::tibble(patno = double(), Gen = character())
   } else {
     ngs_raw <- readxl::read_excel(ngs_file)
-    column_check(ngs_raw, c("patno", "Gen"))
+    column_check(ngs_raw, c(
+      "patno",
+      "Gen"
+    ))
   }
 
   if (is.null(chimerism_file) || !file.exists(chimerism_file)) {
@@ -156,7 +159,11 @@ preprocess_data <- function(
     )
   } else {
     chimerism_raw <- readxl::read_excel(chimerism_file)
-    column_check(chimerism_raw, c("patno", "chimbmdt"))
+    column_check(chimerism_raw, c(
+      "patno",
+      "chimbmdt",
+      "surface_marker"
+    ))
   }
 
   # Read immune suppresion filter file
