@@ -462,8 +462,7 @@ preprocess_data <- function(
       )
     )
 
-  # Transpose chimerism data, calculate relative chimerism dates
-  # keep only CD33, CD34.
+  # Calculate relative chimerism dates, keep only CD33, CD34.
   chimerism <- create_chimerism_df(chimerism_raw, end_date_df)
 
   # Add dli, aza or ngs strata column to general_info (optional)

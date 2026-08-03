@@ -168,6 +168,16 @@ filters = list(
 )
 ```
 
-The possible options for ```outcomes``` are ```"Remission"```, ```"Relapse"``` and ```"Nonrelapse mortality"```.
-The possible options for ```treatments``` are ```"Azacitidine"``` and ```"Donor lymphocyte infusion"```.
-The possible options for ```mrd_positive``` and ```immune_suppression``` are ```true```, ```false``` and ```null```.
+| Filter name | Possible options |
+| ------- | ------- |
+| ```outcomes``` |  ```"Remission"```, ```"Relapse"```, ```"Nonrelapse mortality"``` |
+| ```treatments``` | ```"Azacitidine"```, ```"Donor lymphocyte infusion"``` |
+| ```mrd_positive``` | ```true```, ```false```, ```null``` |
+| ```immune_suppression``` | ```true```, ```false```, ```null``` |
+
+| Survival setting name | Possible options | Explanation |
+| ------- | ------- | ------- |
+| ```strata_filename``` | ```"general_info"```, ```"mrd"```, ```"dli"```, ```"aza"```, ```"immune"```, ```"gvhd"```, ```"ngs"```, ```"chimerism"``` | The file containing the strata you wish to use in the survival analysis. |
+| ```survival_baseline``` | ```"transplant"```, ```"rel_pos_mrd_dat_0.1"```, ```"rel_pos_mrd_dat_0.5"```, ```"rel_pos_mrd_dat_1.0"``` | The event at which the survival analysis starts, either transplantation or when MRD first reaches a certain level (0.1, 0.5, 1.0 %) after transplantation. |
+| ```survival_metric``` | ```"os"```, ```"rfs"```, ```"efs"``` | Overall survival, relapse-free survival or event-free survival. |
+
