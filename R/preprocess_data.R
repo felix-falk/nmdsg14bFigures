@@ -350,12 +350,13 @@ preprocess_data <- function(
   agvhd_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Acute GVHD") |>
     dplyr::mutate(
-      stage_norm = toupper(as.character(agvhdstage)),
-      stage_num = suppressWarnings(as.numeric(stage_norm))
+      stage_norm = toupper(trimws(as.character(agvhdstage))),
+      stage_num = suppressWarnings(as.numeric(gsub("[^0-9.]", "", stage_norm)))
     ) |>
     dplyr::filter(
-      stage_norm %in% c(3, 4) |
-        (!is.na(stage_num) & stage_num >= 3)
+      stage_norm %in% c("III", "IV", "3", "4") |
+        grepl("(^|[^A-Z])(III|IV)([^A-Z]|$)", stage_norm) |
+        (!is.na(stage_num) & stage_num %in% c(3, 4))
     ) |>
     dplyr::select(patno, rel_gvhd_dat) |>
     dplyr::mutate(event_type = "aGVHD 3-4")
@@ -364,15 +365,15 @@ preprocess_data <- function(
   cgvhd_severe_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Chronic GVHD") |>
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
-    dplyr::filter(grepl("Severe", stage_norm)) |>
+    dplyr::filter(grepl("severe", stage_norm)) |>
     dplyr::select(patno, rel_gvhd_dat) |>
     dplyr::mutate(event_type = "cGVHD severe")
 
-  # Chronic GVHD moderate but only keep those overlapping immune intervals
+  # Chronic GVHD moderate requiring immune suppression treatment
   cgvhd_moderate_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Chronic GVHD") |>
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
-    dplyr::filter(grepl("Moderate", stage_norm)) |>
+    dplyr::filter(grepl("moderate", stage_norm)) |>
     dplyr::left_join(interval_df, by = "patno") |>
     dplyr::filter(
       !is.na(interval_start) &
@@ -380,7 +381,7 @@ preprocess_data <- function(
         rel_gvhd_dat <= interval_end
     ) |>
     dplyr::select(patno, rel_gvhd_dat) |>
-    dplyr::mutate(event_type = "cGVHD Moderate (overlaps immune)")
+    dplyr::mutate(event_type = "cGVHD moderate with immune suppression")
 
   # Combine and pick earliest event per patient
   gvhd_events <- dplyr::bind_rows(
@@ -393,13 +394,13 @@ preprocess_data <- function(
     dplyr::slice_head(n = 1) |>
     dplyr::ungroup()
 
-  # Calculate events based on general_info and earliest GVHD events.
-  # If a GVHD event (as computed in `gvhd_events`) occurs before the
-  # censoring/termination time (`rel_term_dat`), register that as the
-  # event (time and status = 1). Otherwise fall back to the previous
-  # rules based on `outcome` (death/relapse/other).
-
-  # Also, add OS and RFS events.
+  # Calculate OS/RFS/EFS events.
+  # Event definition for EFS:
+  # - death
+  # - relapse
+  # - aGVHD grade III-IV
+  # - cGVHD severe
+  # - cGVHD moderate requiring immune suppression treatment
   general_info <- general_info |>
     dplyr::left_join(
       gvhd_events |>
@@ -411,62 +412,37 @@ preprocess_data <- function(
       by = "patno"
     ) |>
     dplyr::mutate(
+      is_death_event = outcome == "Nonrelapse mortality",
+      is_relapse_event = outcome == "Relapse",
+      has_gvhd_efs_event = !is.na(gvhd_event_time) &
+        gvhd_event_time <= rel_term_dat,
 
-      # Composite GVHD endpoint
+      # Event-free survival (composite endpoint)
       event_time = dplyr::case_when(
-        !is.na(gvhd_event_time) &
-          gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
-        eosreason %in% c(
-          "Death",
-          "Full hematological relapse",
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ rel_term_dat,
-        TRUE ~ NA_real_
+        has_gvhd_efs_event ~ gvhd_event_time,
+        TRUE ~ rel_term_dat
       ),
 
       event_status = dplyr::case_when(
-        !is.na(gvhd_event_time) &
-          gvhd_event_time <= rel_term_dat ~ 1,
-        eosreason %in% c(
-          "Death",
-          "Full hematological relapse"
-        ) ~ 1,
-        eosreason %in% c(
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ 0,
-        TRUE ~ NA_real_
+        has_gvhd_efs_event | is_death_event | is_relapse_event ~ 1,
+        is.na(rel_term_dat) ~ NA_real_,
+        TRUE ~ 0
       ),
 
       # Overall survival (death only)
       os_time = rel_term_dat,
       os_status = dplyr::case_when(
-        eosreason == "Death" ~ 1,
-        eosreason %in% c(
-          "Full hematological relapse",
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ 0,
-        TRUE ~ NA_real_
+        is_death_event ~ 1,
+        is.na(rel_term_dat) ~ NA_real_,
+        TRUE ~ 0
       ),
 
       # Relapse-free survival (relapse or death)
       rfs_time = rel_term_dat,
       rfs_status = dplyr::case_when(
-        eosreason %in% c(
-          "Death",
-          "Full hematological relapse"
-        ) ~ 1,
-        eosreason %in% c(
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ 0,
-        TRUE ~ NA_real_
+        is_death_event | is_relapse_event ~ 1,
+        is.na(rel_term_dat) ~ NA_real_,
+        TRUE ~ 0
       )
     )
 

@@ -75,12 +75,16 @@ draw_survival <- function(
   time_col <- metric_map[[survival_metric]]$time
   status_col <- metric_map[[survival_metric]]$status
 
-  # Build strata variable; if none is provided, analyse all patients as one group.
+  # Build strata variable; if none is provided,
+  # analyse all patients as one group.
   if (is.null(strata_colname) && is.null(strata_filename)) {
     strata_var <- ".all_patients"
     survival_data[[strata_var]] <- "All"
   } else {
-    strata_var <- if (!is.null(strata_colname)) strata_colname else strata_filename
+    strata_var <- if (!is.null(strata_colname))
+      strata_colname
+    else
+      strata_filename
     if (!strata_var %in% names(survival_data)) {
       stop(
         sprintf("Strata column '%s' not found in survival data.", strata_var),
@@ -104,7 +108,9 @@ draw_survival <- function(
   # underlying strata column is a membership flag created by add_strata().
   if (!is.null(strata_itemname)) {
     strata_values <- survival_data[[strata_var]]
-    if (is.logical(strata_values) || all(na.omit(unique(strata_values)) %in% c(0, 1, TRUE, FALSE))) {
+    if (is.logical(strata_values) || all(
+      na.omit(unique(strata_values)) %in% c(0, 1, TRUE, FALSE)
+    )) {
       survival_data[[strata_var]] <- dplyr::if_else(
         as.logical(strata_values),
         strata_itemname,
@@ -165,14 +171,17 @@ draw_survival <- function(
   # Write x-axis label
   xlab_text <- paste(
     "Days after",
-    if (survival_baseline == "transplant") "transplantation" else survival_baseline
+    if (survival_baseline == "transplant")
+      "transplantation"
+    else
+      survival_baseline
   )
 
   # Write y-axis label
   ylab_text <-
     if (survival_metric == "os") "Overall survival"
-    else if (survival_metric == "rfs") "Relapse free survival"
-    else "Event free survival"
+    else if (survival_metric == "rfs") "Relapse-free survival"
+    else "Event-free survival"
 
   # Draw figure
   survplot <- survminer::ggsurvplot(

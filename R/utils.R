@@ -360,7 +360,7 @@ create_gvhd_df <- function(
   gvhd_processed <- dplyr::bind_rows(cgvhd_raw_merged, agvhd_raw_merged) |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(rel_gvhd_dat = as.numeric(difftime(
-      as.Date(gvhddate), 
+      as.Date(gvhddate),
       as.Date(transpldt), units = "days"
     ))) |>
     dplyr::filter(rel_gvhd_dat <= rel_term_dat) |>
@@ -510,7 +510,11 @@ create_chimerism_df <- function(
   chimerism_raw,
   end_date_df
 ) {
-  if (!"chimerism" %in% names(chimerism_raw) && "level" %in% names(chimerism_raw)) {
+  if (!"chimerism" %in% names(
+    chimerism_raw
+  ) && "level" %in% names(
+    chimerism_raw
+  )) {
     chimerism_raw <- chimerism_raw |>
       dplyr::rename(chimerism = level)
   }
@@ -539,8 +543,14 @@ create_chimerism_df <- function(
   chimerism_raw <- chimerism_raw |>
     dplyr::mutate(
       surface_marker = dplyr::case_when(
-        startsWith(tolower(as.character(.data$surface_marker)), "cd33") ~ "CD33*",
-        startsWith(tolower(as.character(.data$surface_marker)), "cd34") ~ "CD34*",
+        startsWith(
+          tolower(as.character(.data$surface_marker)),
+          "cd33"
+        ) ~ "CD33*",
+        startsWith(
+          tolower(as.character(.data$surface_marker)),
+          "cd34"
+        ) ~ "CD34*",
         TRUE ~ as.character(.data$surface_marker)
       )
     )
