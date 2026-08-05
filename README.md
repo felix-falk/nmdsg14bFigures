@@ -105,6 +105,8 @@ filters = list(
 
 ## Swimmerplot
 
+Creates a swimmerplot describing the timeline for each patient with a horizontal bar consisiting of the MRD levels, starting at transplantation and ending in either relapse, nonrelapse mortality, other exclusion reason or two years having passed after transplantation. A smaller bar for each patiet describes the duration of immune suppressive treatment. Colored triangles and diamonds describe azacitidine and DLI treatments, as well as acute and chronic GVHD events.
+
 ```r
 # Create a swimmerplot
 nmds_figures_main(
@@ -126,6 +128,8 @@ nmds_figures_main(
 
 ## Clinical Course Figure
 
+Creates a series of figures, one per patient, containing patient information, an MRD line graph and an event graph, describing the MRD level change from the time of transplantation, alongside the following clinical events: azacitidine and DLI treatment, acute and chronic GVHD grades, ciclosporin and other immune suppressive treatments, as well as death or relapse.
+
 ```r
 # Create a clinical course figure
 nmds_figures_main(
@@ -145,6 +149,9 @@ nmds_figures_main(
 ```
 
 ## Chimerism Figure
+
+Creates modified clinical course figures, where CD33 and CD34 chimerism is also displayed in the MRD line graph, using the additional ```chimerism_file``` excel file.
+
 ```r
 # Create a chimerism figure
 nmds_figures_main(
@@ -165,6 +172,9 @@ nmds_figures_main(
 ```
 
 ## Survival Analysis
+
+Creates a survival figure with error margins, p-value and risk table, using a strata provided by the user using the ```strata_filename```, ```strata_colname``` and ```strata_itemname``` settings.
+
 ```r
 # Create a survival figure
 nmds_figures_main(
