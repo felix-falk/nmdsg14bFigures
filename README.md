@@ -24,8 +24,6 @@ library(nmdsg14bFigures)
 packageVersion("nmdsg14bFigures")
 ```
 
-# Usage
-
 ## Precautions
 
 1. The package cannot read "\\" in file paths, which is the default on Windows. Therefore, replace any "\\" with "/" in your file paths. 
@@ -47,95 +45,23 @@ packageVersion("nmdsg14bFigures")
 | ```ngs.xlsx``` | ```patno, Gen, cDNA forandring``` |
 | ```chimerism.xlsx``` | ```patno, chimbmdt, surface_marker``` |
 
-## Run the package in R
+## Settings
 
-```r
-# Optional: navigate to the files directory
-setwd("~/study_files")
+### 1. Plot Type
 
-# Create a swimmerplot
-nmds_figures_main(
-  general_info_file = "general_info.xlsx",
-  mrd_file = "mrd.xlsx",
-  dli_file = "dli.xlsx",
-  aza_file = "aza.xlsx",
-  immune_file = "immune.xlsx",
-  gvhd_file = "gvhd.xlsx",
-  ngs_file = "ngs.xlsx",
-  chimerism_file = "chimerism.xlsx",
-  immune_filter_file = "immune_suppression_filter.csv",
-  output_folder = "~/nmdsg14bFigures_output",
-  plot_type = "swimmerplot", 
-  output_format = "pdf",
-  filters = list(genes = "TP53", outcomes = "Remission")
-)
+Set ```output_folder``` to an output folder and directory of your choice.
 
-# Create a clinical course figure
-nmds_figures_main(
-  general_info_file = "general_info.xlsx",
-  mrd_file = "mrd.xlsx",
-  dli_file = "dli.xlsx",
-  aza_file = "aza.xlsx",
-  immune_file = "immune.xlsx",
-  gvhd_file = "gvhd.xlsx",
-  ngs_file = "ngs.xlsx",
-  immune_filter_file = "immune_suppression_filter.csv",
-  output_folder = "~/nmdsg14bFigures_output",
-  plot_type = "clinical_course", 
-  output_format = "pdf",
-  filters = list(genes = "TP53", outcomes = "Remission")
-)
-
-# Create a clinical course and chimerism figure
-nmds_figures_main(
-  general_info_file = "general_info.xlsx",
-  mrd_file = "mrd.xlsx",
-  dli_file = "dli.xlsx",
-  aza_file = "aza.xlsx",
-  immune_file = "immune.xlsx",
-  gvhd_file = "gvhd.xlsx",
-  ngs_file = "ngs.xlsx",
-  chimerism_file = "chimerism.xlsx",
-  immune_filter_file = "immune_suppression_filter.csv",
-  output_folder = "~/nmdsg14bFigures_output",
-  plot_type = "clinical_course_chimerism", 
-  output_format = "pdf",
-  filters = list(genes = "TP53", outcomes = "Remission")
-)
-
-# Create a survival figure
-nmds_figures_main(
-  general_info_file = "general_info.xlsx",
-  mrd_file = "mrd.xlsx",
-  ngs_file = "ngs.xlsx",
-  immune_file = "immune.xlsx",
-  immune_filter_file = "immune_suppression_filter.csv",
-  output_folder = "~/nmdsg14bFigures_output",
-  plot_type = "survival", 
-  output_format = "svg",
-  strata_filename = "ngs",
-  strata_colname = "Gen",
-  strata_itemname = "TP53",
-  survival_baseline = "transplant",
-  survival_metric = "rfs"
-)
-```
-
-## Output format
-
-Set ```output_format``` to ```"pdf"``` or ```"svg"```.
-
-## Plot type
+### 2. Plot Type
 
 Set ```plot_type``` to ```"swimmerplot"```, ```"clinical_course"```, ```"clinical_course_chimerism"``` or ```"survival"```.
 
-## Filtering
+### 3. Output Format
 
-### Mandatory filtering
+Set ```output_format``` to ```"pdf"``` or ```"svg"```.
 
-#### Immune suppression data
+### 4. Mandatory Immune Suppression Filter
 
-Only immune suppression treatments relevant to the study are kept using a ";"-separated csv file, provided by the user (see example below). Imunne suppressive treatments that should be excluded are put as exlude = TRUE. The immune suppresion treatment names are recognized using the ```pattern``` column, and are changed to a given ```standardized_name```. Treatments that are to be excluded from the analysis are put as ```TRUE``` in the ```exclude``` column.
+Only immune suppression treatments relevant to the study are kept using a ";"-separated csv file, provided by the user as the ```immune_filter_file``` setting (see example below). Imunne suppressive treatments that should be excluded are put as exlude = TRUE. The immune suppresion treatment names are recognized using the ```pattern``` column, and are changed to a given ```standardized_name```. Treatments that are to be excluded from the analysis are put as ```TRUE``` in the ```exclude``` column.
 
 | pattern | standardized_name | exclude |
 | ------- | ------- | ------- |
@@ -143,7 +69,7 @@ Only immune suppression treatments relevant to the study are kept using a ";"-se
 | mmf\|my.\*enol | mycophenolic acid | FALSE |
 | entocort\|jorv | budesonide | TRUE |
 
-### Optional filtering
+### 5. Optional Filters
 
 Pass a list to the filters option, containing your filters of interest. Exclude filters from the list if you do not wish to include them as criteria.
 
@@ -177,9 +103,91 @@ filters = list(
 | ```mrd_positive``` | ```true```, ```false```, ```null``` |
 | ```immune_suppression``` | ```true```, ```false```, ```null``` |
 
+## Swimmerplot
+
+```r
+# Create a swimmerplot
+nmds_figures_main(
+  general_info_file = "general_info.xlsx",
+  mrd_file = "mrd.xlsx",
+  dli_file = "dli.xlsx",
+  aza_file = "aza.xlsx",
+  immune_file = "immune.xlsx",
+  gvhd_file = "gvhd.xlsx",
+  ngs_file = "ngs.xlsx",
+  chimerism_file = "chimerism.xlsx",
+  immune_filter_file = "immune_suppression_filter.csv",
+  output_folder = "~/nmdsg14bFigures_output",
+  plot_type = "swimmerplot", 
+  output_format = "pdf",
+  filters = list(genes = "TP53", outcomes = "Remission")
+)
+```
+
+## Clinical Course Figure
+
+```r
+# Create a clinical course figure
+nmds_figures_main(
+  general_info_file = "general_info.xlsx",
+  mrd_file = "mrd.xlsx",
+  dli_file = "dli.xlsx",
+  aza_file = "aza.xlsx",
+  immune_file = "immune.xlsx",
+  gvhd_file = "gvhd.xlsx",
+  ngs_file = "ngs.xlsx",
+  immune_filter_file = "immune_suppression_filter.csv",
+  output_folder = "~/nmdsg14bFigures_output",
+  plot_type = "clinical_course", 
+  output_format = "pdf",
+  filters = list(genes = "TP53", outcomes = "Remission")
+)
+```
+
+## Chimerism Figure
+```r
+# Create a chimerism figure
+nmds_figures_main(
+  general_info_file = "general_info.xlsx",
+  mrd_file = "mrd.xlsx",
+  dli_file = "dli.xlsx",
+  aza_file = "aza.xlsx",
+  immune_file = "immune.xlsx",
+  gvhd_file = "gvhd.xlsx",
+  ngs_file = "ngs.xlsx",
+  chimerism_file = "chimerism.xlsx",
+  immune_filter_file = "immune_suppression_filter.csv",
+  output_folder = "~/nmdsg14bFigures_output",
+  plot_type = "clinical_course_chimerism", 
+  output_format = "pdf",
+  filters = list(genes = "TP53", outcomes = "Remission")
+)
+```
+
+## Survival Analysis
+```r
+# Create a survival figure
+nmds_figures_main(
+  general_info_file = "general_info.xlsx",
+  mrd_file = "mrd.xlsx",
+  ngs_file = "ngs.xlsx",
+  immune_file = "immune.xlsx",
+  immune_filter_file = "immune_suppression_filter.csv",
+  output_folder = "~/nmdsg14bFigures_output",
+  plot_type = "survival", 
+  output_format = "svg",
+  strata_filename = "ngs",
+  strata_colname = "Gen",
+  strata_itemname = "TP53",
+  survival_baseline = "transplant",
+  survival_metric = "rfs"
+)
+```
+
+### Survival Analysis Settings
+
 | Survival setting name | Possible options | Explanation |
 | ------- | ------- | ------- |
 | ```strata_filename``` | ```"general_info"```, ```"mrd"```, ```"dli"```, ```"aza"```, ```"immune"```, ```"gvhd"```, ```"ngs"```, ```"chimerism"``` | The file containing the strata you wish to use in the survival analysis. |
 | ```survival_baseline``` | ```"transplant"```, ```"rel_pos_mrd_dat_0.1"```, ```"rel_pos_mrd_dat_0.5"```, ```"rel_pos_mrd_dat_1.0"``` | The event at which the survival analysis starts, either transplantation or when MRD first reaches a certain level (0.1, 0.5, 1.0 %) after transplantation. |
 | ```survival_metric``` | ```"os"```, ```"rfs"```, ```"efs"``` | Overall survival, relapse-free survival or event-free survival. |
-
