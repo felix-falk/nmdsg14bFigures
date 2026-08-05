@@ -190,4 +190,4 @@ nmds_figures_main(
 | ------- | ------- | ------- |
 | ```strata_filename``` | ```"general_info"```, ```"mrd"```, ```"dli"```, ```"aza"```, ```"immune"```, ```"gvhd"```, ```"ngs"```, ```"chimerism"``` | The file containing the strata you wish to use in the survival analysis. |
 | ```survival_baseline``` | ```"transplant"```, ```"rel_pos_mrd_dat_0.1"```, ```"rel_pos_mrd_dat_0.5"```, ```"rel_pos_mrd_dat_1.0"``` | The event at which the survival analysis starts, either transplantation or when MRD first reaches a certain level (0.1, 0.5, 1.0 %) after transplantation. |
-| ```survival_metric``` | ```"os"```, ```"rfs"```, ```"efs"``` | Overall survival, relapse-free survival or event-free survival. |
+| ```survival_metric``` | ```"os"```, ```"rfs"```, ```"efs"``` | Overall survival, relapse-free survival or event-free survival, where an event counts as either death, relapse, aGVHD grade 3-4, severe cGVHD or moderate cGVHD requiring immune suppressive treatment. |
