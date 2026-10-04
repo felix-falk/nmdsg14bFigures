@@ -213,25 +213,33 @@ preprocess_data <- function(
   # Create processed gvhd data frame based on ghvd_raw and end_date_df
   gvhd_processed <- create_gvhd_df(gvhd_raw, end_date_df)
 
-  # Add mrd_category column to mrd_raw, calculate rel_mrd_dat
-  # Calculate first dates with positive MRD at three levels
+  # Keep all mutation-specific MRD measurements for plotting, while also
+  # deriving one patient-date maximum for patient-level summaries.
   mrd_all <- mrd_raw |>
-    dplyr::mutate(mrd_category = dplyr::case_when(
-      level < 0.1 ~ "Negative (< 0.1)",
-      level < 0.5 ~ "Low (0.1 - 0.5)",
-      level < 1.0 ~ "Intermediate (0.5 - 1)",
-      TRUE        ~ "High (> 1)"
-    )) |>
-    dplyr::group_by(patno, MRDdat) |>
-    dplyr::slice_max(order_by = level, n = 1, with_ties = FALSE) |>
-    dplyr::ungroup() |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(
       rel_mrd_dat = as.numeric(
         difftime(as.Date(MRDdat), as.Date(transpldt), units = "days")
       )
     ) |>
-    dplyr::filter(rel_mrd_dat >= 0) |>
+    dplyr::filter(rel_mrd_dat >= 0)
+
+  mrd_by_date <- mrd_all |>
+    dplyr::group_by(patno, MRDdat, rel_mrd_dat, rel_term_dat) |>
+    dplyr::summarise(level = max(level, na.rm = TRUE), .groups = "drop") |>
+    dplyr::mutate(mrd_category = dplyr::case_when(
+      level < 0.1 ~ "Negative (< 0.1)",
+      level < 0.5 ~ "Low (0.1 - 0.5)",
+      level < 1.0 ~ "Intermediate (0.5 - 1)",
+      TRUE        ~ "High (> 1)"
+    ))
+
+  mrd_all <- mrd_all |>
+    dplyr::left_join(
+      mrd_by_date |>
+        dplyr::select(patno, MRDdat, rel_mrd_dat, mrd_category),
+      by = c("patno", "MRDdat", "rel_mrd_dat")
+    ) |>
     dplyr::group_by(patno) |>
     dplyr::mutate(
       `rel_pos_mrd_dat_0.1` = if (any(level >= 0.1))
@@ -251,7 +259,7 @@ preprocess_data <- function(
 
   # Create a list of patno which have level >= 10 at the last measurement, these
   # also count as relapses.
-  mrd_relapse_cases <- mrd_all |>
+  mrd_relapse_cases <- mrd_by_date |>
     dplyr::arrange(patno, rel_mrd_dat) |>
     dplyr::group_by(patno) |>
     dplyr::slice_tail(n = 1) |>
