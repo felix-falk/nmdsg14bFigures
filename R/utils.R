@@ -110,10 +110,27 @@ ensure_data_frame_columns <- function(df, required_cols = character()) {
     df <- tibble::tibble()
   }
 
+  default_column <- function(col, n_rows) {
+    if (col == "patno") {
+      return(rep(NA_character_, n_rows))
+    }
+
+    if (grepl("_dat$|_time$|_start$|_end$|^rel_", col)) {
+      return(rep(NA_real_, n_rows))
+    }
+
+    if (grepl("_status$|^exclude$", col)) {
+      return(rep(NA, n_rows))
+    }
+
+    rep(NA_character_, n_rows)
+  }
+
   missing_cols <- setdiff(required_cols, names(df))
   if (length(missing_cols) > 0) {
+    n_rows <- nrow(df)
     for (col in missing_cols) {
-      df[[col]] <- NA
+      df[[col]] <- default_column(col, n_rows)
     }
   }
 
