@@ -75,6 +75,8 @@ draw_mrd_plot <- function(
     "Not available"
   }
 
+  mrd_plot_data <- prepare_mrd_plot_data(mrd_data, x_range)
+
   plot <- ggplot2::ggplot() +
 
     # Add a shaded rectangle to indicate the MRD negative range (below 0.1 %)
@@ -89,36 +91,24 @@ draw_mrd_plot <- function(
 
     # Add MRD lines, only for mutations with more than 1 data point.
     ggplot2::geom_line(
-      data = mrd_data |>
-        dplyr::filter(
-          !is.na(Mutation),
-          is.finite(rel_mrd_dat),
-          is.finite(level_no0s),
-          level_no0s > 0
-        ) |>
+      data = mrd_plot_data |>
         dplyr::group_by(Mutation) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
       ggplot2::aes(
-        x = rel_mrd_dat,
-        y = level_no0s,
-        colour = Mutation
+        x = .data$plot_rel_mrd_dat,
+        y = .data$level_no0s,
+        colour = .data$Mutation
       )
     ) +
 
     # Add MRD points, including those with only one data point.
     ggplot2::geom_point(
-      data = mrd_data |>
-        dplyr::filter(
-          !is.na(Mutation),
-          is.finite(rel_mrd_dat),
-          is.finite(level_no0s),
-          level_no0s > 0
-        ),
+      data = mrd_plot_data,
       ggplot2::aes(
-        x = rel_mrd_dat,
-        y = level_no0s,
-        colour = Mutation
+        x = .data$plot_rel_mrd_dat,
+        y = .data$level_no0s,
+        colour = .data$Mutation
       )
     ) +
 

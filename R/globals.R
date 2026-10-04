@@ -81,6 +81,13 @@ utils::globalVariables(
     "fill_value",
     "dose_percentage",
     "interval_no",
-    "max_dose"
+    "max_dose",
+    "overlap_n",
+    "overlap_idx",
+    "raw_offset",
+    "raw_x",
+    "boundary_shift",
+    "plot_rel_mrd_dat",
+    "chimerism_scaled"
   )
 )

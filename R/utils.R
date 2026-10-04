@@ -148,6 +148,60 @@ normalize_patno_column <- function(df) {
   df
 }
 
+#' Prepare MRD plotting data and separate coincident mutation points.
+#'
+#' @param mrd_data Data frame with MRD plotting columns.
+#' @param x_range Numeric length-2 vector with x-axis limits.
+#' @returns Filtered MRD plotting data with `plot_rel_mrd_dat` for display.
+prepare_mrd_plot_data <- function(mrd_data, x_range) {
+  if (is.null(mrd_data) || !is.data.frame(mrd_data) || nrow(mrd_data) == 0) {
+    return(tibble::tibble())
+  }
+
+  x_min <- min(x_range, na.rm = TRUE)
+  x_max <- max(x_range, na.rm = TRUE)
+  x_span <- x_max - x_min
+  x_nudge <- min(3, max(0.6, x_span * 0.004))
+
+  mrd_data |>
+    dplyr::filter(
+      !is.na(Mutation),
+      is.finite(rel_mrd_dat),
+      is.finite(level_no0s),
+      level_no0s > 0
+    ) |>
+    dplyr::group_by(rel_mrd_dat, level_no0s) |>
+    dplyr::arrange(Mutation, .by_group = TRUE) |>
+    dplyr::mutate(
+      overlap_n = dplyr::n(),
+      overlap_idx = dplyr::row_number()
+    ) |>
+    dplyr::mutate(
+      raw_offset = dplyr::if_else(
+        .data$overlap_n > 1,
+        (.data$overlap_idx - (.data$overlap_n + 1) / 2) * x_nudge,
+        0
+      ),
+      raw_x = .data$rel_mrd_dat + .data$raw_offset
+    ) |>
+    dplyr::mutate(
+      boundary_shift = dplyr::case_when(
+        min(.data$raw_x) < x_min ~ x_min - min(.data$raw_x),
+        max(.data$raw_x) > x_max ~ x_max - max(.data$raw_x),
+        TRUE ~ 0
+      ),
+      plot_rel_mrd_dat = .data$raw_x + .data$boundary_shift
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::select(-dplyr::any_of(c(
+      "overlap_n",
+      "overlap_idx",
+      "raw_offset",
+      "raw_x",
+      "boundary_shift"
+    )))
+}
+
 #' Ensure a data frame exists and has required columns.
 #'
 #' @param df Input object that should be a data frame.
