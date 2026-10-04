@@ -60,8 +60,10 @@ preprocess_data <- function(
   ### Read files (optional files are tolerated)
 
   # Read the mandatory excel files
-  general_info_raw <- readxl::read_excel(general_info_file)
-  mrd_raw <- readxl::read_excel(mrd_file)
+  general_info_raw <- readxl::read_excel(general_info_file) |>
+    normalize_patno_column()
+  mrd_raw <- readxl::read_excel(mrd_file) |>
+    normalize_patno_column()
 
   # Check that required columns are present
   column_check(general_info_raw, c(
@@ -81,24 +83,26 @@ preprocess_data <- function(
   ))
 
   if (is.null(dli_file) || !file.exists(dli_file)) {
-    dli_raw <- tibble::tibble(patno = double(), dlidat = as.Date(character()))
+    dli_raw <- tibble::tibble(patno = character(), dlidat = as.Date(character()))
   } else {
-    dli_raw <- readxl::read_excel(dli_file)
+    dli_raw <- readxl::read_excel(dli_file) |>
+      normalize_patno_column()
     column_check(dli_raw, c("patno", "dlidat"))
   }
 
   if (is.null(aza_file) || !file.exists(aza_file)) {
     aza_raw <- tibble::tibble(
-      patno = double(), azacitstart = as.Date(character())
+      patno = character(), azacitstart = as.Date(character())
     )
   } else {
-    aza_raw <- readxl::read_excel(aza_file)
+    aza_raw <- readxl::read_excel(aza_file) |>
+      normalize_patno_column()
     column_check(aza_raw, c("patno", "azacitstart"))
   }
 
   if (is.null(immune_file) || !file.exists(immune_file)) {
     immune_raw <- tibble::tibble(
-      patno = double(),
+      patno = character(),
       immunsupptreatm = character(),
       drugdt = as.Date(character()),
       drugname = character(),
@@ -106,7 +110,8 @@ preprocess_data <- function(
       drugdose = numeric()
     )
   } else {
-    immune_raw <- readxl::read_excel(immune_file)
+    immune_raw <- readxl::read_excel(immune_file) |>
+      normalize_patno_column()
     column_check(immune_raw, c(
       "patno",
       "drugname",
@@ -118,7 +123,7 @@ preprocess_data <- function(
 
   if (is.null(gvhd_file) || !file.exists(gvhd_file)) {
     gvhd_raw <- tibble::tibble(
-      patno = double(),
+      patno = character(),
       agvhdstage = character(),
       gvhddate = as.Date(character()),
       agvhdmaxstage = character(),
@@ -128,7 +133,8 @@ preprocess_data <- function(
       cgvhdmaxdt = as.Date(character())
     )
   } else {
-    gvhd_raw <- readxl::read_excel(gvhd_file)
+    gvhd_raw <- readxl::read_excel(gvhd_file) |>
+      normalize_patno_column()
     column_check(gvhd_raw, c(
       "patno",
       "gvhddate",
@@ -142,9 +148,10 @@ preprocess_data <- function(
   }
 
   if (is.null(ngs_file) || !file.exists(ngs_file)) {
-    ngs_raw <- tibble::tibble(patno = double(), Gen = character())
+    ngs_raw <- tibble::tibble(patno = character(), Gen = character())
   } else {
-    ngs_raw <- readxl::read_excel(ngs_file)
+    ngs_raw <- readxl::read_excel(ngs_file) |>
+      normalize_patno_column()
     column_check(ngs_raw, c(
       "patno",
       "Gen"
@@ -153,12 +160,13 @@ preprocess_data <- function(
 
   if (is.null(chimerism_file) || !file.exists(chimerism_file)) {
     chimerism_raw <- tibble::tibble(
-      patno = double(),
+      patno = character(),
       chimbmdt = as.Date(character()),
       CD1 = numeric()
     )
   } else {
-    chimerism_raw <- readxl::read_excel(chimerism_file)
+    chimerism_raw <- readxl::read_excel(chimerism_file) |>
+      normalize_patno_column()
     column_check(chimerism_raw, c("patno", "chimbmdt"))
 
     has_long_cols <- all(c("surface_marker", "level") %in% names(chimerism_raw)) ||

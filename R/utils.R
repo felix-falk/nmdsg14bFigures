@@ -133,6 +133,21 @@ select_one_patient <- function(df, pat_id = NULL) {
   dplyr::filter(df, patno == pat_id)
 }
 
+#' Normalize patient identifiers for stable joins.
+#'
+#' @param df Data frame that may contain a patno column.
+#' @returns The input data frame with a normalized character patno column.
+normalize_patno_column <- function(df) {
+  if (is.null(df) || !is.data.frame(df) || !"patno" %in% names(df)) {
+    return(df)
+  }
+
+  df$patno <- trimws(as.character(df$patno))
+  df$patno[df$patno == ""] <- NA_character_
+
+  df
+}
+
 #' Ensure a data frame exists and has required columns.
 #'
 #' @param df Input object that should be a data frame.
