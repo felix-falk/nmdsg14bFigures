@@ -52,6 +52,7 @@ A list of processed data frames.
 Preprocess data ahead of manual filtering and plotting and.
 }
 \examples{
+\dontrun{
 preprocess_data(
 general_info_file = "general_info.xlsx",
 mrd_file = "mrd.xlsx",
@@ -62,4 +63,5 @@ gvhd_file = "gvhd.xlsx",
 ngs_file = "ngs.xlsx",
 immune_filter_file = "immune_filter.csv"
 )
+}
 }

@@ -28,7 +28,10 @@ draw_survival <- function(
       "rel_pos_mrd_dat_0.1", "rel_pos_mrd_dat_0.5", "rel_pos_mrd_dat_1.0"
     )
   )
-  processed$treatment <- ensure_data_frame_columns(processed$treatment, c("patno"))
+  processed$treatment <- ensure_data_frame_columns(
+    processed$treatment,
+    c("patno")
+  )
   processed$mrd <- ensure_data_frame_columns(processed$mrd, c("patno"))
   processed$gvhd <- ensure_data_frame_columns(processed$gvhd, c("patno"))
   processed$immune_intervals <- ensure_data_frame_columns(
@@ -72,12 +75,16 @@ draw_survival <- function(
   time_col <- metric_map[[survival_metric]]$time
   status_col <- metric_map[[survival_metric]]$status
 
-  # Build strata variable; if none is provided, analyse all patients as one group.
+  # Build strata variable; if none is provided,
+  # analyse all patients as one group.
   if (is.null(strata_colname) && is.null(strata_filename)) {
     strata_var <- ".all_patients"
     survival_data[[strata_var]] <- "All"
   } else {
-    strata_var <- if (!is.null(strata_colname)) strata_colname else strata_filename
+    strata_var <- if (!is.null(strata_colname))
+      strata_colname
+    else
+      strata_filename
     if (!strata_var %in% names(survival_data)) {
       stop(
         sprintf("Strata column '%s' not found in survival data.", strata_var),
@@ -86,11 +93,39 @@ draw_survival <- function(
     }
   }
 
-  # Optional filtering ONLY
-  if (!is.null(strata_itemname)) {
-    survival_data <- survival_data |>
-      dplyr::filter(.data[[strata_var]] == strata_itemname)
+  # If raw IPSS-M is requested and categorized IPSS-M is available,
+  # use risk groups for a stable and interpretable stratification.
+  if (
+    identical(strata_var, "ipssm") &&
+      is.null(strata_itemname) &&
+      "ipssm_title" %in% names(survival_data)
+  ) {
+    strata_var <- "ipssm_title"
+    message("Using 'ipssm_title' risk groups instead of continuous 'ipssm'.")
   }
+
+  # If an item name is supplied, treat it as the positive strata label when the
+  # underlying strata column is a membership flag created by add_strata().
+  if (!is.null(strata_itemname)) {
+    strata_values <- survival_data[[strata_var]]
+    if (is.logical(strata_values) || all(
+      na.omit(unique(strata_values)) %in% c(0, 1, TRUE, FALSE)
+    )) {
+      survival_data[[strata_var]] <- dplyr::if_else(
+        as.logical(strata_values),
+        strata_itemname,
+        "Other"
+      )
+    } else {
+      survival_data <- survival_data |>
+        dplyr::filter(.data[[strata_var]] == strata_itemname)
+    }
+  }
+
+  # Keep strata values stable for plotting.
+  survival_data[[strata_var]] <- as.character(survival_data[[strata_var]])
+  survival_data[[strata_var]][is.na(survival_data[[strata_var]])] <- "Missing"
+  survival_data[[strata_var]] <- as.factor(survival_data[[strata_var]])
 
   # Match the requested baseline
   survival_baseline <- match.arg(survival_baseline)
@@ -118,19 +153,35 @@ draw_survival <- function(
     sprintf("Surv(%s, %s) ~ `%s`", time_col, status_col, strata_var)
   )
   fit <- survival::survfit(form, data = survival_data)
+  if (!is.null(fit$strata)) {
+    names(fit$strata) <- sub("^[^=]+=", "", names(fit$strata))
+  }
   fit$call$formula <- form # Solves ggsurvplot bug
+
+  # NEJM palette supports up to 8 groups. For higher-cardinality strata,
+  # generate a palette with one color per strata level to avoid scale errors.
+  n_strata <- if (is.null(fit$strata)) 1L else length(fit$strata)
+  palette_spec <- if (n_strata <= 8L) {
+    "nejm"
+  } else {
+    grDevices::hcl.colors(n_strata, palette = "Dark 3")
+  }
+  risk_table_height <- min(0.75, max(0.25, 0.15 + 0.035 * n_strata))
 
   # Write x-axis label
   xlab_text <- paste(
     "Days after",
-    if (survival_baseline == "transplant") "transplantation" else survival_baseline
+    if (survival_baseline == "transplant")
+      "transplantation"
+    else
+      survival_baseline
   )
 
   # Write y-axis label
   ylab_text <-
     if (survival_metric == "os") "Overall survival"
-    else if (survival_metric == "rfs") "Relapse free survival"
-    else "Event free survival"
+    else if (survival_metric == "rfs") "Relapse-free survival"
+    else "Event-free survival"
 
   # Draw figure
   survplot <- survminer::ggsurvplot(
@@ -138,12 +189,22 @@ draw_survival <- function(
     data = survival_data,
     pval = TRUE,
     conf.int = TRUE,
-    palette = "nejm",
+    palette = palette_spec,
     xlab = xlab_text,
     ylab = ylab_text,
+    legend.title = strata_var,
     risk.table = TRUE,
-    risk.table.col = "strata"
+    risk.table.height = risk_table_height,
+    risk.table.col = "strata",
+    risk.table.y.text = TRUE,
+    risk.table.y.text.col = TRUE
   )
+
+  survplot$plot <- survplot$plot +
+    ggplot2::labs(color = strata_var, fill = strata_var)
+
+  survplot$table <- survplot$table +
+    ggplot2::labs(y = strata_var, color = strata_var)
 
   if (!dir.exists(output_folder)) {
     dir.create(output_folder, recursive = TRUE)
@@ -156,7 +217,7 @@ draw_survival <- function(
 
   # Save figure to svg or pdf
   if (output_format == "svg") {
-    grDevices::svg(out_file, width = 8, height = 8)
+    svglite::svglite(out_file, width = 8, height = 8)
     print(survplot)
     grDevices::dev.off()
   } else {

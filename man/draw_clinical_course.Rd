@@ -31,10 +31,12 @@ A numeric vector.
 Draw clinical course figures and export to PDF.
 }
 \examples{
+\dontrun{
 draw_clinical_course(
 processed,
 patient_subset,
 "~/output",
 "clinical_course.pdf"
 )
+}
 }

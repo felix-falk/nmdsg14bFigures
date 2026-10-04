@@ -19,5 +19,7 @@ A numeric vector.
 Generate MRD + Chimerism + GVHD timeline for a given patient
 }
 \examples{
-plot_patient_timeline(processed, pat_id)
+\dontrun{
+plot_chimerism_timeline(processed, pat_id)
+}
 }

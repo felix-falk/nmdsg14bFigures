@@ -1,6 +1,7 @@
 export(nmds_figures_main)
 export(draw_swimmerplot)
 export(draw_clinical_course)
+export(draw_chimerism_plot)
 export(preprocess_data)
 export(apply_filters)
 

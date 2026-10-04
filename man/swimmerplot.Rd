@@ -6,31 +6,31 @@
 \usage{
 swimmerplot(
   plot_data,
-  immune_pts,
   outcome_pts,
-  treatment_pts,
-  gvhd_pts,
   mrd_terminal_pts,
-  title_string
+  title_string,
+  immune_pts = NULL,
+  treatment_pts = NULL,
+  gvhd_pts = NULL
 )
 }
 \arguments{
 \item{plot_data}{Data frame containing
 the data for the swimmer plot rectangles.}
 
-\item{immune_pts}{A vector of patient IDs.}
-
 \item{outcome_pts}{A vector of patient IDs.}
-
-\item{treatment_pts}{A vector of patient IDs.}
-
-\item{gvhd_pts}{A vector of patient IDs.}
 
 \item{mrd_terminal_pts}{A data frame describing mrd values taken
 at the termination date, with the columns patno, rel_term_dat,
 y and mrd_category.}
 
 \item{title_string}{The title for the swimmer plot.}
+
+\item{immune_pts}{A vector of patient IDs.}
+
+\item{treatment_pts}{A vector of patient IDs.}
+
+\item{gvhd_pts}{A vector of patient IDs.}
 }
 \value{
 A swimmer plot ggplot object.
@@ -39,13 +39,15 @@ A swimmer plot ggplot object.
 Called by draw_swimmerplot to draw swimmer plot.
 }
 \examples{
+\dontrun{
 swimmerplot(
 plot_data,
-immune_pts,
 outcome_pts,
-treatment_pts,
-gvhd_pts,
 mrd_terminal_pts,
-title_string
+title_string,
+immune_pts,
+treatment_pts,
+gvhd_pts
 )
+}
 }

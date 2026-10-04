@@ -14,6 +14,7 @@
 #' @param strata_itemname Name of the item of the strata of interest.
 #' @returns A list of processed data frames.
 #' @examples
+#' \dontrun{
 #' preprocess_data(
 #' general_info_file = "general_info.xlsx",
 #' mrd_file = "mrd.xlsx",
@@ -24,6 +25,7 @@
 #' ngs_file = "ngs.xlsx",
 #' immune_filter_file = "immune_filter.csv"
 #' )
+#' }
 preprocess_data <- function(
   general_info_file,
   mrd_file,
@@ -105,7 +107,13 @@ preprocess_data <- function(
     )
   } else {
     immune_raw <- readxl::read_excel(immune_file)
-    column_check(immune_raw, c("patno", "drugname", "drugdt", "drugstopped", "drugdose"))
+    column_check(immune_raw, c(
+      "patno",
+      "drugname",
+      "drugdt",
+      "drugstopped",
+      "drugdose"
+    ))
   }
 
   if (is.null(gvhd_file) || !file.exists(gvhd_file)) {
@@ -137,7 +145,10 @@ preprocess_data <- function(
     ngs_raw <- tibble::tibble(patno = double(), Gen = character())
   } else {
     ngs_raw <- readxl::read_excel(ngs_file)
-    column_check(ngs_raw, c("patno", "Gen"))
+    column_check(ngs_raw, c(
+      "patno",
+      "Gen"
+    ))
   }
 
   if (is.null(chimerism_file) || !file.exists(chimerism_file)) {
@@ -149,6 +160,18 @@ preprocess_data <- function(
   } else {
     chimerism_raw <- readxl::read_excel(chimerism_file)
     column_check(chimerism_raw, c("patno", "chimbmdt"))
+
+    has_long_cols <- all(c("surface_marker", "level") %in% names(chimerism_raw)) ||
+      all(c("surface_marker", "chimerism") %in% names(chimerism_raw))
+    has_wide_cols <- any(startsWith(names(chimerism_raw), "CD"))
+
+    if (!has_long_cols && !has_wide_cols) {
+      stop(
+        "chimerism_file must contain either long-format columns \
+'surface_marker' + ('level' or 'chimerism'), or wide-format columns starting with 'CD'.",
+        call. = FALSE
+      )
+    }
   }
 
   # Read immune suppresion filter file
@@ -315,20 +338,6 @@ preprocess_data <- function(
   # Create immune intervals data frame
   interval_df <- interval_finder(immune)
 
-  # Find overlapping immune suppression intervals
-  #overlapping_interval_df <- overlapping_interval_finder(interval_df)
-
-  # Create ciclosporine intervals data frame
-  #ciclosporine_interval_df <- interval_finder(
-  #  immune |>
-  #    dplyr::filter(drugname_standardized == "ciclosporin")
-  #)
-
-  # Find overlapping immune suppression intervals for ciclosporin
-  #overlapping_ciclosporin_interval_df <- overlapping_interval_finder(
-  #  ciclosporine_interval_df
-  #)
-
   # --- IMMUNE RECTANGLES ---
 
   # Based on gvhd, compute earliest relevant GVHD event per patient:
@@ -341,12 +350,13 @@ preprocess_data <- function(
   agvhd_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Acute GVHD") |>
     dplyr::mutate(
-      stage_norm = toupper(as.character(agvhdstage)),
-      stage_num = suppressWarnings(as.numeric(stage_norm))
+      stage_norm = toupper(trimws(as.character(agvhdstage))),
+      stage_num = suppressWarnings(as.numeric(gsub("[^0-9.]", "", stage_norm)))
     ) |>
     dplyr::filter(
-      stage_norm %in% c(3, 4) |
-        (!is.na(stage_num) & stage_num >= 3)
+      stage_norm %in% c("III", "IV", "3", "4") |
+        grepl("(^|[^A-Z])(III|IV)([^A-Z]|$)", stage_norm) |
+        (!is.na(stage_num) & stage_num %in% c(3, 4))
     ) |>
     dplyr::select(patno, rel_gvhd_dat) |>
     dplyr::mutate(event_type = "aGVHD 3-4")
@@ -355,15 +365,15 @@ preprocess_data <- function(
   cgvhd_severe_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Chronic GVHD") |>
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
-    dplyr::filter(grepl("Severe", stage_norm)) |>
+    dplyr::filter(grepl("severe", stage_norm)) |>
     dplyr::select(patno, rel_gvhd_dat) |>
     dplyr::mutate(event_type = "cGVHD severe")
 
-  # Chronic GVHD moderate but only keep those overlapping immune intervals
+  # Chronic GVHD moderate requiring immune suppression treatment
   cgvhd_moderate_events <- gvhd_processed |>
     dplyr::filter(gvhd == "Chronic GVHD") |>
     dplyr::mutate(stage_norm = tolower(as.character(cgvhdstage))) |>
-    dplyr::filter(grepl("Moderate", stage_norm)) |>
+    dplyr::filter(grepl("moderate", stage_norm)) |>
     dplyr::left_join(interval_df, by = "patno") |>
     dplyr::filter(
       !is.na(interval_start) &
@@ -371,7 +381,7 @@ preprocess_data <- function(
         rel_gvhd_dat <= interval_end
     ) |>
     dplyr::select(patno, rel_gvhd_dat) |>
-    dplyr::mutate(event_type = "cGVHD Moderate (overlaps immune)")
+    dplyr::mutate(event_type = "cGVHD moderate with immune suppression")
 
   # Combine and pick earliest event per patient
   gvhd_events <- dplyr::bind_rows(
@@ -384,13 +394,13 @@ preprocess_data <- function(
     dplyr::slice_head(n = 1) |>
     dplyr::ungroup()
 
-  # Calculate events based on general_info and earliest GVHD events.
-  # If a GVHD event (as computed in `gvhd_events`) occurs before the
-  # censoring/termination time (`rel_term_dat`), register that as the
-  # event (time and status = 1). Otherwise fall back to the previous
-  # rules based on `outcome` (death/relapse/other).
-
-  # Also, add OS and RFS events.
+  # Calculate OS/RFS/EFS events.
+  # Event definition for EFS:
+  # - death
+  # - relapse
+  # - aGVHD grade III-IV
+  # - cGVHD severe
+  # - cGVHD moderate requiring immune suppression treatment
   general_info <- general_info |>
     dplyr::left_join(
       gvhd_events |>
@@ -402,67 +412,41 @@ preprocess_data <- function(
       by = "patno"
     ) |>
     dplyr::mutate(
+      is_death_event = outcome == "Nonrelapse mortality",
+      is_relapse_event = outcome == "Relapse",
+      has_gvhd_efs_event = !is.na(gvhd_event_time) &
+        gvhd_event_time <= rel_term_dat,
 
-      # Composite GVHD endpoint
+      # Event-free survival (composite endpoint)
       event_time = dplyr::case_when(
-        !is.na(gvhd_event_time) &
-          gvhd_event_time <= rel_term_dat ~ gvhd_event_time,
-        eosreason %in% c(
-          "Death",
-          "Full hematological relapse",
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ rel_term_dat,
-        TRUE ~ NA_real_
+        has_gvhd_efs_event ~ gvhd_event_time,
+        TRUE ~ rel_term_dat
       ),
 
       event_status = dplyr::case_when(
-        !is.na(gvhd_event_time) &
-          gvhd_event_time <= rel_term_dat ~ 1,
-        eosreason %in% c(
-          "Death",
-          "Full hematological relapse"
-        ) ~ 1,
-        eosreason %in% c(
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ 0,
-        TRUE ~ NA_real_
+        has_gvhd_efs_event | is_death_event | is_relapse_event ~ 1,
+        is.na(rel_term_dat) ~ NA_real_,
+        TRUE ~ 0
       ),
 
       # Overall survival (death only)
       os_time = rel_term_dat,
       os_status = dplyr::case_when(
-        eosreason == "Death" ~ 1,
-        eosreason %in% c(
-          "Full hematological relapse",
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ 0,
-        TRUE ~ NA_real_
+        is_death_event ~ 1,
+        is.na(rel_term_dat) ~ NA_real_,
+        TRUE ~ 0
       ),
 
       # Relapse-free survival (relapse or death)
       rfs_time = rel_term_dat,
       rfs_status = dplyr::case_when(
-        eosreason %in% c(
-          "Death",
-          "Full hematological relapse"
-        ) ~ 1,
-        eosreason %in% c(
-          "Other reason",
-          "Consent withdrawal",
-          "2 years post HCT"
-        ) ~ 0,
-        TRUE ~ NA_real_
+        is_death_event | is_relapse_event ~ 1,
+        is.na(rel_term_dat) ~ NA_real_,
+        TRUE ~ 0
       )
     )
 
-  # Transpose chimerism data, calculate relative chimerism dates
-  # keep only CD33, CD34.
+  # Calculate relative chimerism dates, keep only CD33, CD34.
   chimerism <- create_chimerism_df(chimerism_raw, end_date_df)
 
   # Add dli, aza or ngs strata column to general_info (optional)
@@ -474,18 +458,6 @@ preprocess_data <- function(
     strata_colname,
     strata_itemname
   )
-
-  print(interval_df |> dplyr::filter(patno == "1207"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "1408"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "1411"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "1504"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2004"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2017"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2023"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2033"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2035"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "2037"), width = Inf)
-  print(interval_df |> dplyr::filter(patno == "4007"), width = Inf)
 
   return(
     list(

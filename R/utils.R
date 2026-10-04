@@ -69,8 +69,41 @@ make_dummy_legend <- function(levels, colours, title) {
   cowplot::get_legend(
     ggplot2::ggplot(df, ggplot2::aes(x, y, colour = stage)) +
       ggplot2::geom_point(size = 3) +
-      ggplot2::scale_colour_manual(name = title, values = colours) +
-      ggplot2::theme_void() + ggplot2::theme(legend.position = "right")
+      ggplot2::scale_colour_manual(
+        name = title,
+        values = colours,
+        guide = ggplot2::guide_legend(
+          title.position = "top",
+          title.hjust = 0
+        )
+      ) +
+      ggplot2::theme_void() +
+      ggplot2::theme(
+        legend.position = "right",
+        legend.title = ggplot2::element_text(hjust = 0),
+        legend.text = ggplot2::element_text(hjust = 0),
+        legend.margin = ggplot2::margin(0, 0, 0, 0),
+        legend.box.margin = ggplot2::margin(0, 0, 0, 0)
+      )
+  )
+}
+
+#' Identify Ciclosporin-standardized drug names robustly.
+#'
+#' @param x Character vector of standardized drug names.
+#' @returns Logical vector indicating which entries should be treated as
+#' Ciclosporin.
+#' @examples
+#' \\dontrun{
+#' is_ciclosporin_name(c("Ciclosporin", "cyclosporine", "Tacrolimus"))
+#' }
+is_ciclosporin_name <- function(x) {
+  normalized <- trimws(tolower(as.character(x)))
+  normalized %in% c(
+    "ciclosporin",
+    "ciclosporine",
+    "cyclosporin",
+    "cyclosporine"
   )
 }
 
@@ -168,12 +201,18 @@ y_limit_finder <- function(
     max_mrd <- safe_max(mrd_data, "level_no0s")
     max_chim <- safe_max(chimerism_data, "chimerism")
 
-    # Determine the upper y-axis limit: at least 10, or the highest value
-    observed_max <- max(c(max_mrd, max_chim), na.rm = TRUE)
+    candidate_max <- c(max_mrd, max_chim)
   } else {
     max_mrd <- safe_max(mrd_data, "level_no0s")
-    # Determine the upper y-axis limit: at least 10, or the highest value
-    observed_max <- max(max_mrd, na.rm = TRUE)
+    candidate_max <- c(max_mrd)
+  }
+
+  # Determine the upper y-axis limit: at least 10, or the highest value
+  finite_max <- candidate_max[is.finite(candidate_max)]
+  if (length(finite_max) == 0) {
+    observed_max <- NA_real_
+  } else {
+    observed_max <- max(finite_max)
   }
 
   if (is.infinite(observed_max) || is.na(observed_max)) {
@@ -338,7 +377,7 @@ create_gvhd_df <- function(
   gvhd_processed <- dplyr::bind_rows(cgvhd_raw_merged, agvhd_raw_merged) |>
     dplyr::left_join(end_date_df, by = "patno") |>
     dplyr::mutate(rel_gvhd_dat = as.numeric(difftime(
-      as.Date(gvhddate), 
+      as.Date(gvhddate),
       as.Date(transpldt), units = "days"
     ))) |>
     dplyr::filter(rel_gvhd_dat <= rel_term_dat) |>
@@ -488,41 +527,63 @@ create_chimerism_df <- function(
   chimerism_raw,
   end_date_df
 ) {
-  # If the data frame already contains a single surface_marker column, 
-  # there is no need to pivot longer. 
-  if ("surface_marker" %in% colnames(chimerism_raw)) {
-    chimerism <- chimerism_raw |>
-      dplyr::filter(!is.na(chimerism)) |>
-      dplyr::left_join(end_date_df, by = "patno") |>
-      dplyr::mutate(
-        rel_chimerism_dat = as.numeric(difftime(
-          as.Date(chimbmdt),
-          as.Date(transpldt),
-          units = "days"
-        ))
-      ) |>
-      dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
-      dplyr::filter(surface_marker %in% c("CD33*", "CD34*"))
-  } else {
-    # Also use pivot longer to unify chimerism data in one single column.
-    chimerism <- chimerism_raw |>
+  if (!"chimerism" %in% names(
+    chimerism_raw
+  ) && "level" %in% names(
+    chimerism_raw
+  )) {
+    chimerism_raw <- chimerism_raw |>
+      dplyr::rename(chimerism = level)
+  }
+
+  if (!"chimerism" %in% names(chimerism_raw)) {
+    cd_cols <- names(chimerism_raw)[startsWith(names(chimerism_raw), "CD")]
+
+    if (length(cd_cols) == 0) {
+      return(tibble::tibble(
+        patno = double(),
+        surface_marker = character(),
+        chimerism = numeric(),
+        chimbmdt = as.Date(character()),
+        rel_chimerism_dat = numeric()
+      ))
+    }
+
+    chimerism_raw <- chimerism_raw |>
       tidyr::pivot_longer(
-        dplyr::starts_with("CD"),
+        dplyr::all_of(cd_cols),
         names_to = "surface_marker",
         values_to = "chimerism"
-      ) |>
-      dplyr::filter(!is.na(chimerism)) |>
-      dplyr::left_join(end_date_df, by = "patno") |>
-      dplyr::mutate(
-        rel_chimerism_dat = as.numeric(difftime(
-          as.Date(chimbmdt),
-          as.Date(transpldt),
-          units = "days"
-        ))
-      ) |>
-      dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
-      dplyr::filter(surface_marker %in% c("CD33*", "CD34*"))
+      )
   }
+
+  chimerism_raw <- chimerism_raw |>
+    dplyr::mutate(
+      surface_marker = dplyr::case_when(
+        startsWith(
+          tolower(as.character(.data$surface_marker)),
+          "cd33"
+        ) ~ "CD33*",
+        startsWith(
+          tolower(as.character(.data$surface_marker)),
+          "cd34"
+        ) ~ "CD34*",
+        TRUE ~ as.character(.data$surface_marker)
+      )
+    )
+
+  chimerism <- chimerism_raw |>
+    dplyr::filter(!is.na(.data$chimerism)) |>
+    dplyr::left_join(end_date_df, by = "patno") |>
+    dplyr::mutate(
+      rel_chimerism_dat = as.numeric(difftime(
+        as.Date(.data$chimbmdt),
+        as.Date(.data$transpldt),
+        units = "days"
+      ))
+    ) |>
+    dplyr::filter(rel_chimerism_dat <= rel_term_dat) |>
+    dplyr::filter(.data$surface_marker %in% c("CD33*", "CD34*"))
   return(chimerism)
 }
 
@@ -567,7 +628,14 @@ calc_immune_percentage_dose <- function(immune_df) {
   immune_df <- immune_df |>
     dplyr::group_by(patno, drugname_standardized) |>
     dplyr::mutate(
-      max_dose = max(drugdose, na.rm = TRUE),
+      max_dose = {
+        non_missing_dose <- drugdose[!is.na(drugdose)]
+        if (length(non_missing_dose) == 0) {
+          NA_real_
+        } else {
+          max(non_missing_dose)
+        }
+      },
       dose_percentage = dplyr::if_else(
         max_dose > 0,
         (drugdose / max_dose) * 100,

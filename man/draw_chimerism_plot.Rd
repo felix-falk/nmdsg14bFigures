@@ -38,6 +38,7 @@ A ggplot object representing the MRD plot for the patient.
 Generate MRD + chimerism plot for a given patient.
 }
 \examples{
+\dontrun{
 draw_chimerism_plot(
   d$mrd,
   d$general_info,
@@ -47,4 +48,5 @@ draw_chimerism_plot(
   y_upper,
   pat_id
 )
+}
 }

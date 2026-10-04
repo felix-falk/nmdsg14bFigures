@@ -19,5 +19,7 @@ A numeric vector.
 Generate MRD + GVHD timeline for a given patient
 }
 \examples{
+\dontrun{
 plot_patient_timeline(processed, pat_id)
+}
 }

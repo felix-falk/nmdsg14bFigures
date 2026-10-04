@@ -10,7 +10,9 @@
 #' @param y_upper The upper limit of the y-axis.
 #' @param pat_id The patient id of the patient you want to plot.
 #' @returns A ggplot object representing the MRD plot for the patient.
+#' @export
 #' @examples
+#' \dontrun{
 #' draw_chimerism_plot(
 #'   d$mrd,
 #'   d$general_info,
@@ -20,20 +22,21 @@
 #'   y_upper,
 #'   pat_id
 #' )
+#' }
 draw_chimerism_plot <- function(
-  mrd_data, # Mandatory
-  general_info_data, # Mandatory
-  ngs_data = NULL, # Optional
-  chimerism_data, # Mandatory
-  x_range, # Mandatory
-  y_upper, # Mandatory
-  pat_id # Mandatory
+  mrd_data,           # Mandatory
+  general_info_data,  # Mandatory
+  ngs_data = NULL,    # Optional
+  chimerism_data,     # Mandatory
+  x_range,            # Mandatory
+  y_upper,            # Mandatory
+  pat_id              # Mandatory
 ) {
 
   diagnosis_label <- if (
     "mdsdiagnosis" %in% names(general_info_data) &&
-    length(general_info_data$mdsdiagnosis) > 0 &&
-    !is.na(general_info_data$mdsdiagnosis[1])
+      length(general_info_data$mdsdiagnosis) > 0 &&
+      !is.na(general_info_data$mdsdiagnosis[1])
   ) {
     general_info_data$mdsdiagnosis[1]
   } else {
@@ -42,8 +45,8 @@ draw_chimerism_plot <- function(
 
   ipssm_label <- if (
     "ipssm_title" %in% names(general_info_data) &&
-    length(general_info_data$ipssm_title) > 0 &&
-    !is.na(general_info_data$ipssm_title[1])
+      length(general_info_data$ipssm_title) > 0 &&
+      !is.na(general_info_data$ipssm_title[1])
   ) {
     general_info_data$ipssm_title[1]
   } else {
@@ -52,8 +55,8 @@ draw_chimerism_plot <- function(
 
   karyotype_label <- if (
     "karyotyp" %in% names(general_info_data) &&
-    length(general_info_data$karyotyp) > 0 &&
-    !is.na(general_info_data$karyotyp[1])
+      length(general_info_data$karyotyp) > 0 &&
+      !is.na(general_info_data$karyotyp[1])
   ) {
     general_info_data$karyotyp[1]
   } else {
@@ -62,13 +65,29 @@ draw_chimerism_plot <- function(
 
   ngs_label <- if (
     !is.null(ngs_data) &&
-    nrow(ngs_data) > 0 &&
-    "mutlist" %in% names(ngs_data) &&
-    !is.na(ngs_data$mutlist[1])
+      nrow(ngs_data) > 0 &&
+      "mutlist" %in% names(ngs_data) &&
+      !is.na(ngs_data$mutlist[1])
   ) {
     ngs_data$mutlist[1]
   } else {
     "Not available"
+  }
+
+  has_chimerism <- !is.null(chimerism_data) && nrow(chimerism_data) > 0
+  if (has_chimerism) {
+    # Clamp transformed values to the visible lower log bound so zeros and very
+    # small percentages remain visible in the panel.
+    chimerism_plot_data <- chimerism_data |>
+      dplyr::mutate(
+        chimerism_scaled = pmax(.data$chimerism / 10, 0.08)
+      )
+  } else {
+    chimerism_plot_data <- tibble::tibble(
+      rel_chimerism_dat = numeric(),
+      chimerism_scaled = numeric(),
+      surface_marker = character()
+    )
   }
 
   plot <- ggplot2::ggplot() +
@@ -105,34 +124,49 @@ draw_chimerism_plot <- function(
     )
     ) +
 
+    # Separate MRD and chimerism legends by using independent colour scales.
+    ggplot2::scale_colour_brewer(
+      name = "MRD",
+      palette = "Set1",
+      na.translate = FALSE
+    ) +
+
+    ggnewscale::new_scale_colour() +
+
     # Add CHIMERISM lines, only for those with more than 1 data point.
     ggplot2::geom_line(
-      data = chimerism_data |>
+      data = chimerism_plot_data |>
         dplyr::filter(!is.na(surface_marker)) |>
         dplyr::group_by(surface_marker) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
       ggplot2::aes(
         x = rel_chimerism_dat,
-        y = chimerism / 10, # Divide chimerism by 10.
+        y = chimerism_scaled,
         colour = surface_marker
-      ),
-      linetype = "dashed"
+      )
     ) +
 
     # Add CHIMERISM points, including those with only one data point.
-    ggplot2::geom_point(data = chimerism_data, ggplot2::aes(
+    ggplot2::geom_point(data = chimerism_plot_data, ggplot2::aes(
       x = rel_chimerism_dat,
-      y = chimerism / 10, # Divide chimerism by 10.
+      y = chimerism_scaled,
       colour = surface_marker
-    )
+    ),
+    shape = 17,
+    size = 2
     ) +
 
     # Set theme, adjust x and y labels, set color of MRD lines and points
     ggplot2::theme_minimal() +
     ggplot2::xlab(NULL) +
     ggplot2::ylab("VAF (%)") +
-    ggplot2::scale_colour_brewer(palette = "Set1", na.translate = FALSE) +
+    ggplot2::scale_colour_brewer(
+      name = "Chimerism",
+      palette = "Dark2",
+      na.translate = FALSE,
+      labels = function(x) gsub("\\*$", "", x)
+    ) +
 
     # Set x and y axis limits based on x_range and y_upper parameters
     ggplot2::scale_x_continuous(limits = x_range) +
@@ -215,8 +249,13 @@ draw_chimerism_plot <- function(
 #' @param pat_id A vector of patient IDs.
 #' @returns A numeric vector.
 #' @examples
-#' plot_patient_timeline(processed, pat_id)
-plot_chimerism_timeline <- function(processed, pat_id) {
+#' \dontrun{
+#' plot_chimerism_timeline(processed, pat_id)
+#' }
+plot_chimerism_timeline <- function(
+  processed,
+  pat_id
+) {
 
   # Select one patient
   d <- lapply(processed, function(x) select_one_patient(x, pat_id))
@@ -318,6 +357,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
 #' @param output_format Output format string, "svg" or "pdf".
 #' @returns A numeric vector.
 #' @examples
+#' \dontrun{
 #' draw_clinical_course_chimerism(
 #' processed,
 #' patient_subset,
@@ -325,6 +365,7 @@ plot_chimerism_timeline <- function(processed, pat_id) {
 #' "clinical_course.pdf",
 #' output_format = "pdf"
 #' )
+#' }
 draw_clinical_course_chimerism <- function(
   processed,
   patient_subset = NULL,
@@ -415,6 +456,15 @@ draw_clinical_course_chimerism <- function(
   }
 
   patient_ids <- unique(processed$general_info$patno)
+  chimerism_patient_ids <- unique(processed$chimerism$patno)
+
+  message(
+    sprintf(
+      "Chimerism data available for %d/%d patients.",
+      length(chimerism_patient_ids),
+      length(patient_ids)
+    )
+  )
 
   if (output_format == "svg") {
     base_name <- tools::file_path_sans_ext(output_filename)

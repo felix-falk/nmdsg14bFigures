@@ -23,5 +23,7 @@ A ggplot object representing the events plot for the patient.
 Generate events plot for a given patient
 }
 \examples{
+\dontrun{
 draw_events_plot(d$gvhd, d$immune_intervals, d$treatment, x_range)
+}
 }

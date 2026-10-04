@@ -79,6 +79,8 @@ utils::globalVariables(
     "mdsdiagnosis",
     "karyotyp",
     "fill_value",
-    "dose_percentage"
+    "dose_percentage",
+    "interval_no",
+    "max_dose"
   )
 )

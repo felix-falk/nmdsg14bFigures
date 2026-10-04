@@ -69,6 +69,7 @@ Required when \code{plot_type = "clinical_course_chimerism"}.}
 Run analysis using the nmds_figures_main function.
 }
 \examples{
+\dontrun{
 nmds_figures_main(
  general_info_file = "general.xlsx",
  mrd_file = "mrd.xlsx",
@@ -86,4 +87,5 @@ nmds_figures_main(
    outcomes = "Relapse"
  )
 )
+}
 }

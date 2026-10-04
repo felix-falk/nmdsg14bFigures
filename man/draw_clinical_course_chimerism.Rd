@@ -31,6 +31,7 @@ A numeric vector.
 Draw clinical course figures and export to PDF.
 }
 \examples{
+\dontrun{
 draw_clinical_course_chimerism(
 processed,
 patient_subset,
@@ -38,4 +39,5 @@ patient_subset,
 "clinical_course.pdf",
 output_format = "pdf"
 )
+}
 }

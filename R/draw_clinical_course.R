@@ -36,8 +36,8 @@ draw_mrd_plot <- function(
 
   diagnosis_label <- if (
     "mdsdiagnosis" %in% names(general_info_data) &&
-    length(general_info_data$mdsdiagnosis) > 0 &&
-    !is.na(general_info_data$mdsdiagnosis[1])
+      length(general_info_data$mdsdiagnosis) > 0 &&
+      !is.na(general_info_data$mdsdiagnosis[1])
   ) {
     general_info_data$mdsdiagnosis[1]
   } else {
@@ -46,8 +46,8 @@ draw_mrd_plot <- function(
 
   ipssm_label <- if (
     "ipssm_title" %in% names(general_info_data) &&
-    length(general_info_data$ipssm_title) > 0 &&
-    !is.na(general_info_data$ipssm_title[1])
+      length(general_info_data$ipssm_title) > 0 &&
+      !is.na(general_info_data$ipssm_title[1])
   ) {
     general_info_data$ipssm_title[1]
   } else {
@@ -56,8 +56,8 @@ draw_mrd_plot <- function(
 
   karyotype_label <- if (
     "karyotyp" %in% names(general_info_data) &&
-    length(general_info_data$karyotyp) > 0 &&
-    !is.na(general_info_data$karyotyp[1])
+      length(general_info_data$karyotyp) > 0 &&
+      !is.na(general_info_data$karyotyp[1])
   ) {
     general_info_data$karyotyp[1]
   } else {
@@ -66,9 +66,9 @@ draw_mrd_plot <- function(
 
   ngs_label <- if (
     !is.null(ngs_data) &&
-    nrow(ngs_data) > 0 &&
-    "mutlist" %in% names(ngs_data) &&
-    !is.na(ngs_data$mutlist[1])
+      nrow(ngs_data) > 0 &&
+      "mutlist" %in% names(ngs_data) &&
+      !is.na(ngs_data$mutlist[1])
   ) {
     ngs_data$mutlist[1]
   } else {
@@ -90,7 +90,12 @@ draw_mrd_plot <- function(
     # Add MRD lines, only for mutations with more than 1 data point.
     ggplot2::geom_line(
       data = mrd_data |>
-        dplyr::filter(!is.na(Mutation)) |>
+        dplyr::filter(
+          !is.na(Mutation),
+          is.finite(rel_mrd_dat),
+          is.finite(level_no0s),
+          level_no0s > 0
+        ) |>
         dplyr::group_by(Mutation) |>
         dplyr::filter(dplyr::n() > 1) |>
         dplyr::ungroup(),
@@ -102,11 +107,19 @@ draw_mrd_plot <- function(
     ) +
 
     # Add MRD points, including those with only one data point.
-    ggplot2::geom_point(data = mrd_data, ggplot2::aes(
-      x = rel_mrd_dat,
-      y = level_no0s,
-      colour = Mutation
-    )
+    ggplot2::geom_point(
+      data = mrd_data |>
+        dplyr::filter(
+          !is.na(Mutation),
+          is.finite(rel_mrd_dat),
+          is.finite(level_no0s),
+          level_no0s > 0
+        ),
+      ggplot2::aes(
+        x = rel_mrd_dat,
+        y = level_no0s,
+        colour = Mutation
+      )
     ) +
 
     # Set theme, adjust x and y labels, set color of MRD lines and points
@@ -190,13 +203,18 @@ draw_mrd_plot <- function(
 #' @param x_range The range of the x-axis.
 #' @returns A ggplot object representing the events plot for the patient.
 #' @examples
+#' \dontrun{
 #' draw_events_plot(d$gvhd, d$immune_intervals, d$treatment, x_range)
+#' }
 draw_events_plot <- function(
   gvhd_data,
   immune_intervals_data,
   treatment_data,
-  x_range
+  x_range,
+  show_ciclosporin_legend = FALSE
 ) {
+
+  is_ciclo <- is_ciclosporin_name(immune_intervals_data$drugname_standardized)
 
   # Determine which event categories have data for this patient
   has_agvhd <- FALSE
@@ -216,18 +234,18 @@ draw_events_plot <- function(
 
   has_immune_ciclo <- !is.null(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized == "Ciclosporin")
+      dplyr::filter(is_ciclo)
   ) && nrow(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized == "Ciclosporin")
+      dplyr::filter(is_ciclo)
   ) > 0
 
   has_immune_other <- !is.null(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized != "Ciclosporin")
+      dplyr::filter(!is_ciclo)
   ) && nrow(
     immune_intervals_data |>
-      dplyr::filter(drugname_standardized != "Ciclosporin")
+      dplyr::filter(!is_ciclo)
   ) > 0
 
   has_aza <- FALSE
@@ -293,13 +311,15 @@ draw_events_plot <- function(
   if (has_agvhd) {
     events_plot <- events_plot +
       ggplot2::geom_point(
-        data = gvhd_data |> dplyr::filter(
-          gvhd == "Acute GVHD" & !is.na(agvhdstage)
-        ),
+        data = gvhd_data |>
+          dplyr::filter(
+            gvhd == "Acute GVHD" & !is.na(agvhdstage) &
+              is.finite(rel_gvhd_dat)
+          ),
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$agvhd,
-          colour = agvhdstage
+          colour = factor(agvhdstage)
         ),
         size = 3
       ) +
@@ -321,13 +341,15 @@ draw_events_plot <- function(
     events_plot <- events_plot +
       ggnewscale::new_scale_colour() +
       ggplot2::geom_point(
-        data = gvhd_data |> dplyr::filter(
-          gvhd == "Chronic GVHD" & !is.na(cgvhdstage)
-        ),
+        data = gvhd_data |>
+          dplyr::filter(
+            gvhd == "Chronic GVHD" & !is.na(cgvhdstage) &
+              is.finite(rel_gvhd_dat)
+          ),
         ggplot2::aes(
           x = rel_gvhd_dat,
           y = y_map$cgvhd,
-          colour = cgvhdstage
+          colour = factor(cgvhdstage)
         ),
         size = 3
       ) +
@@ -347,7 +369,7 @@ draw_events_plot <- function(
   if (has_immune_ciclo) {
 
     immune_intervals_data_ciclo <- immune_intervals_data |>
-      dplyr::filter(drugname_standardized == "Ciclosporin") |>
+      dplyr::filter(is_ciclo) |>
       dplyr::mutate(
         fill_value = dplyr::if_else(
           drugstopped == "Yes",
@@ -370,11 +392,23 @@ draw_events_plot <- function(
         colour = NA
       ) +
       ggplot2::scale_fill_gradient(
+        name = "Ciclosporin dose (%)",
         low = "#d9f0a3",
         high = "#31a354",
         limits = c(0, 100),
         na.value = "transparent",
-        guide = "none"
+        breaks = c(0, 50, 100),
+        labels = c("0%", "50%", "100%"),
+        guide = if (show_ciclosporin_legend) {
+          ggplot2::guide_colorbar(
+            direction = "vertical",
+            barheight = ggplot2::unit(55, "pt"),
+            title.position = "top",
+            title.hjust = 0
+          )
+        } else {
+          "none"
+        }
       ) +
       ggnewscale::new_scale_fill()
   }
@@ -383,7 +417,7 @@ draw_events_plot <- function(
   if (has_immune_other) {
 
     immune_intervals_data_other <- immune_intervals_data |>
-      dplyr::filter(drugname_standardized != "Ciclosporin") |>
+      dplyr::filter(!is_ciclo) |>
       dplyr::mutate(
         y = y_map$immune_other
       )
@@ -395,9 +429,9 @@ draw_events_plot <- function(
           xmin = interval_start,
           xmax = interval_end,
           ymin = y - 0.2,
-          ymax = y + 0.2,
-          fill = "grey"
+          ymax = y + 0.2
         ),
+        fill = "#F8766D",
         colour = NA
       ) +
       ggnewscale::new_scale_fill()
@@ -407,7 +441,10 @@ draw_events_plot <- function(
   if (has_aza) {
     events_plot <- events_plot +
       ggplot2::geom_point(
-        data = treatment_data |> dplyr::filter(treatment == "Azacitidine"),
+        data = treatment_data |>
+          dplyr::filter(
+            treatment == "Azacitidine" & is.finite(rel_treatment_dat)
+          ),
         ggplot2::aes(
           x = rel_treatment_dat,
           y = y_map$aza
@@ -421,7 +458,10 @@ draw_events_plot <- function(
   if (has_dli) {
     events_plot <- events_plot +
       ggplot2::geom_point(
-        data = treatment_data |> dplyr::filter(treatment == "DLI"),
+        data = treatment_data |>
+          dplyr::filter(
+            treatment == "DLI" & is.finite(rel_treatment_dat)
+          ),
         ggplot2::aes(
           x = rel_treatment_dat,
           y = y_map$dli
@@ -436,7 +476,8 @@ draw_events_plot <- function(
     ggplot2::labs(x = "Days after transplantation", y = NULL) +
     ggplot2::theme_minimal() +
     ggplot2::theme(
-      legend.position = "none",
+      legend.position = if (show_ciclosporin_legend) "right" else "none",
+      panel.grid.minor = ggplot2::element_blank(),
       axis.text.y = ggplot2::element_text(size = 10)
     ) +
     ggplot2::scale_x_continuous(limits = x_range) +
@@ -457,7 +498,9 @@ draw_events_plot <- function(
 #' @param pat_id A vector of patient IDs.
 #' @returns A numeric vector.
 #' @examples
+#' \dontrun{
 #' plot_patient_timeline(processed, pat_id)
+#' }
 plot_patient_timeline <- function(processed, pat_id) {
 
   # Select one patient
@@ -497,13 +540,20 @@ plot_patient_timeline <- function(processed, pat_id) {
     d$gvhd,
     d$immune_intervals,
     d$treatment,
-    x_range
+    x_range,
+    show_ciclosporin_legend = TRUE
   )
+
+  # Extract ciclosporin legend
+  ciclo_legend <- cowplot::get_legend(events_plot)
+
+  # Remove ciclosporin legend from events plot
+  events_plot_clean <- events_plot + ggplot2::theme(legend.position = "none")
 
   # Combine MRD + events vertically
   combined_plots <- cowplot::plot_grid(
     mrd_plot_clean,
-    events_plot,
+    events_plot_clean,
     ncol = 1,
     rel_heights = c(2, 1),
     align = "v",
@@ -528,13 +578,70 @@ plot_patient_timeline <- function(processed, pat_id) {
     names(cgvhd_colours), cgvhd_colours, "cGVHD Stage"
   )
 
-  # Combine all legends vertically
-  combined_legends <- cowplot::plot_grid(
+  nudge_legend <- function(
+    legend_grob,
+    x_offset = 0,
+    top_pad = 0,
+    bottom_pad = 0
+  ) {
+    if (is.null(legend_grob)) {
+      return(NULL)
+    }
+    shifted_legend <- cowplot::ggdraw() +
+      cowplot::draw_grob(
+        cowplot::as_grob(legend_grob),
+        x = x_offset,
+        y = 0,
+        width = 1,
+        height = 1,
+        hjust = 0,
+        vjust = 0
+      )
+
+    if (top_pad <= 0 && bottom_pad <= 0) {
+      return(shifted_legend)
+    }
+
+    cowplot::plot_grid(
+      cowplot::ggdraw(),
+      shifted_legend,
+      cowplot::ggdraw(),
+      ncol = 1,
+      rel_heights = c(top_pad, 1, bottom_pad)
+    )
+  }
+
+  mrd_legend_aligned <- nudge_legend(
     mrd_legend,
-    agvhd_legend_grob,
-    cgvhd_legend_grob,
-    ncol = 1,
-    align = "v"
+    x_offset = -0.06,
+    top_pad = 0.20
+  )
+  ciclo_legend_aligned <- nudge_legend(
+    ciclo_legend,
+    x_offset = 0.08,
+    bottom_pad = 0.20
+  )
+
+  # Combine all legends vertically
+  legend_grobs <- Filter(
+    Negate(is.null),
+    list(
+      mrd_legend_aligned,
+      agvhd_legend_grob,
+      cgvhd_legend_grob,
+      ciclo_legend_aligned
+    )
+  )
+  legend_rel_heights <- rep(1, length(legend_grobs))
+  if (!is.null(ciclo_legend) && length(legend_rel_heights) > 0) {
+    legend_rel_heights[length(legend_rel_heights)] <- 1.6
+  }
+  combined_legends <- do.call(
+    cowplot::plot_grid,
+    c(
+      legend_grobs,
+      list(ncol = 1, rel_heights = legend_rel_heights)
+    )
   )
 
   # Final combined plot
@@ -542,7 +649,7 @@ plot_patient_timeline <- function(processed, pat_id) {
     combined_plots,
     combined_legends,
     ncol = 2,
-    rel_widths = c(4, 1),
+    rel_widths = c(3.6, 1.4),
     align = "v"
   )
   return(final_plot)
@@ -558,12 +665,14 @@ plot_patient_timeline <- function(processed, pat_id) {
 #' @param output_format Output format string, "svg" or "pdf".
 #' @returns A numeric vector.
 #' @examples
+#' \dontrun{
 #' draw_clinical_course(
 #' processed,
 #' patient_subset,
 #' "~/output",
 #' "clinical_course.pdf"
 #' )
+#' }
 draw_clinical_course <- function(
   processed,
   patient_subset = NULL,
